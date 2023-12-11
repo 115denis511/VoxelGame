@@ -1,4 +1,8 @@
 # Requared libs
+    - GLFW
+    - GLEW
+    - stb_image
+        place in ..\libs\include
     - assimp 3.3.1
         Off flag ASSIMP_BUILD_TESTS before cmake generation!
 
