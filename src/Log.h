@@ -14,6 +14,8 @@ namespace engine {
         static void save();
 
     private:
+        Log() {}
+        
         static std::string g_log[engine_properties::MAX_LOG_STRINGS];
         static int         g_lastPos;
         static bool        g_overflow;
