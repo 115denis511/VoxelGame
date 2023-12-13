@@ -15,6 +15,13 @@ namespace engine {
     }
     
     class WindowGLFW {
+        friend void glfw_callbacks::key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
+        friend void glfw_callbacks::mouse_callback(GLFWwindow* window, double xpos, double ypos);
+        friend void glfw_callbacks::character_callback(GLFWwindow* window, unsigned int codepoint);
+        friend void glfw_callbacks::mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+        friend void glfw_callbacks::scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+        friend void glfw_callbacks::framebuffer_size_callback(GLFWwindow* window, int width, int height);
+
     public:
         static bool init(int width, int height);
         static void terminate();
