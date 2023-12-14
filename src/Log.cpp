@@ -3,6 +3,7 @@
 std::string engine::Log::g_log[engine_properties::MAX_LOG_STRINGS];
 int         engine::Log::g_lastPos = -1;
 bool        engine::Log::g_overflow = false;
+bool        engine::Log::g_haveFatalError = false;
 std::mutex  engine::Log::g_mutex;
 
 void engine::Log::addMessage(std::string message) {
@@ -24,6 +25,15 @@ void engine::Log::addMessage(std::string message) {
     }
 
     g_mutex.unlock();
+}
+
+void engine::Log::addFatalError(std::string message) {
+    g_haveFatalError = true;
+    addMessage(message);
+}
+
+bool engine::Log::isHaveFatalError() {
+    return g_haveFatalError;
 }
 
 void engine::Log::printInConsole() {

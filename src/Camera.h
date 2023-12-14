@@ -44,7 +44,7 @@ namespace engine {
         GLfloat m_yaw;
         GLfloat m_pitch;
         GLfloat m_distance;
-        std::mutex m_mutex;
+        mutable std::mutex m_mutex;
 
     };
 }

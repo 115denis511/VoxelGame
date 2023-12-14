@@ -5,18 +5,27 @@ bool engine::Core::init() {
 
     constexpr int constWidth = 1300, constHeight = 720; // волшебные числа
     if (!WindowGLFW::init(constWidth, constHeight)) {
-        Log::addMessage("engine::Core::init: Failed to initialize GLFW");
+        Log::addFatalError("engine::Core::init: ERROR! Failed to initialize GLFW");
+        onFatalError();
 		return false;
     }
 
     glewExperimental = GL_TRUE;
 	if (glewInit() != GLEW_OK) {
-		Log::addMessage("engine::Core::init: Failed to initialize GLEW");
+		Log::addFatalError("engine::Core::init: ERROR! Failed to initialize GLEW");
+        onFatalError();
 		return false;
 	}
 
     if (!Scene::init()) {
-		Log::addMessage("engine::Core::init: Failed to initialize scene resources");
+		Log::addFatalError("engine::Core::init: ERROR! Failed to initialize scene resources");
+        onFatalError();
+		return false;
+	}
+
+    if (!Render::init()) {
+		Log::addFatalError("engine::Core::init: ERROR! Failed to initialize render resources");
+        onFatalError();
 		return false;
 	}
 
@@ -35,4 +44,8 @@ void engine::Core::close() {
     Scene::onClose();
 
     WindowGLFW::terminate();
+}
+
+void engine::Core::onFatalError() {
+    Log::save();
 }

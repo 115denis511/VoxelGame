@@ -6,6 +6,7 @@
 #include "WindowGLFW.h"
 #include "Controls.h"
 #include "Scene.h"
+#include "Render.h"
 #include "Log.h"
 
 namespace engine {
@@ -15,6 +16,7 @@ namespace engine {
         static bool init();
         static void start();
         static void close();
+        static void onFatalError();
 
     private:
         Core() {}
