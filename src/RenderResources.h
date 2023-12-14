@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "Log.h"
 #include "Render/Shader.h"
+#include "Render/GBuffer.h"
 
 namespace engine {
     class Render;

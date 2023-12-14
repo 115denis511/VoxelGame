@@ -2,6 +2,7 @@
 #define __RENDER_H__
 
 #include "stdafx.h"
+#include "WindowGLFW.h"
 #include "RenderResources.h"
 
 namespace engine {
