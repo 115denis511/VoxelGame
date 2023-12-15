@@ -17,14 +17,14 @@ bool engine::Core::init() {
 		return false;
 	}
 
-    if (!Scene::init()) {
-		Log::addFatalError("engine::Core::init: ERROR! Failed to initialize scene resources");
+    if (!Render::init()) {
+		Log::addFatalError("engine::Core::init: ERROR! Failed to initialize render resources");
         onFatalError();
 		return false;
 	}
 
-    if (!Render::init()) {
-		Log::addFatalError("engine::Core::init: ERROR! Failed to initialize render resources");
+    if (!Scene::init()) {
+		Log::addFatalError("engine::Core::init: ERROR! Failed to initialize scene resources");
         onFatalError();
 		return false;
 	}
@@ -36,11 +36,15 @@ void engine::Core::start() {
     while(!WindowGLFW::isShouldClose()) {
         WindowGLFW::poolEvents();
 
+        Render::draw();
+
         WindowGLFW::swapBuffers();
     }
 }
 
 void engine::Core::close() {
+    Render::onClose();
+
     Scene::onClose();
 
     WindowGLFW::terminate();

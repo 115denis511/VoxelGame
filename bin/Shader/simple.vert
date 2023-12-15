@@ -25,6 +25,7 @@ layout (std140) uniform DrawVars
 
 void main()
 {
-    gl_Position = MVP[gl_InstanceID] * vec4(Position.xyz, 1.0);
+    //gl_Position = MVP[gl_InstanceID] * vec4(Position.xyz, 1.0);
+    gl_Position = vec4(Position.xyz, 1.0);
     texCoord = TexCoord;
 }
