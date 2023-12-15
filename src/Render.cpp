@@ -1,6 +1,6 @@
 #include "Render.h"
 
-engine::RenderResources* engine::Render::g_resources;
+engine::RenderResources engine::Render::g_resources;
 
 bool engine::Render::init() {
     glm::ivec2 viewport = WindowGLFW::getViewport();
@@ -9,23 +9,28 @@ bool engine::Render::init() {
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
 
-    g_resources = new RenderResources(viewport);
+    g_resources.init(viewport);
+    g_resources.g_selfRef = &g_resources;
 
     if (Log::isHaveFatalError()) return false;
     return true;
 }
 
 void engine::Render::onClose() {
-    delete g_resources;
+    g_resources.onClose();
 }
 
 void engine::Render::draw() {
+    if (g_resources.g_isMustUpdateViewports) {
+        updateViewports();
+        g_resources.g_isMustUpdateViewports = false;
+    }
     //g_resources->m_gBuffer->bind();
     glEnable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-    g_resources->m_shaderFinal->use();
-    g_resources->m_primitivePlane->draw();
+    g_resources.m_shaderFinal->use();
+    g_resources.m_primitivePlane->draw();
 
     int errors = 0;
     GLenum errorCode;
@@ -43,4 +48,12 @@ void engine::Render::draw() {
         }
         std::cout << error << std::endl;
     }
+}
+
+void engine::Render::updateViewports() {
+    glm::ivec2 viewport = WindowGLFW::getViewport();
+    
+    glViewport(0, 0, viewport.x, viewport.y);
+
+    g_resources.m_gBuffer->updateViewport(viewport);
 }

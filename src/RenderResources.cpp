@@ -1,6 +1,15 @@
 #include "RenderResources.h"
 
-engine::RenderResources::RenderResources(glm::ivec2 viewport) {
+engine::RenderResources* engine::RenderResources::g_selfRef;
+bool engine::RenderResources::g_isMustUpdateViewports; 
+
+void engine::RenderResources::updateViewports() {
+    g_isMustUpdateViewports = true;
+}
+
+void engine::RenderResources::init(glm::ivec2 viewport) {
+    g_isMustUpdateViewports = false;
+
     m_shaderFinal = new Shader("Shader/simple.vert", "Shader/simple.frag");
 
     m_gBuffer = new GBuffer(viewport);
@@ -9,7 +18,7 @@ engine::RenderResources::RenderResources(glm::ivec2 viewport) {
     m_primitiveScreenPlane = ModelBuilder::buildPrimitiveScreenPlane();
 }
 
-engine::RenderResources::~RenderResources() {
+void engine::RenderResources::onClose() {
     delete m_shaderFinal;
 
     delete m_gBuffer;

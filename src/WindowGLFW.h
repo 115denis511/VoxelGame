@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "Controls.h"
+#include "RenderResources.h"
 
 namespace engine {
     namespace glfw_callbacks {

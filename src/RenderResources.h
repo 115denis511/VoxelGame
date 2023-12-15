@@ -14,10 +14,17 @@ namespace engine {
         friend Render;
 
     public:
-        RenderResources(glm::ivec2 viewport);
-        ~RenderResources();
+        static void updateViewports();
 
     private:
+        RenderResources() {}
+
+        void init(glm::ivec2 viewport);
+        void onClose();
+
+        static RenderResources* g_selfRef;
+        static bool g_isMustUpdateViewports;
+
         Shader* m_shaderFinal;
 
         GBuffer* m_gBuffer;

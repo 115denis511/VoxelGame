@@ -13,7 +13,9 @@ namespace engine {
         static void draw();
 
     private:
-        static RenderResources* g_resources;
+        static void updateViewports();
+
+        static RenderResources g_resources;
 
     };
 }
