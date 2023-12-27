@@ -3,9 +3,10 @@
 
 #include "stdafx.h"
 #include "Controls.h"
-#include "RenderResources.h"
 
 namespace engine {
+    class Render;
+
     namespace glfw_callbacks {
         void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
         void character_callback(GLFWwindow* window, unsigned int codepoint);
@@ -16,6 +17,7 @@ namespace engine {
     }
     
     class WindowGLFW {
+        friend Render;
         friend void glfw_callbacks::key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
         friend void glfw_callbacks::mouse_callback(GLFWwindow* window, double xpos, double ypos);
         friend void glfw_callbacks::character_callback(GLFWwindow* window, unsigned int codepoint);
@@ -31,6 +33,8 @@ namespace engine {
         static bool isShouldClose();
         static void hideMouseCursor();
         static void showMouseCursor();
+        static void setTitle(std::string title);
+        static void setViewport(GLuint width, GLuint height);
         static glm::ivec2 getViewport();
 
     private:
@@ -38,6 +42,7 @@ namespace engine {
 
         static GLFWwindow*  g_window;
         static glm::ivec2   g_viewport;
+        static bool         g_isRenderMustUpdateViewport;
     };
 }
 

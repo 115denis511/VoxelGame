@@ -9,5 +9,7 @@ int main() {
     engine::Core::start();
     engine::Core::close();
 
+    engine::Log::printInConsole();
+
     return 0;
 }

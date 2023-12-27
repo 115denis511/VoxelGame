@@ -32,6 +32,50 @@ void engine::Shader::use() {
     glUseProgram(m_shaderProgram);
 }
 
+void engine::Shader::Shader::setBool(const std::string& name, bool value) {
+    glUniform1f(glGetUniformLocation(m_shaderProgram, name.c_str()), value);
+}
+
+void engine::Shader::Shader::setInt(const std::string& name, int value) {
+    glUniform1i(glGetUniformLocation(m_shaderProgram, name.c_str()), value);
+}
+
+void engine::Shader::setBindlessSampler(const std::string &name, GLuint64 handler) {
+    glUniformHandleui64ARB(glGetUniformLocation(m_shaderProgram, name.c_str()), handler);
+}
+
+void engine::Shader::Shader::setFloat(const std::string& name, float value) {
+    glUniform1f(glGetUniformLocation(m_shaderProgram, name.c_str()), value);
+}
+
+void engine::Shader::Shader::setVec2(const std::string& name, glm::vec2 value) {
+    glUniform2fv(glGetUniformLocation(m_shaderProgram, name.c_str()), 1, &value[0]);
+}
+
+void engine::Shader::Shader::setVec2(const std::string& name, float x, float y) {
+    glUniform2f(glGetUniformLocation(m_shaderProgram, name.c_str()), x, y);
+}
+
+void engine::Shader::Shader::setVec3(const std::string& name, glm::vec3 value) {
+    glUniform3fv(glGetUniformLocation(m_shaderProgram, name.c_str()), 1, &value[0]);
+}
+
+void engine::Shader::Shader::setVec3(const std::string& name, float x, float y, float z) {
+    glUniform3f(glGetUniformLocation(m_shaderProgram, name.c_str()), x, y, z);
+}
+
+void engine::Shader::Shader::setVec4(const std::string& name, glm::vec4 value) {
+    glUniform4fv(glGetUniformLocation(m_shaderProgram, name.c_str()), 1, &value[0]);
+}
+
+void engine::Shader::Shader::setVec4(const std::string& name, float x, float y, float z, float w) {
+    glUniform4f(glGetUniformLocation(m_shaderProgram, name.c_str()), x, y, z, w);
+}
+
+void engine::Shader::Shader::setMat4(const std::string& name, glm::mat4& value) {
+    glUniformMatrix4fv(glGetUniformLocation(m_shaderProgram, name.c_str()), 1, GL_FALSE, &value[0][0]);
+}
+
 std::string engine::Shader::readFromFile(const GLchar *path) {
     std::ifstream stream;
     std::stringstream strStream;

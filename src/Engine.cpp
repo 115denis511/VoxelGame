@@ -16,6 +16,11 @@ bool engine::Core::init() {
         onFatalError();
 		return false;
 	}
+    if (!GLEW_ARB_bindless_texture) {
+        Log::addFatalError("engine::Core::init: ERROR! GPU don't support bindless textures");
+        onFatalError();
+		return false;
+    }
 
     if (!Render::init()) {
 		Log::addFatalError("engine::Core::init: ERROR! Failed to initialize render resources");
@@ -33,7 +38,17 @@ bool engine::Core::init() {
 }
 
 void engine::Core::start() {
-    while(!WindowGLFW::isShouldClose()) {
+    while(!WindowGLFW::isShouldClose() && !Log::isHaveFatalError()) {
+        GLfloat currentFrame = (float)glfwGetTime();
+        static int frameCount = 0;
+        static float prevTime = 0;
+        frameCount++;
+		if (currentFrame - prevTime >= 1.0f) {
+            WindowGLFW::setTitle(std::string("fps: ") + std::to_string(frameCount).c_str());
+			frameCount = 0;
+			prevTime = currentFrame;
+		}
+
         WindowGLFW::poolEvents();
 
         Render::draw();
@@ -43,9 +58,9 @@ void engine::Core::start() {
 }
 
 void engine::Core::close() {
-    Render::onClose();
+    Render::freeResources();
 
-    Scene::onClose();
+    Scene::freeResources();
 
     WindowGLFW::terminate();
 }

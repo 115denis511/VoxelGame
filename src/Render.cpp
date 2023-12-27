@@ -1,6 +1,10 @@
 #include "Render.h"
 
-engine::RenderResources engine::Render::g_resources;
+engine::Shader*     engine::Render::g_shaderFinal;
+engine::Shader*     engine::Render::g_shaderMix_RGB_A;
+engine::GBuffer*    engine::Render::g_gBuffer;
+engine::Mesh*       engine::Render::g_primitivePlane;
+engine::Mesh*       engine::Render::g_primitiveScreenPlane;
 
 bool engine::Render::init() {
     glm::ivec2 viewport = WindowGLFW::getViewport();
@@ -9,28 +13,24 @@ bool engine::Render::init() {
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
 
-    g_resources.init(viewport);
-    g_resources.g_selfRef = &g_resources;
+    g_shaderFinal = new Shader("Shader/simple.vert", "Shader/simple.frag");
+    g_shaderMix_RGB_A = new Shader("Shader/simple.vert", "Shader/mix_RGB_A.frag");
 
-    if (Log::isHaveFatalError()) return false;
-    return true;
-}
+    g_gBuffer = new GBuffer(viewport);
 
-void engine::Render::onClose() {
-    g_resources.onClose();
-}
+    g_primitivePlane = buildPrimitivePlane(-0.5f, 0.5f, 0.5f, -0.5f);
+    g_primitiveScreenPlane = buildPrimitivePlane(-1.f, 1.f, 1.f, -1.f);
 
-void engine::Render::draw() {
-    if (g_resources.g_isMustUpdateViewports) {
-        updateViewports();
-        g_resources.g_isMustUpdateViewports = false;
-    }
-    //g_resources->m_gBuffer->bind();
-    glEnable(GL_DEPTH_TEST);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    TextureManager::init(g_shaderMix_RGB_A, g_primitiveScreenPlane);
 
-    g_resources.m_shaderFinal->use();
-    g_resources.m_primitivePlane->draw();
+    // test
+    TextureArrayRef texture = TextureManager::addMixedTexture_RGB_A("container.jpg", "container.jpg");
+    TextureArrayRef texture2 = TextureManager::addTexture("rock.png");
+    //TextureArrayRef texture3 = TextureManager::addTexture("notExist.jpg");
+    //TextureArrayRef texture4 = TextureManager::addMixedTexture_RGB_A("notExist.jpg", "notExist.jpg");
+    TextureManager::updateMipmapsAndMakeResident();
+    g_shaderFinal->use();
+    g_shaderFinal->setBindlessSampler("bindless", texture.getHandler());
 
     int errors = 0;
     GLenum errorCode;
@@ -46,7 +46,51 @@ void engine::Render::draw() {
         case GL_OUT_OF_MEMORY:                 error = "OUT_OF_MEMORY"; break;
         case GL_INVALID_FRAMEBUFFER_OPERATION: error = "INVALID_FRAMEBUFFER_OPERATION"; break;
         }
-        std::cout << error << std::endl;
+        std::cout << "engine::Render::init() " + error << std::endl;
+    }
+
+    //test end
+
+    if (Log::isHaveFatalError()) return false;
+    return true;
+}
+
+void engine::Render::freeResources() {
+    delete g_shaderFinal;
+
+    delete g_gBuffer;
+
+    delete g_primitivePlane;
+    delete g_primitiveScreenPlane;
+
+    TextureManager::freeResources();
+}
+
+void engine::Render::draw() {
+    if (WindowGLFW::g_isRenderMustUpdateViewport) {
+        updateViewports();
+    }
+    //g_resources->m_gBuffer->bind();
+    glEnable(GL_DEPTH_TEST);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+    g_primitivePlane->draw();
+
+    int errors = 0;
+    GLenum errorCode;
+    while ((errorCode = glGetError()) != GL_NO_ERROR) {
+        errors++;
+        std::string error;
+        switch (errorCode) {
+        case GL_INVALID_ENUM:                  error = "INVALID_ENUM"; break;
+        case GL_INVALID_VALUE:                 error = "INVALID_VALUE"; break;
+        case GL_INVALID_OPERATION:             error = "INVALID_OPERATION"; break;
+        case GL_STACK_OVERFLOW:                error = "STACK_OVERFLOW"; break;
+        case GL_STACK_UNDERFLOW:               error = "STACK_UNDERFLOW"; break;
+        case GL_OUT_OF_MEMORY:                 error = "OUT_OF_MEMORY"; break;
+        case GL_INVALID_FRAMEBUFFER_OPERATION: error = "INVALID_FRAMEBUFFER_OPERATION"; break;
+        }
+        std::cout << "DrawLoop " << error << std::endl;
     }
 }
 
@@ -55,5 +99,23 @@ void engine::Render::updateViewports() {
     
     glViewport(0, 0, viewport.x, viewport.y);
 
-    g_resources.m_gBuffer->updateViewport(viewport);
+    g_gBuffer->updateViewport(viewport);
+
+    WindowGLFW::g_isRenderMustUpdateViewport = false;
+}
+
+engine::Mesh *engine::Render::buildPrimitivePlane(GLfloat leftX, GLfloat topY, GLfloat rightX, GLfloat bottomY) {
+    Vertex vertices[] = {
+        Vertex{glm::vec3(leftX,  bottomY, 0.f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0.0f, 1.0f), glm::ivec4(-1), glm::vec4(0.f)},
+        Vertex{glm::vec3(rightX, bottomY, 0.f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(1.0f, 1.0f), glm::ivec4(-1), glm::vec4(0.f)},
+        Vertex{glm::vec3(rightX, topY,    0.f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(1.0f, 0.0f), glm::ivec4(-1), glm::vec4(0.f)},
+        Vertex{glm::vec3(leftX,  topY,    0.f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0.0f, 0.0f), glm::ivec4(-1), glm::vec4(0.f)}
+    };
+
+    constexpr GLuint indeces[] = {
+        0, 1, 2,   // Первый треугольник
+        0, 2, 3,   // Второй треугольник
+    };
+
+    return new Mesh(vertices, std::size(vertices), indeces, std::size(indeces));
 }

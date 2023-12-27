@@ -2,6 +2,7 @@
 
 GLFWwindow*  engine::WindowGLFW::g_window = nullptr;
 glm::ivec2   engine::WindowGLFW::g_viewport;
+bool         engine::WindowGLFW::g_isRenderMustUpdateViewport = true;
 
 bool engine::WindowGLFW::init(int width, int height) {
     if (!glfwInit()) {
@@ -25,6 +26,9 @@ bool engine::WindowGLFW::init(int width, int height) {
     glfwSetScrollCallback(g_window, glfw_callbacks::scroll_callback);
     glfwSetFramebufferSizeCallback(g_window, glfw_callbacks::framebuffer_size_callback);
 
+    // 0 = отключение ограничения фпс, 1 = макс 60 фпс в секудну, 2 = 30 фпс
+    glfwSwapInterval(0);
+
     showMouseCursor();
 
     return true;
@@ -46,6 +50,11 @@ void engine::WindowGLFW::swapBuffers() {
     glfwSwapBuffers(g_window);
 }
 
+void engine::WindowGLFW::setViewport(GLuint width, GLuint height) {
+    glViewport(0, 0, width, height);
+    g_isRenderMustUpdateViewport = true;
+}
+
 void engine::WindowGLFW::hideMouseCursor()
 {
     glfwSetInputMode(g_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -57,6 +66,10 @@ void engine::WindowGLFW::showMouseCursor() {
     glfwSetInputMode(g_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     glfwSetCursorPos(g_window, (GLfloat)(g_viewport.x / 2), (GLfloat)(g_viewport.y / 2));
     Controls::setMousePosition((GLfloat)(g_viewport.x / 2), (GLfloat)(g_viewport.y / 2));
+}
+
+void engine::WindowGLFW::setTitle(std::string title) {
+    glfwSetWindowTitle(g_window, title.c_str());
 }
 
 glm::ivec2 engine::WindowGLFW::getViewport() {

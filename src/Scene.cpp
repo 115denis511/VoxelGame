@@ -8,6 +8,6 @@ bool engine::Scene::init() {
     return true;
 }
 
-void engine::Scene::onClose() {
+void engine::Scene::freeResources() {
     delete g_resouces;
 }

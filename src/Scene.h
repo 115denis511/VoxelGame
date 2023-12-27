@@ -9,7 +9,7 @@ namespace engine {
     class Scene {
     public:
         static bool init();
-        static void onClose();
+        static void freeResources();
 
     private:
         static SceneResources* g_resouces;

@@ -52,6 +52,8 @@ engine::GBuffer::GBuffer(const glm::ivec2 &viewport) {
 
 engine::GBuffer::~GBuffer() {
     glDeleteTextures(3, &m_layout[0]);
+    glDeleteFramebuffers(1, &m_FBO);
+    glDeleteRenderbuffers(1, &m_RBO);
 }
 
 void engine::GBuffer::updateViewport(const glm::ivec2 &viewport) {

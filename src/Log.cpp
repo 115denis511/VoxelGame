@@ -40,7 +40,7 @@ void engine::Log::printInConsole() {
     g_mutex.lock();
 
     if (g_lastPos == -1) {
-        addMessage("Log is empty");
+        std::cout << "Log is empty\n";
     }
 
     if (g_overflow) {
@@ -78,7 +78,7 @@ void engine::Log::save() {
     std::ofstream out(logFolder + "/" + logFileName + " log.txt");
 
     if (g_lastPos == -1) {
-        addMessage("Log is empty");
+        out << "Log is empty\n";
     }
 
     if (g_overflow) {

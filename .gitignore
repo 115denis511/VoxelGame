@@ -5,3 +5,6 @@
 /bin/game.exe
 /bin/libassimp-5.dll
 /bin/Log
+*.ppm
+*.png
+*.jpg
