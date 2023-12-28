@@ -1,10 +1,10 @@
 #include "Render.h"
 
-engine::Shader*     engine::Render::g_shaderFinal;
-engine::Shader*     engine::Render::g_shaderMix_RGB_A;
-engine::GBuffer*    engine::Render::g_gBuffer;
-engine::Mesh*       engine::Render::g_primitivePlane;
-engine::Mesh*       engine::Render::g_primitiveScreenPlane;
+engine::Shader*         engine::Render::g_shaderFinal;
+engine::Shader*         engine::Render::g_shaderMix_RGB_A;
+engine::GBuffer*        engine::Render::g_gBuffer;
+engine::Mesh*           engine::Render::g_primitivePlane;
+engine::Mesh*           engine::Render::g_primitiveScreenPlane;
 
 bool engine::Render::init() {
     glm::ivec2 viewport = WindowGLFW::getViewport();
@@ -13,24 +13,33 @@ bool engine::Render::init() {
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
 
-    g_shaderFinal = new Shader("Shader/simple.vert", "Shader/simple.frag");
-    g_shaderMix_RGB_A = new Shader("Shader/simple.vert", "Shader/mix_RGB_A.frag");
+    g_shaderFinal = new Shader("Shader/test3d.vert", "Shader/simple.frag");
+    g_shaderMix_RGB_A = new Shader("Shader/fillViewport.vert", "Shader/mix_RGB_A.frag");
 
     g_gBuffer = new GBuffer(viewport);
 
     g_primitivePlane = buildPrimitivePlane(-0.5f, 0.5f, 0.5f, -0.5f);
     g_primitiveScreenPlane = buildPrimitivePlane(-1.f, 1.f, 1.f, -1.f);
 
+    UniformManager::init();
     TextureManager::init(g_shaderMix_RGB_A, g_primitiveScreenPlane);
 
     // test
+    glm::mat4 perspective = glm::perspective(glm::radians(45.f), (float)viewport.x / (float)viewport.y, 0.1f, 1000.f);
+    Camera camera;
+    camera.updateLookAt();
+    uniform_structs::DrawVars vars(perspective * camera.getLookAt());
+    UniformManager::setDrawVars(vars);
+    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(5.f, 0.f, 0.f));
+    model = glm::rotate(model, glm::radians(45.f), glm::vec3(0.f, -1.f, 0.f));
+    model = glm::scale(model, glm::vec3(1.f));
+
     TextureArrayRef texture = TextureManager::addMixedTexture_RGB_A("container.jpg", "container.jpg");
-    TextureArrayRef texture2 = TextureManager::addTexture("rock.png");
-    //TextureArrayRef texture3 = TextureManager::addTexture("notExist.jpg");
-    //TextureArrayRef texture4 = TextureManager::addMixedTexture_RGB_A("notExist.jpg", "notExist.jpg");
+    TextureManager::addTexture("rock.png");
     TextureManager::updateMipmapsAndMakeResident();
     g_shaderFinal->use();
     g_shaderFinal->setBindlessSampler("bindless", texture.getHandler());
+    g_shaderFinal->setMat4("model", model);
 
     int errors = 0;
     GLenum errorCode;
@@ -63,6 +72,7 @@ void engine::Render::freeResources() {
     delete g_primitivePlane;
     delete g_primitiveScreenPlane;
 
+    UniformManager::freeResources();
     TextureManager::freeResources();
 }
 

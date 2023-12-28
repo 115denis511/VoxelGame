@@ -24,6 +24,7 @@ namespace engine {
         void setVec4(const std::string& name, glm::vec4 value);
         void setVec4(const std::string& name, float x, float y, float z, float w);
         void setMat4(const std::string& name, glm::mat4& value);
+        GLuint getShaderHandler();
 
     private:
         GLuint m_shaderProgram{ GL_NONE };

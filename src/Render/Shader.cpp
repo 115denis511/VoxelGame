@@ -76,6 +76,10 @@ void engine::Shader::Shader::setMat4(const std::string& name, glm::mat4& value) 
     glUniformMatrix4fv(glGetUniformLocation(m_shaderProgram, name.c_str()), 1, GL_FALSE, &value[0][0]);
 }
 
+GLuint engine::Shader::getShaderHandler() {
+    return m_shaderProgram;
+}
+
 std::string engine::Shader::readFromFile(const GLchar *path) {
     std::ifstream stream;
     std::stringstream strStream;
