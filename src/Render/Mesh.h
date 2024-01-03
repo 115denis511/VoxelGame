@@ -13,14 +13,15 @@ namespace engine {
 
     class Mesh : public utilites::INonCopyable {
     public:
-        Mesh(const Vertex* vertices, int vArraySize, const GLuint* indexesArray, int iArraySize, MeshDrawMode mode = MeshDrawMode::TRIANGLES);
+        Mesh(const Vertex* vertices, int vArraySize, const GLuint* indicesArray, int iArraySize, MeshDrawMode mode = MeshDrawMode::TRIANGLES);
+        Mesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices);
         ~Mesh();
 
         void draw();
         void drawInstanced(GLuint count);
 
     private:
-        GLuint m_VAO, m_VBO, m_EBO, m_indecesCount;
+        GLuint m_VAO, m_VBO, m_EBO, m_indicesCount;
         MeshDrawMode m_drawMode;
     };
 }

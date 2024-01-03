@@ -8,6 +8,12 @@ namespace engine {
         struct DrawVars {
             glm::mat4 projectionView;
         };
+
+        struct TexturePack {
+            GLuint64 colorSpec{ 0 };
+            GLuint colorSpecLayer{ 0 };
+            GLuint colorSpecCapacity{ 0 };
+        };
     }
 }
 

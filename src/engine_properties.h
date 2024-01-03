@@ -5,10 +5,13 @@
 
 namespace engine_properties {
     // Uniform buffers
-    constexpr GLuint UNIFORM_BUFFER_DRAW_VARS_BLOCK_ID = 0;
+    constexpr GLuint     UNIFORM_BUFFER_DRAW_VARS_BLOCK_ID = 0;
     constexpr GLsizeiptr UNIFORM_BUFFER_DRAW_VARS_SIZE = sizeof(engine::uniform_structs::DrawVars);
+    constexpr GLuint     UNIFORM_BUFFER_TEXTURE_PACK_BLOCK_ID = 1;
+    constexpr GLsizeiptr UNIFORM_BUFFER_TEXTURE_PACK_SIZE = sizeof(engine::uniform_structs::TexturePack);
 
     // Textures
+    constexpr GLuint TEXTURE_ARRAY_W64_H64_SIZE = 1024;
     constexpr GLuint TEXTURE_ARRAY_W512_H512_SIZE = 128;
     constexpr GLuint TEXTURE_ARRAY_W1024_H1024_SIZE = 64;
     constexpr GLsizei MIPMAP_LEVELS = 6;

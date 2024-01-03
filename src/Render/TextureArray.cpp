@@ -3,7 +3,7 @@
 engine::TextureArray::TextureArray(GLuint width, GLuint height, GLuint layers, TextureWrap wrap, TextureFilter filter) {
     m_width = width;
     m_height = height;
-    m_layersSize = layers;
+    m_capacity = layers;
     m_lastUnusedLayer = 0;
 
     glCreateTextures(GL_TEXTURE_2D_ARRAY, 1, &m_texture);
@@ -62,13 +62,13 @@ void engine::TextureArray::use(int samplerId) {
 }
 
 bool engine::TextureArray::isHaveSpace(unsigned int count) {
-    if (m_lastUnusedLayer + count - 1 >= m_layersSize)
+    if (m_lastUnusedLayer + count - 1 >= m_capacity)
         return false;
     return true;
 }
 
 bool engine::TextureArray::addTexture(unsigned char *rawImage, int width, int height, int nrComponents) {
-    if (m_lastUnusedLayer >= m_layersSize) {
+    if (m_lastUnusedLayer >= m_capacity) {
         return false;
     }
 
@@ -94,7 +94,7 @@ bool engine::TextureArray::addTexture(unsigned char *rawImage, int width, int he
 }
 
 bool engine::TextureArray::addTexture(std::string path) {
-    if (m_lastUnusedLayer >= m_layersSize) {
+    if (m_lastUnusedLayer >= m_capacity) {
         return false;
     }
 
@@ -125,6 +125,27 @@ bool engine::TextureArray::addTexture(std::string path) {
     return true;
 }
 
+bool engine::TextureArray::addTexture(glm::vec4 color) {
+    if (m_lastUnusedLayer >= m_capacity) {
+        return false;
+    }
+
+    GLfloat* colorImg = new GLfloat[m_width * m_height * 4];
+    for (size_t i = 0; i < m_width * m_height * 4; i += 4) {
+        colorImg[i] = color.r;
+        colorImg[i+1] = color.g;
+        colorImg[i+2] = color.b;
+        colorImg[i+3] = color.a;
+    }
+
+    glTextureSubImage3D(m_texture, 0, 0, 0, m_lastUnusedLayer, m_width, m_height, 1, GL_RGBA, GL_FLOAT, colorImg);
+    m_lastUnusedLayer++;
+
+    delete [] colorImg;
+
+    return true;
+}
+
 void engine::TextureArray::makeResident() {
     glMakeTextureHandleResidentARB(m_bindlessHandler);
 }
@@ -143,6 +164,10 @@ GLuint64 engine::TextureArray::getHandler() {
 
 GLuint engine::TextureArray::getLastUsedLayer() {
     return m_lastUnusedLayer - 1;
+}
+
+GLuint engine::TextureArray::getCapacity() {
+    return m_capacity;
 }
 
 void engine::TextureArray::updateMipmap() {
@@ -164,6 +189,10 @@ GLuint64 engine::TextureArrayRef::getHandler() const {
 
 GLuint engine::TextureArrayRef::getLayer() const {
     return m_layer;
+}
+
+GLuint engine::TextureArrayRef::getCapacity() const {
+    return m_ref->getCapacity();
 }
 
 bool engine::TextureArrayRef::isValidRef() const {

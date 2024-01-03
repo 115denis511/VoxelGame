@@ -1,7 +1,7 @@
 #include "Mesh.h"
 
-engine::Mesh::Mesh(const Vertex *vertices, int vArraySize, const GLuint *indexesArray, int iArraySize, MeshDrawMode mode) {
-    m_indecesCount = iArraySize;
+engine::Mesh::Mesh(const Vertex *vertices, int vArraySize, const GLuint *indicesArray, int iArraySize, MeshDrawMode mode) {
+    m_indicesCount = iArraySize;
     m_drawMode = mode;
 
     glGenVertexArrays(1, &m_VAO);
@@ -14,8 +14,8 @@ engine::Mesh::Mesh(const Vertex *vertices, int vArraySize, const GLuint *indexes
     glBufferData(GL_ARRAY_BUFFER, vArraySize * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);  
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indecesCount * sizeof(GLuint), 
-                 &indexesArray[0], GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indicesCount * sizeof(GLuint), 
+                 &indicesArray[0], GL_STATIC_DRAW);
 
     // Позиции
     glEnableVertexAttribArray(0);	
@@ -36,6 +36,9 @@ engine::Mesh::Mesh(const Vertex *vertices, int vArraySize, const GLuint *indexes
     glBindVertexArray(0);
 }
 
+engine::Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices) 
+    : Mesh(&vertices[0], vertices.size(), &indices[0], indices.size()) {}
+
 engine::Mesh::~Mesh() {
     glDeleteVertexArrays(1, &m_VAO);
     glDeleteBuffers(1, &m_EBO);
@@ -44,12 +47,12 @@ engine::Mesh::~Mesh() {
 
 void engine::Mesh::draw() {
     glBindVertexArray(m_VAO);
-    glDrawElements(static_cast<GLenum>(m_drawMode), m_indecesCount, GL_UNSIGNED_INT, 0);
+    glDrawElements(static_cast<GLenum>(m_drawMode), m_indicesCount, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }
 
 void engine::Mesh::drawInstanced(GLuint count) {
     glBindVertexArray(m_VAO);
-    glDrawElementsInstanced(static_cast<GLenum>(m_drawMode), m_indecesCount, GL_UNSIGNED_INT, 0, count);
+    glDrawElementsInstanced(static_cast<GLenum>(m_drawMode), m_indicesCount, GL_UNSIGNED_INT, 0, count);
     glBindVertexArray(0);
 }

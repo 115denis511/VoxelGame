@@ -2,9 +2,16 @@
 /CMakeFiles
 /libs/include
 /libs/lib
+
 /bin/game.exe
 /bin/libassimp-5.dll
 /bin/Log
+/bin/Model
+
 *.ppm
 *.png
 *.jpg
+
+*.glb
+*.fbx
+*.x3d

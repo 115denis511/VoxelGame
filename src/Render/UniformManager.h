@@ -14,11 +14,13 @@ namespace engine {
 
     public:
         static void setDrawVars(uniform_structs::DrawVars& vars);
+        static void setTexturePack(uniform_structs::TexturePack& vars);
 
     private:
         UniformManager() {}
 
         static UniformBuffer* g_drawVars;
+        static UniformBuffer* g_texturePack;
 
         static bool init();
         static void freeResources();

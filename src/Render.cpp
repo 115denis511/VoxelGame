@@ -2,9 +2,12 @@
 
 engine::Shader*         engine::Render::g_shaderFinal;
 engine::Shader*         engine::Render::g_shaderMix_RGB_A;
+engine::Shader*         engine::Render::g_shaderFill_RGB;
 engine::GBuffer*        engine::Render::g_gBuffer;
 engine::Mesh*           engine::Render::g_primitivePlane;
 engine::Mesh*           engine::Render::g_primitiveScreenPlane;
+
+engine::Model*          engine::Render::test_model;
 
 bool engine::Render::init() {
     glm::ivec2 viewport = WindowGLFW::getViewport();
@@ -14,7 +17,8 @@ bool engine::Render::init() {
     glCullFace(GL_BACK);
 
     g_shaderFinal = new Shader("Shader/test3d.vert", "Shader/simple.frag");
-    g_shaderMix_RGB_A = new Shader("Shader/fillViewport.vert", "Shader/mix_RGB_A.frag");
+    g_shaderMix_RGB_A = new Shader("Shader/fillViewport_InvertY.vert", "Shader/mix_RGB_A.frag");
+    g_shaderFill_RGB = new Shader("Shader/fillViewport_InvertY.vert", "Shader/fill_RGB.frag");
 
     g_gBuffer = new GBuffer(viewport);
 
@@ -22,9 +26,20 @@ bool engine::Render::init() {
     g_primitiveScreenPlane = buildPrimitivePlane(-1.f, 1.f, 1.f, -1.f);
 
     UniformManager::init();
-    TextureManager::init(g_shaderMix_RGB_A, g_primitiveScreenPlane);
+    TextureManager::init(g_shaderMix_RGB_A, g_shaderFill_RGB, g_primitiveScreenPlane);
 
     // test
+    std::string modelPath = "Model/simpleChar.gltf";
+    Assimp::Importer import;
+    //const aiScene *scene = import.ReadFile("simpleChar.glb", aiProcess_Triangulate | aiProcess_FlipUVs);
+    const aiScene *scene = import.ReadFile(modelPath, aiProcess_Triangulate | aiProcess_FlipUVs);
+    if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+        // TODO: в логгер
+        std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
+        return false;
+    }
+    test_model = new Model(scene, modelPath);
+
     glm::mat4 perspective = glm::perspective(glm::radians(45.f), (float)viewport.x / (float)viewport.y, 0.1f, 1000.f);
     Camera camera;
     camera.updateLookAt();
@@ -34,7 +49,7 @@ bool engine::Render::init() {
     model = glm::rotate(model, glm::radians(45.f), glm::vec3(0.f, -1.f, 0.f));
     model = glm::scale(model, glm::vec3(1.f));
 
-    TextureArrayRef texture = TextureManager::addMixedTexture_RGB_A("container.jpg", "container.jpg");
+    TextureArrayRef texture = TextureManager::addMixedTexture_RGB_A("container.jpg", "container.jpg", glm::vec4(0.f));
     TextureManager::addTexture("rock.png");
     TextureManager::updateMipmapsAndMakeResident();
     g_shaderFinal->use();
@@ -66,6 +81,8 @@ bool engine::Render::init() {
 
 void engine::Render::freeResources() {
     delete g_shaderFinal;
+    delete g_shaderMix_RGB_A;
+    delete g_shaderFill_RGB;
 
     delete g_gBuffer;
 
@@ -74,6 +91,7 @@ void engine::Render::freeResources() {
 
     UniformManager::freeResources();
     TextureManager::freeResources();
+    MeshManager::freeResources();
 }
 
 void engine::Render::draw() {
@@ -84,7 +102,8 @@ void engine::Render::draw() {
     glEnable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-    g_primitivePlane->draw();
+    test_model->draw();
+    //g_primitivePlane->draw();
 
     int errors = 0;
     GLenum errorCode;

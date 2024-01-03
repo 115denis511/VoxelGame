@@ -32,18 +32,20 @@ namespace engine {
         bool isHaveSpace(unsigned int count = 1);
         bool addTexture(unsigned char* rawImage, int width, int height, int nrComponents);
         bool addTexture(std::string path);
+        bool addTexture(glm::vec4 color);
         void makeResident();
         void makeNonResident();
         bool isResident();
         GLuint64 getHandler();
         GLuint   getLastUsedLayer();
+        GLuint   getCapacity();
         void updateMipmap();
 
     private:
         GLuint m_texture;
         GLuint m_width;
         GLuint m_height;
-        GLuint m_layersSize;
+        GLuint m_capacity;
         GLuint m_lastUnusedLayer;
         GLuint64 m_bindlessHandler{ 0 };
     };
@@ -55,6 +57,7 @@ namespace engine {
 
         GLuint64 getHandler() const;
         GLuint   getLayer() const;
+        GLuint   getCapacity() const;
         bool     isValidRef() const;
     private:
         TextureArray* m_ref{ nullptr };
