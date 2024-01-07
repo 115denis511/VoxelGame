@@ -7,7 +7,7 @@
 #include "UniformStructs.h"
 
 namespace engine {
-    class Render;
+    class AssetManager;
 
     struct MeshRelatedData {
         Mesh* mesh{ nullptr };
@@ -15,7 +15,7 @@ namespace engine {
     };
 
     class MeshManager {
-    friend Render;
+    friend AssetManager;
     
     public:
         static Mesh* addMesh(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, const uniform_structs::TexturePack& textures, const std::string& name);

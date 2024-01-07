@@ -7,10 +7,10 @@
 #include "UniformStructs.h"
 
 namespace engine {
-    class Render;
+    class AssetManager;
 
     class UniformManager {
-        friend Render;
+        friend AssetManager;
 
     public:
         static void setDrawVars(uniform_structs::DrawVars& vars);

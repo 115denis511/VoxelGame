@@ -9,11 +9,11 @@
 #include "Shader.h"
 
 namespace engine {
-    class Render;
+    class AssetManager;
 
     class TextureManager {
         // Только Render может вызывать init и freeResources
-        friend Render;
+        friend AssetManager;
 
     public:
         /// @brief Добавляет смешанную текстуру, где в RGB канале находятся RGB данные первой тестуры, а в

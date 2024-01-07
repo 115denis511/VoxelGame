@@ -9,6 +9,7 @@
 #include "Render/Mesh.h"
 #include "Render/TextureManager.h"
 #include "Render/TextureArray.h"
+#include "Render/AssetManager.h"
 
 // test, to delete
 #include "Camera.h"

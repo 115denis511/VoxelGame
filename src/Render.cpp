@@ -25,20 +25,11 @@ bool engine::Render::init() {
     g_primitivePlane = buildPrimitivePlane(-0.5f, 0.5f, 0.5f, -0.5f);
     g_primitiveScreenPlane = buildPrimitivePlane(-1.f, 1.f, 1.f, -1.f);
 
-    UniformManager::init();
-    TextureManager::init(g_shaderMix_RGB_A, g_shaderFill_RGB, g_primitiveScreenPlane);
+    AssetManager::init(g_shaderMix_RGB_A, g_shaderFill_RGB, g_primitiveScreenPlane);
 
     // test
     std::string modelPath = "Model/simpleChar.gltf";
-    Assimp::Importer import;
-    //const aiScene *scene = import.ReadFile("simpleChar.glb", aiProcess_Triangulate | aiProcess_FlipUVs);
-    const aiScene *scene = import.ReadFile(modelPath, aiProcess_Triangulate | aiProcess_FlipUVs);
-    if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
-        // TODO: в логгер
-        std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
-        return false;
-    }
-    test_model = new Model(scene, modelPath);
+    test_model = AssetManager::addModel(modelPath);
 
     glm::mat4 perspective = glm::perspective(glm::radians(45.f), (float)viewport.x / (float)viewport.y, 0.1f, 1000.f);
     Camera camera;
@@ -89,9 +80,7 @@ void engine::Render::freeResources() {
     delete g_primitivePlane;
     delete g_primitiveScreenPlane;
 
-    UniformManager::freeResources();
-    TextureManager::freeResources();
-    MeshManager::freeResources();
+    AssetManager::freeResources();
 }
 
 void engine::Render::draw() {
