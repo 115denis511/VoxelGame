@@ -88,6 +88,8 @@ void engine::Render::draw() {
 
     test_model->draw();
     //g_primitiveFullScreenRect.draw();
+    //MeshManager::getPrimitiveCube(1.f)->draw();
+    //MeshManager::getPrimitiveSphere(1.f, 32, 32)->draw();
 
     int errors = 0;
     GLenum errorCode;

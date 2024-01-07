@@ -6,13 +6,8 @@
 #include "Vertex.h"
 
 namespace engine {
-    enum class MeshDrawMode {
-        TRIANGLES = GL_TRIANGLES,
-        TRIANGLE_STRIP = GL_TRIANGLE_STRIP
-    };
-
     /// @brief Вспомогательный класс для хранения копии VAO меша, который можно копировать,
-    ///        хранить локально и который не делает удаление VAO при вызове деструктора.
+    ///        хранить локально без использования указателя и который не делает удаление VAO при вызове деструктора.
     class MeshRef {
     public:
         MeshRef(GLuint vaoRef = 0, GLuint indicesCount = 0);
@@ -26,7 +21,7 @@ namespace engine {
 
     class Mesh : public utilites::INonCopyable {
     public:
-        Mesh(const Vertex* vertices, int vArraySize, const GLuint* indicesArray, int iArraySize, MeshDrawMode mode = MeshDrawMode::TRIANGLES);
+        Mesh(const Vertex* vertices, int vArraySize, const GLuint* indicesArray, int iArraySize);
         Mesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices);
         ~Mesh();
 
@@ -36,7 +31,6 @@ namespace engine {
 
     private:
         GLuint m_VAO, m_VBO, m_EBO, m_indicesCount;
-        MeshDrawMode m_drawMode;
     };
 }
 

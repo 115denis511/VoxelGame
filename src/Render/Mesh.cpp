@@ -1,8 +1,7 @@
 #include "Mesh.h"
 
-engine::Mesh::Mesh(const Vertex *vertices, int vArraySize, const GLuint *indicesArray, int iArraySize, MeshDrawMode mode) {
+engine::Mesh::Mesh(const Vertex *vertices, int vArraySize, const GLuint *indicesArray, int iArraySize) {
     m_indicesCount = iArraySize;
-    m_drawMode = mode;
 
     glGenVertexArrays(1, &m_VAO);
     glGenBuffers(1, &m_VBO);
