@@ -21,7 +21,7 @@ namespace engine {
     private:
         static std::unordered_map<std::string, Model*> g_models;
 
-        static bool init(Shader* shaderMix_RGB_A, Shader* shaderFill_RGB, Mesh* fillRect);
+        static bool init(Shader* shaderMix_RGB_A, Shader* shaderFill_RGB);
         static void freeResources();
     };
 }

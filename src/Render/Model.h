@@ -27,7 +27,7 @@ namespace engine {
 
         private:
             std::string                                 m_path;
-            std::vector<Mesh*>                          m_meshes;
+            std::vector<MeshRef>                        m_meshes;
             std::vector<uniform_structs::TexturePack>   m_textures;
             std::map<std::string, BoneInfo>             m_BoneInfoMap;
             int                                         m_BoneCounter = 0;

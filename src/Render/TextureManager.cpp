@@ -3,7 +3,7 @@
 GLuint                                                   engine::TextureManager::g_fboTexCopy;
 engine::Shader*                                          engine::TextureManager::g_shaderMix_RGB_A;
 engine::Shader*                                          engine::TextureManager::g_shaderFill_RGB;
-engine::Mesh*                                            engine::TextureManager::g_fillRect;
+engine::MeshRef                                          engine::TextureManager::g_fillRect;
 engine::TextureArrayRef                                  engine::TextureManager::g_placeholderBlack;
 std::unordered_map<std::string, engine::TextureArrayRef> engine::TextureManager::g_textureDict;
 std::vector<engine::TextureManager::TextureArrayList*>   engine::TextureManager::g_textureArrayList;
@@ -11,7 +11,7 @@ std::vector<engine::TextureManager::TextureArrayList*>   engine::TextureManager:
 bool engine::TextureManager::init(Shader* shaderMix_RGB_A, Shader* shaderFill_RGB, Mesh* fillRect) {
     g_shaderMix_RGB_A = shaderMix_RGB_A;
     g_shaderFill_RGB = shaderFill_RGB;
-    g_fillRect = fillRect;
+    g_fillRect = fillRect->getMeshRef();
 
     glGenFramebuffers(1, &g_fboTexCopy);
 
@@ -88,7 +88,7 @@ const engine::TextureArrayRef engine::TextureManager::addMixedTexture_RGB_A(
     g_shaderMix_RGB_A->setInt("alphaTex", 1);
     g_shaderMix_RGB_A->setVec4("alphaMask", alphaMask);
 
-    g_fillRect->draw();
+    g_fillRect.draw();
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -260,7 +260,7 @@ const engine::TextureArrayRef engine::TextureManager::addTexture_RGB(std::string
     g_shaderFill_RGB->use();
     g_shaderFill_RGB->setInt("colorTex", 0);
 
-    g_fillRect->draw();
+    g_fillRect.draw();
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 

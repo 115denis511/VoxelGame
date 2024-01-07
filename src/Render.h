@@ -27,13 +27,11 @@ namespace engine {
         static Shader*          g_shaderMix_RGB_A;
         static Shader*          g_shaderFill_RGB;
         static GBuffer*         g_gBuffer;
-        static Mesh*            g_primitivePlane;
-        static Mesh*            g_primitiveScreenPlane;
+        static MeshRef          g_primitiveFullScreenRect;
 
         static Model* test_model;
 
         static void updateViewports();
-        static Mesh* buildPrimitivePlane(GLfloat leftX, GLfloat topY, GLfloat rightX, GLfloat bottomY);
     };
 }
 

@@ -29,11 +29,12 @@ engine::Model *engine::AssetManager::getModel(const std::string &path) {
     return nullptr;
 }
 
-bool engine::AssetManager::init(Shader* shaderMix_RGB_A, Shader* shaderFill_RGB, Mesh* fillRect) {
+bool engine::AssetManager::init(Shader* shaderMix_RGB_A, Shader* shaderFill_RGB) {
     if (!UniformManager::init()) {
         return false;
     }
 
+    Mesh* fillRect = MeshManager::getPrimitiveRect(-1.f, 1.f, 1.f, -1.f);
     if (!TextureManager::init(shaderMix_RGB_A, shaderFill_RGB, fillRect)) {
         return false;
     }

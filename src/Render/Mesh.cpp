@@ -47,12 +47,33 @@ engine::Mesh::~Mesh() {
 
 void engine::Mesh::draw() {
     glBindVertexArray(m_VAO);
-    glDrawElements(static_cast<GLenum>(m_drawMode), m_indicesCount, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, m_indicesCount, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }
 
 void engine::Mesh::drawInstanced(GLuint count) {
     glBindVertexArray(m_VAO);
-    glDrawElementsInstanced(static_cast<GLenum>(m_drawMode), m_indicesCount, GL_UNSIGNED_INT, 0, count);
+    glDrawElementsInstanced(GL_TRIANGLES, m_indicesCount, GL_UNSIGNED_INT, 0, count);
+    glBindVertexArray(0);
+}
+
+engine::MeshRef engine::Mesh::getMeshRef() {
+    return MeshRef(m_VAO, m_indicesCount);
+}
+
+engine::MeshRef::MeshRef(GLuint vaoRef, GLuint indicesCount) {
+    m_VAO = vaoRef;
+    m_indicesCount = indicesCount;
+}
+
+void engine::MeshRef::draw() {
+    glBindVertexArray(m_VAO);
+    glDrawElements(GL_TRIANGLES, m_indicesCount, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+}
+
+void engine::MeshRef::drawInstanced(GLuint count) {
+    glBindVertexArray(m_VAO);
+    glDrawElementsInstanced(GL_TRIANGLES, m_indicesCount, GL_UNSIGNED_INT, 0, count);
     glBindVertexArray(0);
 }

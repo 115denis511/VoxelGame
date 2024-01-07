@@ -20,6 +20,7 @@ namespace engine {
     public:
         static Mesh* addMesh(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, const uniform_structs::TexturePack& textures, const std::string& name);
         static MeshRelatedData getMesh(std::string& name);
+        static Mesh* getPrimitiveRect(GLfloat leftX, GLfloat topY, GLfloat rightX, GLfloat bottomY);
 
     private:
         MeshManager() {}

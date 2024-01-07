@@ -13,7 +13,7 @@ engine::Model::~Model() {
 void engine::Model::draw() {
     for(unsigned int i = 0; i < m_meshes.size(); i++) {
         UniformManager::setTexturePack(m_textures[i]);
-        m_meshes[i]->draw();
+        m_meshes[i].draw();
     }
 }
 
@@ -37,7 +37,7 @@ void engine::Model::processMesh(aiMesh *mesh, const aiScene *scene) {
 
     MeshRelatedData data = MeshManager::getMesh(meshName);
     if (data.mesh != nullptr) {
-        m_meshes.emplace_back(data.mesh);
+        m_meshes.emplace_back(data.mesh->getMeshRef());
         m_textures.emplace_back(data.textures);
         return;
     }
@@ -184,8 +184,8 @@ void engine::Model::processMesh(aiMesh *mesh, const aiScene *scene) {
         }
     }
 
+    m_meshes.emplace_back(MeshManager::addMesh(vertices, indices, texturePack, meshName)->getMeshRef());
     m_textures.emplace_back(texturePack);
-    m_meshes.emplace_back(MeshManager::addMesh(vertices, indices, texturePack, meshName));
 }
 
 std::string engine::Model::refinePath(aiString &path) {

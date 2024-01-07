@@ -125,7 +125,7 @@ namespace engine {
         static GLuint                     g_fboTexCopy;
         static Shader*                    g_shaderMix_RGB_A;
         static Shader*                    g_shaderFill_RGB;
-        static Mesh*                      g_fillRect;
+        static MeshRef                    g_fillRect;
         static TextureArrayRef            g_placeholderBlack;
         static std::unordered_map<std::string, TextureArrayRef> g_textureDict;
         static std::vector<TextureArrayList*>                   g_textureArrayList;

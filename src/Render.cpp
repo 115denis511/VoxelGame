@@ -4,8 +4,7 @@ engine::Shader*         engine::Render::g_shaderFinal;
 engine::Shader*         engine::Render::g_shaderMix_RGB_A;
 engine::Shader*         engine::Render::g_shaderFill_RGB;
 engine::GBuffer*        engine::Render::g_gBuffer;
-engine::Mesh*           engine::Render::g_primitivePlane;
-engine::Mesh*           engine::Render::g_primitiveScreenPlane;
+engine::MeshRef         engine::Render::g_primitiveFullScreenRect;
 
 engine::Model*          engine::Render::test_model;
 
@@ -22,10 +21,9 @@ bool engine::Render::init() {
 
     g_gBuffer = new GBuffer(viewport);
 
-    g_primitivePlane = buildPrimitivePlane(-0.5f, 0.5f, 0.5f, -0.5f);
-    g_primitiveScreenPlane = buildPrimitivePlane(-1.f, 1.f, 1.f, -1.f);
+    g_primitiveFullScreenRect = MeshManager::getPrimitiveRect(-1.f, 1.f, 1.f, -1.f)->getMeshRef();
 
-    AssetManager::init(g_shaderMix_RGB_A, g_shaderFill_RGB, g_primitiveScreenPlane);
+    AssetManager::init(g_shaderMix_RGB_A, g_shaderFill_RGB);
 
     // test
     std::string modelPath = "Model/simpleChar.gltf";
@@ -77,9 +75,6 @@ void engine::Render::freeResources() {
 
     delete g_gBuffer;
 
-    delete g_primitivePlane;
-    delete g_primitiveScreenPlane;
-
     AssetManager::freeResources();
 }
 
@@ -92,7 +87,7 @@ void engine::Render::draw() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     test_model->draw();
-    //g_primitivePlane->draw();
+    //g_primitiveFullScreenRect.draw();
 
     int errors = 0;
     GLenum errorCode;
@@ -120,20 +115,4 @@ void engine::Render::updateViewports() {
     g_gBuffer->updateViewport(viewport);
 
     WindowGLFW::g_isRenderMustUpdateViewport = false;
-}
-
-engine::Mesh *engine::Render::buildPrimitivePlane(GLfloat leftX, GLfloat topY, GLfloat rightX, GLfloat bottomY) {
-    Vertex vertices[] = {
-        Vertex{glm::vec3(leftX,  bottomY, 0.f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0.0f, 1.0f), glm::ivec4(-1), glm::vec4(0.f)},
-        Vertex{glm::vec3(rightX, bottomY, 0.f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(1.0f, 1.0f), glm::ivec4(-1), glm::vec4(0.f)},
-        Vertex{glm::vec3(rightX, topY,    0.f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(1.0f, 0.0f), glm::ivec4(-1), glm::vec4(0.f)},
-        Vertex{glm::vec3(leftX,  topY,    0.f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0.0f, 0.0f), glm::ivec4(-1), glm::vec4(0.f)}
-    };
-
-    constexpr GLuint indeces[] = {
-        0, 1, 2,   // Первый треугольник
-        0, 2, 3,   // Второй треугольник
-    };
-
-    return new Mesh(vertices, std::size(vertices), indeces, std::size(indeces));
 }
