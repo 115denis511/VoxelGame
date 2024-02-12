@@ -3,16 +3,30 @@
 
 #include "stdafx.h"
 #include "engine_properties.h"
-#include "SceneResources.h"
+#include "Scene/Camera.h"
+#include "Scene/SceneResources.h"
+#include "Scene/SceneRequest.h"
+#include "Scene/ISceneLogic.h"
 
 namespace engine {
+    class Core;
+
     class Scene {
+        friend Core;
     public:
         static bool init();
         static void freeResources();
+        static SceneResources* getSceneResources();
+        static void setCurrentSceneLogic(ISceneLogic* sceneLogic);
+        static void sceneLogicUpdatePhase();
+        static void applyChangesPhase();
+        static void applyRequestsPhase();
 
     private:
+        static Camera g_camera;
         static SceneResources* g_resouces;
+        static SceneRequest* g_requests;
+        static ISceneLogic* g_currentSceneLogic;
 
     };
 }

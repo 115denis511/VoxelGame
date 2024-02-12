@@ -1,10 +1,14 @@
 #include "WindowGLFW.h"
 
 void engine::glfw_callbacks::key_callback(GLFWwindow *window, int key, int scancode, int action, int mode) {
-    if (action == GLFW_PRESS)
+    if (action == GLFW_PRESS) {
 		Controls::g_keys[key] = true;
-	else if (action == GLFW_RELEASE)
+        Controls::g_keysDown.push_back(key);
+    }
+	else if (action == GLFW_RELEASE) {
 		Controls::g_keys[key] = false;
+        Controls::g_keysUp.push_back(key);
+    }
 }
 
 void engine::glfw_callbacks::character_callback(GLFWwindow *window, unsigned int codepoint) {

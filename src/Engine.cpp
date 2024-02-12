@@ -37,7 +37,28 @@ bool engine::Core::init() {
     return true;
 }
 
-void engine::Core::start() {
+void engine::Core::start(ISceneLogic* sceneLogic) {
+    if (sceneLogic == nullptr) {
+        Log::addFatalError("ERROR! engine::Core::start() sceneLogic is NULL");
+    }
+    Scene::setCurrentSceneLogic(sceneLogic);
+
+    // TEST
+    Transform trs;
+    trs.setRotation(glm::vec3(-45.f, 0.f, 0.f));
+    RenderComponent rc(AssetManager::getModel("Model/simpleChar.gltf"));
+
+    for (size_t i = 0; i < 50; i++) {
+        for (size_t j = 0; j < 50; j++){
+            trs.setPosition(glm::vec3(5.f + i, 0.f, (float)j * 2 ));
+            Scene::g_requests->addEntity(trs, rc);
+        }
+    }
+    Scene::g_requests->deleteEntity(4095);
+    // TEST END
+
+
+
     while(!WindowGLFW::isShouldClose() && !Log::isHaveFatalError()) {
         GLfloat currentFrame = (float)glfwGetTime();
         static int frameCount = 0;
@@ -51,7 +72,17 @@ void engine::Core::start() {
 
         WindowGLFW::poolEvents();
 
-        Render::draw();
+        Render::draw(
+            Scene::g_camera.getVars(),
+            *Scene::getSceneResources());
+
+        Scene::sceneLogicUpdatePhase();
+
+        Scene::applyChangesPhase();
+
+        Scene::applyRequestsPhase();
+
+        Controls::resetState();
 
         WindowGLFW::swapBuffers();
     }

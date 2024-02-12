@@ -25,13 +25,20 @@ namespace engine {
 
     public:
         static void init();
+        static void resetState();
+        static bool isKeyPressed(int key);
+        static const std::vector<int>& getKeysDown();
+        static const std::vector<int>& getKeysUp();
+        static const glm::vec2 getMouseOffset();
 
     private:
         Controls() {}
 
-        static bool         g_keys[1024];
-        static glm::vec2    g_mousePos;
-        static glm::vec2    g_mouseOffset;
+        static bool             g_keys[1024];
+        static std::vector<int> g_keysDown;
+        static std::vector<int> g_keysUp;
+        static glm::vec2        g_mousePos;
+        static glm::vec2        g_mouseOffset;
 
         static void setMousePosition(GLfloat x, GLfloat y);
     };

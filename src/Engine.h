@@ -14,7 +14,7 @@ namespace engine {
     class Core {
     public:
         static bool init();
-        static void start();
+        static void start(ISceneLogic* sceneLogic);
         static void close();
         static void onFatalError();
 

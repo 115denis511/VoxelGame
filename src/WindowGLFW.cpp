@@ -3,6 +3,7 @@
 GLFWwindow*  engine::WindowGLFW::g_window = nullptr;
 glm::ivec2   engine::WindowGLFW::g_viewport;
 bool         engine::WindowGLFW::g_isRenderMustUpdateViewport = true;
+bool         engine::WindowGLFW::g_isCursorHidden = false;
 
 bool engine::WindowGLFW::init(int width, int height) {
     if (!glfwInit()) {
@@ -46,7 +47,8 @@ bool engine::WindowGLFW::isShouldClose() {
     return glfwWindowShouldClose(g_window);
 }
 
-void engine::WindowGLFW::swapBuffers() {
+void engine::WindowGLFW::swapBuffers()
+{
     glfwSwapBuffers(g_window);
 }
 
@@ -60,12 +62,18 @@ void engine::WindowGLFW::hideMouseCursor()
     glfwSetInputMode(g_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPos(g_window, (GLfloat)(g_viewport.x / 2), (GLfloat)(g_viewport.y / 2));
     Controls::setMousePosition((GLfloat)(g_viewport.x / 2), (GLfloat)(g_viewport.y / 2));
+    g_isCursorHidden = true;
 }
 
 void engine::WindowGLFW::showMouseCursor() {
     glfwSetInputMode(g_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     glfwSetCursorPos(g_window, (GLfloat)(g_viewport.x / 2), (GLfloat)(g_viewport.y / 2));
     Controls::setMousePosition((GLfloat)(g_viewport.x / 2), (GLfloat)(g_viewport.y / 2));
+    g_isCursorHidden = false;
+}
+
+bool engine::WindowGLFW::isMouseCursorHidden() {
+    return g_isCursorHidden;
 }
 
 void engine::WindowGLFW::setTitle(std::string title) {

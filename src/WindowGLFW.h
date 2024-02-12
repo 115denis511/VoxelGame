@@ -33,6 +33,7 @@ namespace engine {
         static bool isShouldClose();
         static void hideMouseCursor();
         static void showMouseCursor();
+        static bool isMouseCursorHidden();
         static void setTitle(std::string title);
         static void setViewport(GLuint width, GLuint height);
         static glm::ivec2 getViewport();
@@ -43,6 +44,7 @@ namespace engine {
         static GLFWwindow*  g_window;
         static glm::ivec2   g_viewport;
         static bool         g_isRenderMustUpdateViewport;
+        static bool         g_isCursorHidden;
     };
 }
 

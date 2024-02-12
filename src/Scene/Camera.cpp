@@ -18,14 +18,21 @@ engine::Camera::Camera() {
 	m_cameraRight = glm::normalize(glm::cross(m_cameraTarget, m_cameraUp));
 }
 
+engine::CameraVars engine::Camera::getVars() {
+	CameraVars result;
+	result.lookAt = getLookAt();
+	result.cameraPosition = m_cameraPosition;
+	result.cameraTarget = m_cameraTarget;
+	result.cameraRight = m_cameraRight;
+	result.cameraUp = m_cameraUp;
+    return result;
+}
+
 glm::mat4 engine::Camera::getLookAt() {
-    std::lock_guard<std::mutex> lock(m_mutex);
     return m_lookAt;
 }
 
 void engine::Camera::updateLookAt() {
-    std::lock_guard<std::mutex> lock(m_mutex);
-
     glm::vec3 front;
 	front.x = cos(glm::radians(m_pitch)) * cos(glm::radians(m_yaw));
 	front.y = sin(glm::radians(m_pitch));
@@ -85,22 +92,18 @@ void engine::Camera::setDistance(GLfloat distance) {
 }
 
 const glm::vec3 engine::Camera::getPosition() const {
-    std::lock_guard<std::mutex> lock(m_mutex);
     return m_cameraPosition;
 }
 
 const glm::vec3 engine::Camera::getRight() const {
-    std::lock_guard<std::mutex> lock(m_mutex);
     return m_cameraRight * m_modeMultiplier;
 }
 
 const glm::vec3 engine::Camera::getFront() const {
-    std::lock_guard<std::mutex> lock(m_mutex);
     return m_cameraTarget * m_modeMultiplier;
 }
 
 const glm::vec3 engine::Camera::getUp() const {
-    std::lock_guard<std::mutex> lock(m_mutex);
     return m_cameraUp;
 }
 
@@ -115,6 +118,5 @@ void engine::Camera::moveRotation(const glm::vec2 &offset) {
 }
 
 void engine::Camera::movePosition(const glm::vec3 &offset) {
-    std::lock_guard<std::mutex> lock(m_mutex);
 	m_cameraPosition += offset;
 }

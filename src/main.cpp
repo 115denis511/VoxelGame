@@ -4,9 +4,11 @@
 #include "engine.h"
 #include "Log.h"
 
+#include "TestScene/SceneTest.h"
+
 int main() {
     engine::Core::init();
-    engine::Core::start();
+    engine::Core::start(new SceneTest);
     engine::Core::close();
 
     engine::Log::printInConsole();

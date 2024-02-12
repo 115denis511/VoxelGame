@@ -5,6 +5,10 @@ engine::Shader*         engine::Render::g_shaderMix_RGB_A;
 engine::Shader*         engine::Render::g_shaderFill_RGB;
 engine::GBuffer*        engine::Render::g_gBuffer;
 engine::MeshRef         engine::Render::g_primitiveFullScreenRect;
+glm::mat4               engine::Render::g_perspectiveProjection;
+float                   engine::Render::g_perspectiveProjectionFov;
+float                   engine::Render::g_perspectiveProjectionNear;
+float                   engine::Render::g_perspectiveProjectionFar;
 
 engine::Model*          engine::Render::test_model;
 
@@ -23,16 +27,24 @@ bool engine::Render::init() {
 
     g_primitiveFullScreenRect = MeshManager::getPrimitiveRect(-1.f, 1.f, 1.f, -1.f)->getMeshRef();
 
+    g_perspectiveProjectionFov = 45.f;
+    g_perspectiveProjectionNear = 0.1f;
+    g_perspectiveProjectionFar = 1000.f;
+    g_perspectiveProjection = glm::perspective(
+        glm::radians(g_perspectiveProjectionFov), 
+        (float)viewport.x / (float)viewport.y, 
+        g_perspectiveProjectionNear, 
+        g_perspectiveProjectionFar);
+
     AssetManager::init(g_shaderMix_RGB_A, g_shaderFill_RGB);
 
     // test
     std::string modelPath = "Model/simpleChar.gltf";
     test_model = AssetManager::addModel(modelPath);
 
-    glm::mat4 perspective = glm::perspective(glm::radians(45.f), (float)viewport.x / (float)viewport.y, 0.1f, 1000.f);
     Camera camera;
     camera.updateLookAt();
-    uniform_structs::DrawVars vars(perspective * camera.getLookAt());
+    uniform_structs::DrawVars vars(g_perspectiveProjection * camera.getLookAt());
     UniformManager::setDrawVars(vars);
     glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(5.f, 0.f, 0.f));
     model = glm::rotate(model, glm::radians(45.f), glm::vec3(0.f, -1.f, 0.f));
@@ -78,18 +90,32 @@ void engine::Render::freeResources() {
     AssetManager::freeResources();
 }
 
-void engine::Render::draw() {
+void engine::Render::draw(CameraVars cameraVars, SceneResources& sceneResources) {
     if (WindowGLFW::g_isRenderMustUpdateViewport) {
         updateViewports();
     }
+
+    uniform_structs::DrawVars vars(g_perspectiveProjection * cameraVars.lookAt);
+    UniformManager::setDrawVars(vars);
+
     //g_resources->m_gBuffer->bind();
     glEnable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-    test_model->draw();
+    //test_model->draw();
     //g_primitiveFullScreenRect.draw();
     //MeshManager::getPrimitiveCube(1.f)->draw();
     //MeshManager::getPrimitiveSphere(1.f, 32, 32)->draw();
+
+    for (int i = 0; i <= sceneResources.renderComponents.getBiggestUsedId(); i++) {
+        auto renderComponent = sceneResources.renderComponents.get(i);
+
+        if(renderComponent.isInUse()) {
+            renderComponent.getObject().draw();
+            g_shaderFinal->setMat4("model", renderComponent.getObject().getMatrix());
+        }
+    }
+     
 
     int errors = 0;
     GLenum errorCode;
@@ -115,6 +141,12 @@ void engine::Render::updateViewports() {
     glViewport(0, 0, viewport.x, viewport.y);
 
     g_gBuffer->updateViewport(viewport);
+
+    g_perspectiveProjection = glm::perspective(
+        glm::radians(g_perspectiveProjectionFov), 
+        (float)viewport.x / (float)viewport.y, 
+        g_perspectiveProjectionNear, 
+        g_perspectiveProjectionFar);
 
     WindowGLFW::g_isRenderMustUpdateViewport = false;
 }

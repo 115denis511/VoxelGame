@@ -1,7 +1,7 @@
-#ifndef __CAMERA_H__
-#define __CAMERA_H__
+#ifndef __SCENE__CAMERA_H__
+#define __SCENE__CAMERA_H__
 
-#include "stdafx.h"
+#include "../stdafx.h"
 
 namespace engine {
     enum class CameraMode {
@@ -9,10 +9,20 @@ namespace engine {
         THIRD_PERSON_VIEW
     };
 
+    struct CameraVars {
+        glm::mat4 lookAt;
+        glm::vec3 cameraPosition;
+        glm::vec3 cameraTarget;
+        glm::vec3 cameraUp;
+        glm::vec3 cameraRight; 
+        static constexpr glm::vec3 worldUp{0.f, 1.f, 0.f};
+    };
+
     class Camera {
     public:
         Camera();
 
+        CameraVars  getVars();
         glm::mat4   getLookAt();
         void        updateLookAt();
         void        setMode(CameraMode mode);
@@ -44,7 +54,6 @@ namespace engine {
         GLfloat m_yaw;
         GLfloat m_pitch;
         GLfloat m_distance;
-        mutable std::mutex m_mutex;
 
     };
 }

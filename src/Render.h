@@ -7,12 +7,11 @@
 #include "Render/Shader.h"
 #include "Render/GBuffer.h"
 #include "Render/Mesh.h"
-#include "Render/TextureManager.h"
-#include "Render/TextureArray.h"
 #include "Render/AssetManager.h"
+#include "Scene/Camera.h"
+#include "Scene/SceneResources.h"
 
 // test, to delete
-#include "Camera.h"
 #include "Render/Model.h"
 
 namespace engine {
@@ -20,7 +19,7 @@ namespace engine {
     public:
         static bool init();
         static void freeResources();
-        static void draw();
+        static void draw(CameraVars cameraVars, SceneResources& sceneResources);
 
     private:
         static Shader*          g_shaderFinal;
@@ -28,6 +27,10 @@ namespace engine {
         static Shader*          g_shaderFill_RGB;
         static GBuffer*         g_gBuffer;
         static MeshRef          g_primitiveFullScreenRect;
+        static glm::mat4        g_perspectiveProjection;
+        static float            g_perspectiveProjectionFov;
+        static float            g_perspectiveProjectionNear;
+        static float            g_perspectiveProjectionFar;
 
         static Model* test_model;
 

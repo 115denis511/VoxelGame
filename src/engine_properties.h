@@ -4,6 +4,11 @@
 #include "Render/UniformStructs.h"
 
 namespace engine_properties {
+    // Scene
+    constexpr size_t SCENE_MAX_ENTITIES = 4096;
+    constexpr size_t SCENE_MAX_TRANSFORMS = 4096;
+    constexpr size_t SCENE_MAX_RENDER_COMPONENTS = 4096;
+
     // Uniform buffers
     constexpr GLuint     UNIFORM_BUFFER_DRAW_VARS_BLOCK_ID = 0;
     constexpr GLsizeiptr UNIFORM_BUFFER_DRAW_VARS_SIZE = sizeof(engine::uniform_structs::DrawVars);
@@ -17,7 +22,7 @@ namespace engine_properties {
     constexpr GLsizei MIPMAP_LEVELS = 6;
 
     // Log
-    constexpr unsigned int MAX_LOG_STRINGS = 2048;
+    constexpr size_t MAX_LOG_STRINGS = 2048;
 }
 
 #endif
