@@ -15,6 +15,9 @@ namespace engine_properties {
     constexpr GLuint     UNIFORM_BUFFER_TEXTURE_PACK_BLOCK_ID = 1;
     constexpr GLsizeiptr UNIFORM_BUFFER_TEXTURE_PACK_SIZE = sizeof(engine::uniform_structs::TexturePack);
 
+    // SSBO
+    constexpr GLuint    SSBO_INSTANCING_MATRICES_BLOCK_ID = 0;
+
     // Textures
     constexpr GLuint TEXTURE_ARRAY_W64_H64_SIZE = 1024;
     constexpr GLuint TEXTURE_ARRAY_W512_H512_SIZE = 128;

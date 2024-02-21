@@ -9,6 +9,8 @@
 #include "MeshManager.h"
 #include "TextureManager.h"
 #include "UniformManager.h"
+#include "InstancingData.h"
+#include "InstancingManager.h"
 
 #include <assimp/material.h>
 
@@ -24,6 +26,9 @@ namespace engine {
             ~Model();
 
             void draw();
+            void drawInstanced();
+            void pushMatrixToInstancingBuffer(const glm::mat4& matrix);
+            const InstancingData& getInstancingData();
 
         private:
             std::string                                 m_path;
@@ -31,6 +36,7 @@ namespace engine {
             std::vector<uniform_structs::TexturePack>   m_textures;
             std::map<std::string, BoneInfo>             m_BoneInfoMap;
             int                                         m_BoneCounter = 0;
+            InstancingData                              m_instancingData;
 
             void processNode(aiNode *node, const aiScene *scene);
             void processMesh(aiMesh *mesh, const aiScene *scene);

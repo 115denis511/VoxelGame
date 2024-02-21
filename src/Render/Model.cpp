@@ -17,6 +17,25 @@ void engine::Model::draw() {
     }
 }
 
+void engine::Model::drawInstanced() {
+    InstancingManager::pushMatrices(m_instancingData.getMatrices(), m_instancingData.getCount());
+
+    for(unsigned int i = 0; i < m_meshes.size(); i++) {
+        UniformManager::setTexturePack(m_textures[i]);
+        m_meshes[i].drawInstanced(m_instancingData.getCount());
+    }
+
+    m_instancingData.clear();
+}
+
+void engine::Model::pushMatrixToInstancingBuffer(const glm::mat4 &matrix) {
+    m_instancingData.add(matrix);
+}
+
+const engine::InstancingData& engine::Model::getInstancingData() {
+    return m_instancingData;
+}
+
 void engine::Model::processNode(aiNode *node, const aiScene *scene) {
     // обработать все полигональные сетки в узле(если есть)
     for(unsigned int i = 0; i < node->mNumMeshes; i++)

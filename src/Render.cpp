@@ -9,6 +9,7 @@ glm::mat4               engine::Render::g_perspectiveProjection;
 float                   engine::Render::g_perspectiveProjectionFov;
 float                   engine::Render::g_perspectiveProjectionNear;
 float                   engine::Render::g_perspectiveProjectionFar;
+std::vector<engine::Model*> engine::Render::g_modelsToInstancedDraw;
 
 engine::Model*          engine::Render::test_model;
 
@@ -37,6 +38,7 @@ bool engine::Render::init() {
         g_perspectiveProjectionFar);
 
     AssetManager::init(g_shaderMix_RGB_A, g_shaderFill_RGB);
+    InstancingManager::init();
 
     // test
     std::string modelPath = "Model/simpleChar.gltf";
@@ -88,6 +90,7 @@ void engine::Render::freeResources() {
     delete g_gBuffer;
 
     AssetManager::freeResources();
+    InstancingManager::freeResources();
 }
 
 void engine::Render::draw(CameraVars cameraVars, SceneResources& sceneResources) {
@@ -107,14 +110,8 @@ void engine::Render::draw(CameraVars cameraVars, SceneResources& sceneResources)
     //MeshManager::getPrimitiveCube(1.f)->draw();
     //MeshManager::getPrimitiveSphere(1.f, 32, 32)->draw();
 
-    for (int i = 0; i <= sceneResources.renderComponents.getBiggestUsedId(); i++) {
-        auto renderComponent = sceneResources.renderComponents.get(i);
-
-        if(renderComponent.isInUse()) {
-            renderComponent.getObject().draw();
-            g_shaderFinal->setMat4("model", renderComponent.getObject().getMatrix());
-        }
-    }
+    accamulateInstancingBuffers(sceneResources);
+    drawInstanced();
      
 
     int errors = 0;
@@ -149,4 +146,29 @@ void engine::Render::updateViewports() {
         g_perspectiveProjectionFar);
 
     WindowGLFW::g_isRenderMustUpdateViewport = false;
+}
+
+void engine::Render::accamulateInstancingBuffers(SceneResources& sceneResources) {
+    for (int i = 0; i <= sceneResources.renderComponents.getBiggestUsedId(); i++) {
+        auto renderComponent = sceneResources.renderComponents.get(i);
+
+        if(renderComponent.isInUse()) {
+            auto model = renderComponent.getObject().getModel();
+            if (model->getInstancingData().getCount() == 0) {
+                addToInstancedDrawList(model);
+            }
+            renderComponent.getObject().pushMatrixToInstancingBuffer();
+        }
+    }
+}
+
+void engine::Render::drawInstanced() {
+    for (size_t i = 0; i < g_modelsToInstancedDraw.size(); i++) {
+        g_modelsToInstancedDraw[i]->drawInstanced();
+    }
+    g_modelsToInstancedDraw.clear();
+}
+
+void engine::Render::addToInstancedDrawList(Model* model) {
+    g_modelsToInstancedDraw.push_back(model);
 }

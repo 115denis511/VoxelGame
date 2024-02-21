@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "WindowGLFW.h"
 #include "Render/UniformManager.h"
+#include "Render/InstancingManager.h"
 #include "Render/Shader.h"
 #include "Render/GBuffer.h"
 #include "Render/Mesh.h"
@@ -31,10 +32,14 @@ namespace engine {
         static float            g_perspectiveProjectionFov;
         static float            g_perspectiveProjectionNear;
         static float            g_perspectiveProjectionFar;
+        static std::vector<Model*>  g_modelsToInstancedDraw;
 
         static Model* test_model;
 
         static void updateViewports();
+        static void accamulateInstancingBuffers(SceneResources& sceneResources);
+        static void drawInstanced();
+        static void addToInstancedDrawList(Model* model);
     };
 }
 

@@ -16,6 +16,14 @@ void engine::RenderComponent::updateModelMatrix(const glm::mat4 &matrix) {
     m_modelMatrix = matrix;
 }
 
-glm::mat4 &engine::RenderComponent::getMatrix() {
+void engine::RenderComponent::pushMatrixToInstancingBuffer() {
+    m_model->pushMatrixToInstancingBuffer(m_modelMatrix);
+}
+
+glm::mat4& engine::RenderComponent::getMatrix() {
     return m_modelMatrix;
+}
+
+engine::Model* engine::RenderComponent::getModel() {
+    return m_model;
 }

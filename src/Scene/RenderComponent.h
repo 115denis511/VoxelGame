@@ -12,7 +12,9 @@ namespace engine {
 
         void draw();
         void updateModelMatrix(const glm::mat4& matrix);
+        void pushMatrixToInstancingBuffer();
         glm::mat4& getMatrix();
+        Model*     getModel();
 
     private:
         Model* m_model;
