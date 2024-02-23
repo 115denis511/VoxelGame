@@ -20,7 +20,7 @@ void engine::Transform::updateModelMatrix() {
     }
 }
 
-const glm::mat4& engine::Transform::getModelMatrix() {
+const glm::mat4& engine::Transform::getModelMatrix() const {
     return m_modelMatrix;
 }
 

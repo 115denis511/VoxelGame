@@ -55,12 +55,13 @@ void engine::Scene::applyRequestsPhase() {
         auto& transform = g_requests->m_entityCreateRequests[i].transform;
         if (transform.isNeedToUpdateMatrix())
             transform.updateModelMatrix();
-        
-        g_requests->m_entityCreateRequests[i].renderComponent.updateModelMatrix(transform.getModelMatrix());
 
         EntityReferences entity;
         g_resouces->transforms.add(g_requests->m_entityCreateRequests[i].transform, entity.m_transformId);
+        auto& createdTransform = g_resouces->transforms.get(entity.m_transformId).getObject();
         g_resouces->renderComponents.add(g_requests->m_entityCreateRequests[i].renderComponent, entity.m_renderComponentId);
+        auto& createdRenderComponent = g_resouces->renderComponents.get(entity.m_renderComponentId).getObject();
+        createdRenderComponent.setTransform(&createdTransform);
         
         int entityId;
         g_resouces->entities.add(entity, entityId);

@@ -9,7 +9,7 @@ namespace engine {
         Transform();
 
         void updateModelMatrix();
-        const glm::mat4& getModelMatrix();
+        const glm::mat4& getModelMatrix() const;
         bool isNeedToUpdateMatrix();
         void setPosition(const glm::vec3& position);
         void movePosition(const glm::vec3& offset);

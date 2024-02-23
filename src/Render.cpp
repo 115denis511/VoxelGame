@@ -1,15 +1,16 @@
 #include "Render.h"
 
-engine::Shader*         engine::Render::g_shaderFinal;
-engine::Shader*         engine::Render::g_shaderMix_RGB_A;
-engine::Shader*         engine::Render::g_shaderFill_RGB;
-engine::GBuffer*        engine::Render::g_gBuffer;
-engine::MeshRef         engine::Render::g_primitiveFullScreenRect;
-glm::mat4               engine::Render::g_perspectiveProjection;
-float                   engine::Render::g_perspectiveProjectionFov;
-float                   engine::Render::g_perspectiveProjectionNear;
-float                   engine::Render::g_perspectiveProjectionFar;
-std::vector<engine::Model*> engine::Render::g_modelsToInstancedDraw;
+engine::Shader*                 engine::Render::g_shaderFinal;
+engine::Shader*                 engine::Render::g_shaderMix_RGB_A;
+engine::Shader*                 engine::Render::g_shaderFill_RGB;
+engine::GBuffer*                engine::Render::g_gBuffer;
+engine::MeshRef                 engine::Render::g_primitiveFullScreenRect;
+engine::ProjectionPerspective   engine::Render::g_projectionPerspective;
+//glm::mat4               engine::Render::g_perspectiveProjection;
+//float                   engine::Render::g_perspectiveProjectionFov;
+//float                   engine::Render::g_perspectiveProjectionNear;
+//float                   engine::Render::g_perspectiveProjectionFar;
+std::vector<engine::Model*>     engine::Render::g_modelsToInstancedDraw;
 
 engine::Model*          engine::Render::test_model;
 
@@ -28,14 +29,10 @@ bool engine::Render::init() {
 
     g_primitiveFullScreenRect = MeshManager::getPrimitiveRect(-1.f, 1.f, 1.f, -1.f)->getMeshRef();
 
-    g_perspectiveProjectionFov = 45.f;
-    g_perspectiveProjectionNear = 0.1f;
-    g_perspectiveProjectionFar = 1000.f;
-    g_perspectiveProjection = glm::perspective(
-        glm::radians(g_perspectiveProjectionFov), 
-        (float)viewport.x / (float)viewport.y, 
-        g_perspectiveProjectionNear, 
-        g_perspectiveProjectionFar);
+    g_projectionPerspective = ProjectionPerspective(viewport, 
+                                                    45.f,
+                                                    0.1f, 
+                                                    1000.f);
 
     AssetManager::init(g_shaderMix_RGB_A, g_shaderFill_RGB);
     InstancingManager::init();
@@ -46,7 +43,7 @@ bool engine::Render::init() {
 
     Camera camera;
     camera.updateLookAt();
-    uniform_structs::DrawVars vars(g_perspectiveProjection * camera.getLookAt());
+    uniform_structs::DrawVars vars(g_projectionPerspective.getMatrix() * camera.getLookAt());
     UniformManager::setDrawVars(vars);
     glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(5.f, 0.f, 0.f));
     model = glm::rotate(model, glm::radians(45.f), glm::vec3(0.f, -1.f, 0.f));
@@ -98,7 +95,7 @@ void engine::Render::draw(CameraVars cameraVars, SceneResources& sceneResources)
         updateViewports();
     }
 
-    uniform_structs::DrawVars vars(g_perspectiveProjection * cameraVars.lookAt);
+    uniform_structs::DrawVars vars(g_projectionPerspective.getMatrix() * cameraVars.lookAt);
     UniformManager::setDrawVars(vars);
 
     //g_resources->m_gBuffer->bind();
@@ -110,7 +107,7 @@ void engine::Render::draw(CameraVars cameraVars, SceneResources& sceneResources)
     //MeshManager::getPrimitiveCube(1.f)->draw();
     //MeshManager::getPrimitiveSphere(1.f, 32, 32)->draw();
 
-    accamulateInstancingBuffers(sceneResources);
+    accamulateInstancingBuffers(sceneResources, Frustum(cameraVars, g_projectionPerspective));
     drawInstanced();
      
 
@@ -139,21 +136,21 @@ void engine::Render::updateViewports() {
 
     g_gBuffer->updateViewport(viewport);
 
-    g_perspectiveProjection = glm::perspective(
-        glm::radians(g_perspectiveProjectionFov), 
-        (float)viewport.x / (float)viewport.y, 
-        g_perspectiveProjectionNear, 
-        g_perspectiveProjectionFar);
+    g_projectionPerspective.update(viewport);
 
     WindowGLFW::g_isRenderMustUpdateViewport = false;
 }
 
-void engine::Render::accamulateInstancingBuffers(SceneResources& sceneResources) {
+void engine::Render::accamulateInstancingBuffers(SceneResources& sceneResources, Frustum frustum) {
     for (int i = 0; i <= sceneResources.renderComponents.getBiggestUsedId(); i++) {
         auto renderComponent = sceneResources.renderComponents.get(i);
 
         if(renderComponent.isInUse()) {
             auto model = renderComponent.getObject().getModel();
+
+            if (!model->isInFrustum(frustum, renderComponent.getObject().getTransform()))
+                continue;
+
             if (model->getInstancingData().getCount() == 0) {
                 addToInstancedDrawList(model);
             }

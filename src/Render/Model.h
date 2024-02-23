@@ -11,6 +11,7 @@
 #include "UniformManager.h"
 #include "InstancingData.h"
 #include "InstancingManager.h"
+#include "../Collisions/SphereVolume.h"
 
 #include <assimp/material.h>
 
@@ -29,6 +30,7 @@ namespace engine {
             void drawInstanced();
             void pushMatrixToInstancingBuffer(const glm::mat4& matrix);
             const InstancingData& getInstancingData();
+            bool isInFrustum(const Frustum &frustum, const Transform &transform);
 
         private:
             std::string                                 m_path;
@@ -37,6 +39,7 @@ namespace engine {
             std::map<std::string, BoneInfo>             m_BoneInfoMap;
             int                                         m_BoneCounter = 0;
             InstancingData                              m_instancingData;
+            SphereVolume                                m_cullingVolume;
 
             void processNode(aiNode *node, const aiScene *scene);
             void processMesh(aiMesh *mesh, const aiScene *scene);

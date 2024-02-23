@@ -36,6 +36,10 @@ const engine::InstancingData& engine::Model::getInstancingData() {
     return m_instancingData;
 }
 
+bool engine::Model::isInFrustum(const Frustum &frustum, const Transform &transform) {
+    return m_cullingVolume.isInFrustum(frustum, transform);
+}
+
 void engine::Model::processNode(aiNode *node, const aiScene *scene) {
     // обработать все полигональные сетки в узле(если есть)
     for(unsigned int i = 0; i < node->mNumMeshes; i++)
@@ -63,6 +67,8 @@ void engine::Model::processMesh(aiMesh *mesh, const aiScene *scene) {
 
     std::vector<Vertex> vertices;
     std::vector<GLuint> indices;
+    glm::vec3 minPosition = glm::vec3(FLT_MAX);
+    glm::vec3 maxPosition = glm::vec3(FLT_MIN);
 
     for(unsigned int i = 0; i < mesh->mNumVertices; i++)
     {
@@ -98,7 +104,22 @@ void engine::Model::processMesh(aiMesh *mesh, const aiScene *scene) {
         }   
 
         vertices.push_back(vertex);
+
+        // Нахождене самых малых и больших значений вершин для создания объёма отсечения
+        maxPosition.x = std::max(maxPosition.x, vertex.position.x);
+        maxPosition.y = std::max(maxPosition.y, vertex.position.y);
+        maxPosition.z = std::max(maxPosition.z, vertex.position.z);
+
+        minPosition.x = std::min(minPosition.x, vertex.position.x);
+        minPosition.y = std::min(minPosition.y, vertex.position.y);
+        minPosition.z = std::min(minPosition.z, vertex.position.z);
     }
+
+    // Создание объёма отсечения
+    glm::vec3 axisSizes = maxPosition - minPosition;
+    float biggestSize = std::max(axisSizes.x, std::max(axisSizes.y, axisSizes.z));
+    if (m_cullingVolume.getRadius() < biggestSize)
+        m_cullingVolume = SphereVolume(glm::vec3(0.f), biggestSize);
 
     // ОБРАБОТКА КОСТЕЙ
     for (unsigned int boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex) {

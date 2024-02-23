@@ -3,23 +3,28 @@
 
 #include "../stdafx.h"
 #include "../Render/Model.h"
+#include "Transform.h"
 
 namespace engine {
+    class Scene;
+
     class RenderComponent {
+        friend Scene;
+
     public:
         RenderComponent();
         RenderComponent(Model* model);
 
         void draw();
-        void updateModelMatrix(const glm::mat4& matrix);
         void pushMatrixToInstancingBuffer();
-        glm::mat4& getMatrix();
+        const Transform& getTransform();
         Model*     getModel();
 
     private:
         Model* m_model;
-        glm::mat4 m_modelMatrix;
+        Transform* m_transform;
 
+        void setTransform(Transform* transform);
     };
 }
 

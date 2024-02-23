@@ -12,18 +12,19 @@ void engine::RenderComponent::draw() {
     m_model->draw();
 }
 
-void engine::RenderComponent::updateModelMatrix(const glm::mat4 &matrix) {
-    m_modelMatrix = matrix;
-}
-
 void engine::RenderComponent::pushMatrixToInstancingBuffer() {
-    m_model->pushMatrixToInstancingBuffer(m_modelMatrix);
+    m_model->pushMatrixToInstancingBuffer(m_transform->getModelMatrix());
 }
 
-glm::mat4& engine::RenderComponent::getMatrix() {
-    return m_modelMatrix;
+const engine::Transform &engine::RenderComponent::getTransform() {
+    return *m_transform;
 }
 
-engine::Model* engine::RenderComponent::getModel() {
+engine::Model *engine::RenderComponent::getModel()
+{
     return m_model;
+}
+
+void engine::RenderComponent::setTransform(Transform *transform) {
+    m_transform = transform;
 }
