@@ -1,16 +1,16 @@
 #include "InstancingData.h"
 
 engine::InstancingData::InstancingData() {
-    m_matrices = new glm::mat4[engine_properties::SCENE_MAX_RENDER_COMPONENTS];
+    m_ids = new int[engine_properties::SCENE_MAX_RENDER_COMPONENTS];
     m_usedCount = 0;
 }
 
 engine::InstancingData::~InstancingData() {
-    delete [] m_matrices;
+    delete [] m_ids;
 }
 
-void engine::InstancingData::add(const glm::mat4 &matrix) {
-    m_matrices[m_usedCount] = matrix;
+void engine::InstancingData::add(const int id) {
+    m_ids[m_usedCount] = id;
     m_usedCount++;
 }
 
@@ -18,8 +18,8 @@ void engine::InstancingData::clear() {
     m_usedCount = 0;
 }
 
-const glm::mat4* engine::InstancingData::getMatrices() const {
-    return m_matrices;
+const int* engine::InstancingData::getIds() const {
+    return m_ids;
 }
 
 int engine::InstancingData::getCount() const {

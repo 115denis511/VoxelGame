@@ -16,7 +16,7 @@ namespace engine {
         RenderComponent(Model* model);
 
         void draw();
-        void pushMatrixToInstancingBuffer();
+        void pushTransformIdToInstancingBuffer();
         const Transform& getTransform();
         Model*     getModel();
 

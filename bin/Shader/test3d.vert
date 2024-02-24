@@ -9,7 +9,12 @@ layout(std140, binding = 0) uniform DrawVars
     mat4 projectionView;
 };
 
-layout(std140, binding = 0) buffer modelMatricesBuffer {
+layout(std430, binding = 0) buffer InstansingBuffer 
+{
+    int matrixId[];
+};
+layout(std140, binding = 1) buffer TransformsBuffer 
+{
     mat4 modelMatrices[];
 };
 
@@ -20,6 +25,7 @@ uniform mat4 model;
 void main()
 {
     //gl_Position = projectionView * model * vec4(Position.xyz, 1.0);
-    gl_Position = projectionView * modelMatrices[gl_InstanceID] * vec4(Position.xyz, 1.0);
+    int transformId = matrixId[gl_InstanceID];
+    gl_Position = projectionView * modelMatrices[transformId] * vec4(Position.xyz, 1.0);
     texCoord = TexCoord;
 }

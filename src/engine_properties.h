@@ -17,6 +17,7 @@ namespace engine_properties {
 
     // SSBO
     constexpr GLuint    SSBO_INSTANCING_MATRICES_BLOCK_ID = 0;
+    constexpr GLuint    SSBO_TRANSFORM_MATRICES_BLOCK_ID = 1;
 
     // Textures
     constexpr GLuint TEXTURE_ARRAY_W64_H64_SIZE = 1024;

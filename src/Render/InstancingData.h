@@ -10,13 +10,13 @@ namespace engine {
         InstancingData();
         ~InstancingData();
 
-        void add(const glm::mat4& matrix);
+        void add(int id);
         void clear();
-        const glm::mat4* getMatrices() const;
+        const int* getIds() const;
         int getCount() const;
 
     private:
-        glm::mat4* m_matrices;
+        int* m_ids;
         size_t m_usedCount;
     };
 }

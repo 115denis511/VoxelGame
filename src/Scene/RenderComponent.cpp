@@ -12,8 +12,8 @@ void engine::RenderComponent::draw() {
     m_model->draw();
 }
 
-void engine::RenderComponent::pushMatrixToInstancingBuffer() {
-    m_model->pushMatrixToInstancingBuffer(m_transform->getModelMatrix());
+void engine::RenderComponent::pushTransformIdToInstancingBuffer() {
+    m_model->pushTransformIdToInstancingBuffer(m_transform->getId());
 }
 
 const engine::Transform &engine::RenderComponent::getTransform() {

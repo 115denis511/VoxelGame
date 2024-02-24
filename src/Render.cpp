@@ -35,7 +35,7 @@ bool engine::Render::init() {
                                                     1000.f);
 
     AssetManager::init(g_shaderMix_RGB_A, g_shaderFill_RGB);
-    InstancingManager::init();
+    ShaderStorageManager::init();
 
     // test
     std::string modelPath = "Model/simpleChar.gltf";
@@ -87,7 +87,7 @@ void engine::Render::freeResources() {
     delete g_gBuffer;
 
     AssetManager::freeResources();
-    InstancingManager::freeResources();
+    ShaderStorageManager::freeResources();
 }
 
 void engine::Render::draw(CameraVars cameraVars, SceneResources& sceneResources) {
@@ -154,7 +154,7 @@ void engine::Render::accamulateInstancingBuffers(SceneResources& sceneResources,
             if (model->getInstancingData().getCount() == 0) {
                 addToInstancedDrawList(model);
             }
-            renderComponent.getObject().pushMatrixToInstancingBuffer();
+            renderComponent.getObject().pushTransformIdToInstancingBuffer();
         }
     }
 }

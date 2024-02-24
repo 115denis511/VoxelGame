@@ -4,7 +4,7 @@
 #include "stdafx.h"
 #include "WindowGLFW.h"
 #include "Render/UniformManager.h"
-#include "Render/InstancingManager.h"
+#include "Render/ShaderStorageManager.h"
 #include "Render/Shader.h"
 #include "Render/GBuffer.h"
 #include "Render/Mesh.h"
@@ -16,6 +16,14 @@
 
 // test, to delete
 #include "Render/Model.h"
+
+/*
+        ВНИМАНИЕ!!!
+        УЧЕСТЬ ПРИ РАСПАРАЛЛЕЛИВАНИИ, ЧТО КЛАСС SCENE ДЕЛАЕТ ВЫЗОВЫ OPENGL В
+        МЕТОДАХ applyChangesPhase И applyRequestsPhase, А ИМЕННО МЕТОДЫ
+        ShaderStorageManager::getMappedTransformsSSBO() И 
+        ShaderStorageManager::unmapTransformsSSBO()
+*/
 
 namespace engine {
     class Render {

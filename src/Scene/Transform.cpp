@@ -20,6 +20,10 @@ void engine::Transform::updateModelMatrix() {
     }
 }
 
+const int engine::Transform::getId() {
+    return m_id;
+}
+
 const glm::mat4& engine::Transform::getModelMatrix() const {
     return m_modelMatrix;
 }
@@ -73,4 +77,8 @@ void engine::Transform::setScale(glm::vec3 scale) {
 
 const glm::vec3 &engine::Transform::getScale() const {
     return m_scale;
+}
+
+void engine::Transform::setId(int id) {
+    m_id = id;
 }

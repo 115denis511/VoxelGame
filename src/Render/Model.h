@@ -10,7 +10,7 @@
 #include "TextureManager.h"
 #include "UniformManager.h"
 #include "InstancingData.h"
-#include "InstancingManager.h"
+#include "ShaderStorageManager.h"
 #include "../Collisions/SphereVolume.h"
 
 #include <assimp/material.h>
@@ -28,7 +28,7 @@ namespace engine {
 
             void draw();
             void drawInstanced();
-            void pushMatrixToInstancingBuffer(const glm::mat4& matrix);
+            void pushTransformIdToInstancingBuffer(const int id);
             const InstancingData& getInstancingData();
             bool isInFrustum(const Frustum &frustum, const Transform &transform);
 

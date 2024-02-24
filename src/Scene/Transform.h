@@ -4,11 +4,16 @@
 #include "../stdafx.h"
 
 namespace engine {
+    class Scene;
+
     class Transform {
+        friend Scene;
+
     public:
         Transform();
 
         void updateModelMatrix();
+        const int getId();
         const glm::mat4& getModelMatrix() const;
         bool isNeedToUpdateMatrix();
         void setPosition(const glm::vec3& position);
@@ -21,12 +26,15 @@ namespace engine {
         const glm::vec3& getScale() const;
 
     private:
+        int       m_id;
         glm::vec3 m_position;
         glm::vec3 m_rotation;
         glm::vec3 m_scale;
         bool      m_isNeedToUpdateMatrix;
         bool      m_isScaled;
         glm::mat4 m_modelMatrix;
+
+        void setId(int id);
     };
 }
 

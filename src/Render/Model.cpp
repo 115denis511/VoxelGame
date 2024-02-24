@@ -18,7 +18,7 @@ void engine::Model::draw() {
 }
 
 void engine::Model::drawInstanced() {
-    InstancingManager::pushMatrices(m_instancingData.getMatrices(), m_instancingData.getCount());
+    ShaderStorageManager::pushInstancingTransformIds(m_instancingData.getIds(), m_instancingData.getCount());
 
     for(unsigned int i = 0; i < m_meshes.size(); i++) {
         UniformManager::setTexturePack(m_textures[i]);
@@ -28,8 +28,8 @@ void engine::Model::drawInstanced() {
     m_instancingData.clear();
 }
 
-void engine::Model::pushMatrixToInstancingBuffer(const glm::mat4 &matrix) {
-    m_instancingData.add(matrix);
+void engine::Model::pushTransformIdToInstancingBuffer(const int id) {
+    m_instancingData.add(id);
 }
 
 const engine::InstancingData& engine::Model::getInstancingData() {
