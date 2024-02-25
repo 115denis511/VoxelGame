@@ -6,10 +6,6 @@ engine::Shader*                 engine::Render::g_shaderFill_RGB;
 engine::GBuffer*                engine::Render::g_gBuffer;
 engine::MeshRef                 engine::Render::g_primitiveFullScreenRect;
 engine::ProjectionPerspective   engine::Render::g_projectionPerspective;
-//glm::mat4               engine::Render::g_perspectiveProjection;
-//float                   engine::Render::g_perspectiveProjectionFov;
-//float                   engine::Render::g_perspectiveProjectionNear;
-//float                   engine::Render::g_perspectiveProjectionFar;
 std::vector<engine::Model*>     engine::Render::g_modelsToInstancedDraw;
 
 engine::Model*          engine::Render::test_model;

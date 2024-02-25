@@ -18,11 +18,12 @@ namespace engine {
         void draw();
         void pushTransformIdToInstancingBuffer();
         const Transform& getTransform();
-        Model*     getModel();
+        Model*           getModel();
 
     private:
         Model* m_model;
         Transform* m_transform;
+        int m_transformId{ -1 };
 
         void setTransform(Transform* transform);
     };

@@ -13,18 +13,18 @@ void engine::RenderComponent::draw() {
 }
 
 void engine::RenderComponent::pushTransformIdToInstancingBuffer() {
-    m_model->pushTransformIdToInstancingBuffer(m_transform->getId());
+    m_model->pushTransformIdToInstancingBuffer(m_transformId);
 }
 
 const engine::Transform &engine::RenderComponent::getTransform() {
     return *m_transform;
 }
 
-engine::Model *engine::RenderComponent::getModel()
-{
+engine::Model *engine::RenderComponent::getModel() {
     return m_model;
 }
 
 void engine::RenderComponent::setTransform(Transform *transform) {
     m_transform = transform;
+    m_transformId = m_transform->getId(); 
 }

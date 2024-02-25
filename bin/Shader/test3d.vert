@@ -9,11 +9,11 @@ layout(std140, binding = 0) uniform DrawVars
     mat4 projectionView;
 };
 
-layout(std430, binding = 0) buffer InstansingBuffer 
+layout(std430, binding = 0) readonly buffer InstansingBuffer 
 {
     int matrixId[];
 };
-layout(std140, binding = 1) buffer TransformsBuffer 
+layout(std140, binding = 1) readonly buffer TransformsBuffer 
 {
     mat4 modelMatrices[];
 };
