@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 #include <list>
+#include <stack>
 #include <map>
 #include <unordered_map>
 #include <functional>

@@ -31,6 +31,8 @@ namespace engine {
             void pushTransformIdToInstancingBuffer(const int id);
             const InstancingData& getInstancingData();
             bool isInFrustum(const Frustum &frustum, const Transform &transform);
+            const SphereVolume& getVolume() const;
+            const SphereVolume getVolume(const Transform& transform) const;
 
         private:
             std::string                                 m_path;

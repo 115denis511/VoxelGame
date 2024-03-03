@@ -3,9 +3,11 @@
 
 namespace engine {
     class Scene;
+    class BVHTree;
 
     class EntityReferences {
         friend Scene;
+        friend BVHTree;
     public:
         EntityReferences(int transformId = -1,
                          int renderComponentId = -1);
@@ -18,6 +20,7 @@ namespace engine {
         int m_id{ -1 };
         int m_transformId{ -1 };
         int m_renderComponentId{ -1 };
+        unsigned int m_BVHNodeId{ 0xffffffff };
     };
 }
 

@@ -14,11 +14,19 @@ namespace engine {
         bool isInFrustum(const Frustum& frustum);
         bool isOnOrForwardPlane(const Plane& plane, const glm::vec3& position) const;
         bool isOnOrForwardPlane(const Plane& plane, const glm::vec3& position, float radius) const;
-        const float getRadius() { return m_radius; }
+        const glm::vec3& getPosition() const { return m_position; }
+        const float getRadius() const { return m_radius; }
+        const float getArea() const { return m_area; }
+        bool overlaps(const SphereVolume& other) const;
+        bool contains(const SphereVolume& other) const;
+        SphereVolume merge(const SphereVolume& other) const;
 
     private:
         glm::vec3 m_position;
         float m_radius;
+        float m_area;
+
+        float calculateArea();
     };
 }
 

@@ -13,6 +13,7 @@
 #include "Scene/Camera.h"
 #include "Scene/SceneResources.h"
 #include "Collisions/Frustum.h"
+#include "Collisions/BVHTree.h"
 
 // test, to delete
 #include "Render/Model.h"
@@ -30,7 +31,7 @@ namespace engine {
     public:
         static bool init();
         static void freeResources();
-        static void draw(CameraVars cameraVars, SceneResources& sceneResources);
+        static void draw(CameraVars cameraVars, SceneResources& sceneResources, BVHTree& worldBVH);
 
     private:
         static Shader*                  g_shaderFinal;
@@ -44,7 +45,7 @@ namespace engine {
         static Model* test_model;
 
         static void updateViewports();
-        static void accamulateInstancingBuffers(SceneResources& sceneResources, Frustum frustum);
+        static void accamulateInstancingBuffers(SceneResources& sceneResources, BVHTree& worldBVH, Frustum frustum);
         static void drawInstanced();
         static void addToInstancedDrawList(Model* model);
     };

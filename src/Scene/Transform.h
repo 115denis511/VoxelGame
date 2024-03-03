@@ -14,6 +14,7 @@ namespace engine {
 
         void updateModelMatrix();
         const int getId();
+        const int getParentId();
         const glm::mat4& getModelMatrix() const;
         bool isNeedToUpdateMatrix();
         void setPosition(const glm::vec3& position);
@@ -24,9 +25,13 @@ namespace engine {
         const glm::vec3& getRotation() const;
         void setScale(glm::vec3 scale);
         const glm::vec3& getScale() const;
+        const glm::vec3 getUp() const;
+        const glm::vec3 getRight() const;
+        const glm::vec3 getFront() const;
 
     private:
         int       m_id;
+        int       m_parentId;
         glm::vec3 m_position;
         glm::vec3 m_rotation;
         glm::vec3 m_scale;
@@ -35,6 +40,7 @@ namespace engine {
         glm::mat4 m_modelMatrix;
 
         void setId(int id);
+        void setParentId(int id);
     };
 }
 

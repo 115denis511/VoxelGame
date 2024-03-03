@@ -4,6 +4,7 @@ engine::Camera          engine::Scene::g_camera;
 engine::SceneResources* engine::Scene::g_resouces = nullptr;
 engine::SceneRequest*   engine::Scene::g_requests = nullptr;
 engine::ISceneLogic*    engine::Scene::g_currentSceneLogic = nullptr;
+engine::BVHTree         engine::Scene::g_worldBVH;
 
 bool engine::Scene::init() {
     g_resouces = new SceneResources();
@@ -38,9 +39,16 @@ void engine::Scene::applyChangesPhase() {
     for (int i = 0; i <= g_resouces->transforms.getBiggestUsedId(); i++) {
         auto& object = g_resouces->transforms.get(i);
         if (object.isInUse() && object.getObject().isNeedToUpdateMatrix()) {
-            object.getObject().updateModelMatrix();
+            Transform& transform = object.getObject();
+
+            transform.updateModelMatrix();
             glm::mat4& transformInGPU = ssboTransforms[i];
-            transformInGPU = object.getObject().getModelMatrix(); // <--- УЧЕСТЬ ПРИ РАСПАРАЛЛЕЛИВАНИИ
+            transformInGPU = transform.getModelMatrix(); // <--- УЧЕСТЬ ПРИ РАСПАРАЛЛЕЛИВАНИИ
+
+            EntityReferences& entityRef = g_resouces->entities.get(object.getObject().getParentId()).getObject();
+            RenderComponent& renderComponent = g_resouces->renderComponents.get(entityRef.m_renderComponentId).getObject();
+            SphereVolume volume = renderComponent.getModel()->getVolume(transform);
+            g_worldBVH.updateObject(entityRef, volume);
         }
     }
     ShaderStorageManager::unmapTransformsSSBO();
@@ -74,7 +82,11 @@ void engine::Scene::applyRequestsPhase() {
         
         int entityId;
         g_resouces->entities.add(entity, entityId);
-        g_resouces->entities.get(entityId).getObject().m_id = entityId;
+        EntityReferences& entityRef = g_resouces->entities.get(entityId).getObject();
+        entityRef.m_id = entityId;
+        createdTransform.setParentId(entityId);
+        g_worldBVH.insertObject(&entityRef,
+                                createdRenderComponent.getModel()->getVolume(createdTransform));
     }
     ShaderStorageManager::unmapTransformsSSBO(); // <--- УЧЕСТЬ ПРИ РАСПАРАЛЛЕЛИВАНИИ
     g_requests->clearEntityCreateRequests();
@@ -99,6 +111,9 @@ void engine::Scene::applyRequestsPhase() {
     for (size_t i = 0; i < g_requests->m_entityDeleteRequestsLastUnusedId; i++) {
         int id = g_requests->m_entityDeleteRequests[i];
         EntityReferences& entity = g_resouces->entities.get(id).getObject();
+
+        g_worldBVH.removeObject(&entity);
+
         if (g_resouces->entities.get(id).isInUse()) {
             g_resouces->entities.remove(entity.m_id);
         }

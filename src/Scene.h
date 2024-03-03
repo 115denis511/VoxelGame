@@ -7,6 +7,7 @@
 #include "Scene/SceneResources.h"
 #include "Scene/SceneRequest.h"
 #include "Scene/ISceneLogic.h"
+#include "Collisions/BVHTree.h"
 
 namespace engine {
     class Core;
@@ -27,6 +28,7 @@ namespace engine {
         static SceneResources* g_resouces;
         static SceneRequest* g_requests;
         static ISceneLogic* g_currentSceneLogic;
+        static BVHTree g_worldBVH;
 
     };
 }

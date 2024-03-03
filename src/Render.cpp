@@ -52,6 +52,9 @@ bool engine::Render::init() {
     g_shaderFinal->setBindlessSampler("bindless", texture.getHandler());
     g_shaderFinal->setMat4("model", model);
 
+    /*unsigned int n = std::thread::hardware_concurrency();
+    std::cout << n << " concurrent threads are supported.\n";*/
+
     int errors = 0;
     GLenum errorCode;
     while ((errorCode = glGetError()) != GL_NO_ERROR) {
@@ -86,7 +89,7 @@ void engine::Render::freeResources() {
     ShaderStorageManager::freeResources();
 }
 
-void engine::Render::draw(CameraVars cameraVars, SceneResources& sceneResources) {
+void engine::Render::draw(CameraVars cameraVars, SceneResources& sceneResources, BVHTree& worldBVH) {
     if (WindowGLFW::g_isRenderMustUpdateViewport) {
         updateViewports();
     }
@@ -103,7 +106,7 @@ void engine::Render::draw(CameraVars cameraVars, SceneResources& sceneResources)
     //MeshManager::getPrimitiveCube(1.f)->draw();
     //MeshManager::getPrimitiveSphere(1.f, 32, 32)->draw();
 
-    accamulateInstancingBuffers(sceneResources, Frustum(cameraVars, g_projectionPerspective));
+    accamulateInstancingBuffers(sceneResources, worldBVH, Frustum(cameraVars, g_projectionPerspective));
     drawInstanced();
      
 
@@ -137,8 +140,8 @@ void engine::Render::updateViewports() {
     WindowGLFW::g_isRenderMustUpdateViewport = false;
 }
 
-void engine::Render::accamulateInstancingBuffers(SceneResources& sceneResources, Frustum frustum) {
-    for (int i = 0; i <= sceneResources.renderComponents.getBiggestUsedId(); i++) {
+void engine::Render::accamulateInstancingBuffers(SceneResources& sceneResources, BVHTree& worldBVH, Frustum frustum) {
+    /*for (int i = 0; i <= sceneResources.renderComponents.getBiggestUsedId(); i++) {
         auto renderComponent = sceneResources.renderComponents.get(i);
 
         if(renderComponent.isInUse()) {
@@ -152,6 +155,21 @@ void engine::Render::accamulateInstancingBuffers(SceneResources& sceneResources,
             }
             renderComponent.getObject().pushTransformIdToInstancingBuffer();
         }
+    }*/
+
+    std::vector<int> overlaps = worldBVH.getOverlapsedRenderComponents(frustum);
+    //std::vector<int> overlaps = worldBVH.getOverlapsedRenderComponents_multithread(frustum, 3);
+    
+    for (size_t i = 0; i < overlaps.size(); i++) {
+        int componentId = overlaps[i];
+        auto renderComponent = sceneResources.renderComponents.get(componentId);
+
+        auto model = renderComponent.getObject().getModel();
+
+        if (model->getInstancingData().getCount() == 0) {
+            addToInstancedDrawList(model);
+        }
+        renderComponent.getObject().pushTransformIdToInstancingBuffer();
     }
 }
 

@@ -54,7 +54,9 @@ void engine::Core::start(ISceneLogic* sceneLogic) {
             Scene::g_requests->addEntity(trs, rc);
         }
     }
-    Scene::g_requests->deleteEntity(4095);
+    Scene::g_requests->deleteEntity(1);
+    Scene::g_requests->deleteEntity(3);
+    Scene::g_requests->deleteEntity(5);
     // TEST END
 
 
@@ -74,7 +76,8 @@ void engine::Core::start(ISceneLogic* sceneLogic) {
 
         Render::draw(
             Scene::g_camera.getVars(),
-            *Scene::getSceneResources());
+            *Scene::getSceneResources(),
+            Scene::g_worldBVH);
 
         Scene::sceneLogicUpdatePhase();
 

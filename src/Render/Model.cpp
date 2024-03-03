@@ -40,6 +40,18 @@ bool engine::Model::isInFrustum(const Frustum &frustum, const Transform &transfo
     return m_cullingVolume.isInFrustum(frustum, transform);
 }
 
+const engine::SphereVolume &engine::Model::getVolume() const { 
+    return m_cullingVolume; 
+}
+
+const engine::SphereVolume engine::Model::getVolume(const Transform &transform) const {
+    glm::vec3 position = transform.getModelMatrix() * glm::vec4(m_cullingVolume.getPosition(), 1.f);
+    const glm::vec3& scale = transform.getScale();
+    float radius = m_cullingVolume.getRadius() * std::max(scale.x, std::max(scale.y, scale.z));
+
+    return SphereVolume(position, radius);
+}
+
 void engine::Model::processNode(aiNode *node, const aiScene *scene) {
     // обработать все полигональные сетки в узле(если есть)
     for(unsigned int i = 0; i < node->mNumMeshes; i++)

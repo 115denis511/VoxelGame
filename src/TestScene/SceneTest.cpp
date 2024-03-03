@@ -36,4 +36,9 @@ void SceneTest::update(engine::Camera& camera, engine::SceneResources &resources
             camera.movePosition(-right * 0.1f);
         }
     }
+
+    // Тест обновления BVH и трансформаций
+    if (resources.transforms.get(0).isInUse()) {
+        resources.transforms.get(0).getObject().movePosition(glm::vec3(-0.001f, 0.f, 0.f));
+    }
 }

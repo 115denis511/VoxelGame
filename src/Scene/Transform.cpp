@@ -24,6 +24,10 @@ const int engine::Transform::getId() {
     return m_id;
 }
 
+const int engine::Transform::getParentId() {
+    return m_parentId;
+}
+
 const glm::mat4& engine::Transform::getModelMatrix() const {
     return m_modelMatrix;
 }
@@ -79,6 +83,22 @@ const glm::vec3 &engine::Transform::getScale() const {
     return m_scale;
 }
 
+const glm::vec3 engine::Transform::getUp() const {
+    return m_modelMatrix[1];
+}
+
+const glm::vec3 engine::Transform::getRight() const {
+    return m_modelMatrix[0];
+}
+
+const glm::vec3 engine::Transform::getFront() const {
+    return -m_modelMatrix[2];
+}
+
 void engine::Transform::setId(int id) {
     m_id = id;
+}
+
+void engine::Transform::setParentId(int id) {
+    m_parentId = id;
 }
