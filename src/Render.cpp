@@ -141,24 +141,7 @@ void engine::Render::updateViewports() {
 }
 
 void engine::Render::accamulateInstancingBuffers(SceneResources& sceneResources, BVHTree& worldBVH, Frustum frustum) {
-    /*for (int i = 0; i <= sceneResources.renderComponents.getBiggestUsedId(); i++) {
-        auto renderComponent = sceneResources.renderComponents.get(i);
-
-        if(renderComponent.isInUse()) {
-            auto model = renderComponent.getObject().getModel();
-
-            if (!model->isInFrustum(frustum, renderComponent.getObject().getTransform()))
-                continue;
-
-            if (model->getInstancingData().getCount() == 0) {
-                addToInstancedDrawList(model);
-            }
-            renderComponent.getObject().pushTransformIdToInstancingBuffer();
-        }
-    }*/
-
     std::vector<int> overlaps = worldBVH.getOverlapsedRenderComponents(frustum);
-    //std::vector<int> overlaps = worldBVH.getOverlapsedRenderComponents_multithread(frustum, 3);
     
     for (size_t i = 0; i < overlaps.size(); i++) {
         int componentId = overlaps[i];

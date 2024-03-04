@@ -46,9 +46,6 @@ namespace engine {
     private:
         std::vector<BVHTreeNode> m_nodes;
         std::stack<unsigned int> m_nodesToProcess;
-        std::mutex m_stackMutex;
-        std::mutex m_overlapsMutex;
-        std::atomic<bool> m_interruptThreads{ false };
         unsigned int m_rootNodeId{ BVH_TREE_NULL_ID };
         unsigned int m_nextFreeNodeId{ 0 };
 

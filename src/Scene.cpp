@@ -69,22 +69,26 @@ void engine::Scene::applyRequestsPhase() {
         if (transform.isNeedToUpdateMatrix())
             transform.updateModelMatrix();
 
-        EntityReferences entity;
-        g_resouces->transforms.add(g_requests->m_entityCreateRequests[i].transform, entity.m_transformId);
-        auto& createdTransform = g_resouces->transforms.get(entity.m_transformId).getObject();
-        createdTransform.setId(entity.m_transformId);
-        glm::mat4& transformInGPU = ssboTransforms[entity.m_transformId];
-        transformInGPU = createdTransform.getModelMatrix();
-
-        g_resouces->renderComponents.add(g_requests->m_entityCreateRequests[i].renderComponent, entity.m_renderComponentId);
-        auto& createdRenderComponent = g_resouces->renderComponents.get(entity.m_renderComponentId).getObject();
-        createdRenderComponent.setTransform(&createdTransform);
-        
+        // Создание объеката для хранения id компонентов сущности
         int entityId;
-        g_resouces->entities.add(entity, entityId);
+        g_resouces->entities.add(EntityReferences(), entityId);
         EntityReferences& entityRef = g_resouces->entities.get(entityId).getObject();
         entityRef.m_id = entityId;
+
+        // Трансформации сущности
+        g_resouces->transforms.add(g_requests->m_entityCreateRequests[i].transform, entityRef.m_transformId);
+        Transform& createdTransform = g_resouces->transforms.get(entityRef.m_transformId).getObject();
+        createdTransform.setId(entityRef.m_transformId);
         createdTransform.setParentId(entityId);
+        glm::mat4& transformInGPU = ssboTransforms[entityRef.m_transformId];
+        transformInGPU = createdTransform.getModelMatrix();
+
+        // Компонент рендеринга сущности
+        g_resouces->renderComponents.add(g_requests->m_entityCreateRequests[i].renderComponent, entityRef.m_renderComponentId);
+        auto& createdRenderComponent = g_resouces->renderComponents.get(entityRef.m_renderComponentId).getObject();
+        createdRenderComponent.setTransform(&createdTransform);
+        
+        // Вставка сущности в BVH
         g_worldBVH.insertObject(&entityRef,
                                 createdRenderComponent.getModel()->getVolume(createdTransform));
     }
@@ -92,6 +96,7 @@ void engine::Scene::applyRequestsPhase() {
     g_requests->clearEntityCreateRequests();
 
     // Удаление сущностей
+    // TODO: Распарелелить.
     for (size_t i = 0; i < g_requests->m_entityDeleteRequestsLastUnusedId; i++) {
         int id = g_requests->m_entityDeleteRequests[i];
         EntityReferences& entity = g_resouces->entities.get(id).getObject();
@@ -110,11 +115,10 @@ void engine::Scene::applyRequestsPhase() {
     // после удаления всех прочих компонентов и быть в одном потоке!!!
     for (size_t i = 0; i < g_requests->m_entityDeleteRequestsLastUnusedId; i++) {
         int id = g_requests->m_entityDeleteRequests[i];
-        EntityReferences& entity = g_resouces->entities.get(id).getObject();
-
-        g_worldBVH.removeObject(&entity);
 
         if (g_resouces->entities.get(id).isInUse()) {
+            EntityReferences& entity = g_resouces->entities.get(id).getObject();
+            g_worldBVH.removeObject(&entity);
             g_resouces->entities.remove(entity.m_id);
         }
     }
