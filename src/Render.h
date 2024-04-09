@@ -16,7 +16,7 @@
 #include "Collisions/BVHTree.h"
 
 // test, to delete
-#include "Render/Model.h"
+#include "Voxel/VoxelChunk.h"
 
 /*
         ВНИМАНИЕ!!!

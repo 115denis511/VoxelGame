@@ -35,10 +35,27 @@ void SceneTest::update(engine::Camera& camera, engine::SceneResources &resources
         if (engine::Controls::isKeyPressed(GLFW_KEY_A)) {
             camera.movePosition(-right * 0.1f);
         }
+
+        engine::MarchingCubesManager* marching = engine::MarchingCubesManager::getInstance();
+        if (engine::Controls::isMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
+            glm::vec3 cameraPos = camera.getPosition(), cameraTarget = camera.getFront();
+            glm::ivec3 hit, face;
+            if (marching->raycastVoxel(cameraPos, cameraTarget, 100.f, hit, face)) {
+                std::cout << "Break voxel at " << hit.x << " " << hit.y << " " << hit.z << std::endl;
+                marching->setVoxel(hit, 255); 
+            }
+        }
+        else if (engine::Controls::isMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT)) {
+            glm::vec3 cameraPos = camera.getPosition(), cameraTarget = camera.getFront();
+            glm::ivec3 hit, face;
+            if (marching->raycastVoxel(cameraPos, cameraTarget, 100.f, hit, face)) {
+                marching->setVoxel(hit + face, 0);
+            }
+        }
     }
 
     // Тест обновления BVH и трансформаций
     if (resources.transforms.get(0).isInUse()) {
-        resources.transforms.get(0).getObject().movePosition(glm::vec3(-0.001f, 0.f, 0.f));
+        resources.transforms.get(0).getObject().movePosition(glm::vec3(-0.001f, 0.f, 0.001f));
     }
 }

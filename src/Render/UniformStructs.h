@@ -7,6 +7,8 @@ namespace engine {
     namespace uniform_structs {
         struct DrawVars {
             glm::mat4 projectionView;
+            glm::mat4 projection;
+            glm::mat4 View;
         };
 
         struct TexturePack {

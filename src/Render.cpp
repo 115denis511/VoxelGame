@@ -94,7 +94,7 @@ void engine::Render::draw(CameraVars cameraVars, SceneResources& sceneResources,
         updateViewports();
     }
 
-    uniform_structs::DrawVars vars(g_projectionPerspective.getMatrix() * cameraVars.lookAt);
+    uniform_structs::DrawVars vars(g_projectionPerspective.getMatrix() * cameraVars.lookAt, g_projectionPerspective.getMatrix(), cameraVars.lookAt);
     UniformManager::setDrawVars(vars);
 
     //g_resources->m_gBuffer->bind();
@@ -157,6 +157,7 @@ void engine::Render::accamulateInstancingBuffers(SceneResources& sceneResources,
 }
 
 void engine::Render::drawInstanced() {
+    g_shaderFinal->use();
     for (size_t i = 0; i < g_modelsToInstancedDraw.size(); i++) {
         g_modelsToInstancedDraw[i]->drawInstanced();
     }

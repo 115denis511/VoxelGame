@@ -4,6 +4,7 @@
 #include "../stdafx.h"
 #include "../Controls.h"
 #include "../WindowGLFW.h"
+#include "../Voxel/MarchingCubesManager.h"
 #include "../Scene/ISceneLogic.h"
 
 class SceneTest : public engine::ISceneLogic {

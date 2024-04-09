@@ -9,6 +9,8 @@
 #include "Render.h"
 #include "Log.h"
 
+#include "Voxel/MarchingCubesManager.h"
+
 namespace engine {
 
     class Core {

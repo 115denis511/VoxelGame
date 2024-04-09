@@ -29,6 +29,9 @@ namespace engine {
         static bool isKeyPressed(int key);
         static const std::vector<int>& getKeysDown();
         static const std::vector<int>& getKeysUp();
+        static bool isMouseButtonPressed(int button);
+        static bool isMouseButtonDown(int button);
+        static bool isMouseButtonUp(int button);
         static const glm::vec2 getMouseOffset();
 
     private:
@@ -37,6 +40,9 @@ namespace engine {
         static bool             g_keys[1024];
         static std::vector<int> g_keysDown;
         static std::vector<int> g_keysUp;
+        static bool             g_mouseButtons[5];
+        static bool             g_mouseButtonDown[5];
+        static bool             g_mouseButtonUp[5];
         static glm::vec2        g_mousePos;
         static glm::vec2        g_mouseOffset;
 

@@ -24,7 +24,16 @@ void engine::glfw_callbacks::mouse_callback(GLFWwindow *window, double xpos, dou
 }
 
 void engine::glfw_callbacks::mouse_button_callback(GLFWwindow *window, int button, int action, int mods) {
+    if (button >= 5) return;
 
+    if (action == GLFW_PRESS) {
+        Controls::g_mouseButtons[button] = true;
+        Controls::g_mouseButtonDown[button] = true;
+    }
+    else if (action == GLFW_RELEASE) {
+        Controls::g_mouseButtons[button] = false;
+        Controls::g_mouseButtonUp[button] = true;
+    }
 }
 
 void engine::glfw_callbacks::scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {

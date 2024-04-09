@@ -50,13 +50,38 @@ void engine::Core::start(ISceneLogic* sceneLogic) {
 
     for (size_t i = 0; i < 50; i++) {
         for (size_t j = 0; j < 50; j++){
-            trs.setPosition(glm::vec3(5.f + i, 0.f, (float)j * 2 ));
+            trs.setPosition(glm::vec3(5.f + i, 2.f, (float)j * 2 ));
             Scene::g_requests->addEntity(trs, rc);
         }
     }
     Scene::g_requests->deleteEntity(1);
     Scene::g_requests->deleteEntity(3);
     Scene::g_requests->deleteEntity(5);
+
+    MarchingCubesManager::init();
+    // REMEMBER DELETE FREE RESOURCES AT MAIN LOOP END
+    Shader mcShader("Shader/marchingCubes.vert", "Shader/marchingCubes.frag"); 
+    mcShader.use();
+    mcShader.setInt("tex", 0);
+    auto marching = MarchingCubesManager::getInstance();
+    marching->resizeChunkGrid(24);
+
+    int errors = 0;
+    GLenum errorCode;
+    while ((errorCode = glGetError()) != GL_NO_ERROR) {
+        errors++;
+        std::string error;
+        switch (errorCode) {
+        case GL_INVALID_ENUM:                  error = "INVALID_ENUM"; break;
+        case GL_INVALID_VALUE:                 error = "INVALID_VALUE"; break;
+        case GL_INVALID_OPERATION:             error = "INVALID_OPERATION"; break;
+        case GL_STACK_OVERFLOW:                error = "STACK_OVERFLOW"; break;
+        case GL_STACK_UNDERFLOW:               error = "STACK_UNDERFLOW"; break;
+        case GL_OUT_OF_MEMORY:                 error = "OUT_OF_MEMORY"; break;
+        case GL_INVALID_FRAMEBUFFER_OPERATION: error = "INVALID_FRAMEBUFFER_OPERATION"; break;
+        }
+        std::cout << "CORE TEST INIT " << error << std::endl;
+    }
     // TEST END
 
 
@@ -79,6 +104,14 @@ void engine::Core::start(ISceneLogic* sceneLogic) {
             *Scene::getSceneResources(),
             Scene::g_worldBVH);
 
+        mcShader.use();
+        marching->draw(mcShader);
+        marching->updateChunks();
+
+        //glm::vec3 cameraPos = Scene::g_camera.getPosition();
+        //float cellSize = 32.f;
+        //std::cout << "X: " << std::floor(cameraPos.x / cellSize) << " | Y: " << std::floor(cameraPos.y / cellSize) << " | Z: " << std::floor(cameraPos.z / cellSize) << "\n";
+
         Scene::sceneLogicUpdatePhase();
 
         Scene::applyChangesPhase();
@@ -89,6 +122,10 @@ void engine::Core::start(ISceneLogic* sceneLogic) {
 
         WindowGLFW::swapBuffers();
     }
+
+    // TEST !!!!!!
+    marching = MarchingCubesManager::getInstance();
+    MarchingCubesManager::freeResources();
 }
 
 void engine::Core::close() {
