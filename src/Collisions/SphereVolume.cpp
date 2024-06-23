@@ -29,6 +29,7 @@ bool engine::SphereVolume::isInFrustum(const Frustum &frustum) {
 }
 
 bool engine::SphereVolume::isOnOrForwardPlane(const Plane &plane, const glm::vec3 &position) const {
+    // Для проверки на полное нахождение, не перскающее края плоскости, нужно убрать минус у радиуса
     return plane.signedDistanceToPlane(position) > -m_radius;
 }
 
@@ -36,15 +37,15 @@ bool engine::SphereVolume::isOnOrForwardPlane(const Plane &plane, const glm::vec
     return plane.signedDistanceToPlane(position) > -radius;
 }
 
-bool engine::SphereVolume::overlaps(const SphereVolume &other) const {
+bool engine::SphereVolume::overlaps(const SphereVolume &other) const noexcept {
     return glm::distance(m_position, other.getPosition()) <= m_radius + other.getRadius();
 }
 
-bool engine::SphereVolume::contains(const SphereVolume &other) const {
+bool engine::SphereVolume::contains(const SphereVolume &other) const noexcept {
     return glm::distance(m_position, other.getPosition()) + other.getRadius() <= m_radius;
 }
 
-engine::SphereVolume engine::SphereVolume::merge(const SphereVolume &other) const {
+engine::SphereVolume engine::SphereVolume::merge(const SphereVolume &other) const noexcept {
     // https://stackoverflow.com/questions/33532860/merge-two-spheres-to-get-a-new-one
 
     // Если один из объёмов содержит внутри себя другой, то вернуть больший объём
@@ -63,6 +64,6 @@ engine::SphereVolume engine::SphereVolume::merge(const SphereVolume &other) cons
     return SphereVolume(position, radius);
 }
 
-float engine::SphereVolume::calculateArea() {
+float engine::SphereVolume::calculateArea() noexcept {
     return 4 * M_PI * (m_radius * m_radius);
 }

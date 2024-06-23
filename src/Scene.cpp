@@ -1,10 +1,10 @@
 #include "Scene.h"
 
-engine::Camera          engine::Scene::g_camera;
-engine::SceneResources* engine::Scene::g_resouces = nullptr;
-engine::SceneRequest*   engine::Scene::g_requests = nullptr;
-engine::ISceneLogic*    engine::Scene::g_currentSceneLogic = nullptr;
-engine::BVHTree         engine::Scene::g_worldBVH;
+engine::Camera              engine::Scene::g_camera;
+engine::SceneResources*     engine::Scene::g_resouces = nullptr;
+engine::SceneRequest*       engine::Scene::g_requests = nullptr;
+engine::ISceneLogic*        engine::Scene::g_currentSceneLogic = nullptr;
+engine::BVHTreeEntities     engine::Scene::g_worldBVH;
 
 bool engine::Scene::init() {
     g_resouces = new SceneResources();

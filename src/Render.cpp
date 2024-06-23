@@ -89,7 +89,7 @@ void engine::Render::freeResources() {
     ShaderStorageManager::freeResources();
 }
 
-void engine::Render::draw(CameraVars cameraVars, SceneResources& sceneResources, BVHTree& worldBVH) {
+void engine::Render::draw(CameraVars cameraVars, SceneResources& sceneResources, BVHTreeEntities& worldBVH) {
     if (WindowGLFW::g_isRenderMustUpdateViewport) {
         updateViewports();
     }
@@ -140,7 +140,7 @@ void engine::Render::updateViewports() {
     WindowGLFW::g_isRenderMustUpdateViewport = false;
 }
 
-void engine::Render::accamulateInstancingBuffers(SceneResources& sceneResources, BVHTree& worldBVH, Frustum frustum) {
+void engine::Render::accamulateInstancingBuffers(SceneResources& sceneResources, BVHTreeEntities& worldBVH, Frustum frustum) {
     std::vector<int> overlaps = worldBVH.getOverlapsedRenderComponents(frustum);
     
     for (size_t i = 0; i < overlaps.size(); i++) {

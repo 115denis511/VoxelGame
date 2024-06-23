@@ -17,16 +17,16 @@ namespace engine {
         const glm::vec3& getPosition() const { return m_position; }
         const float getRadius() const { return m_radius; }
         const float getArea() const { return m_area; }
-        bool overlaps(const SphereVolume& other) const;
-        bool contains(const SphereVolume& other) const;
-        SphereVolume merge(const SphereVolume& other) const;
+        bool overlaps(const SphereVolume& other) const noexcept;
+        bool contains(const SphereVolume& other) const noexcept;
+        SphereVolume merge(const SphereVolume& other) const noexcept;
 
     private:
         glm::vec3 m_position;
         float m_radius;
         float m_area;
 
-        float calculateArea();
+        float calculateArea() noexcept;
     };
 }
 
