@@ -123,6 +123,10 @@ void engine::Core::start(ISceneLogic* sceneLogic) {
         WindowGLFW::swapBuffers();
     }
 
+    if (Log::isHaveFatalError()) {
+        onFatalError();
+    }
+
     // TEST !!!!!!
     marching = MarchingCubesManager::getInstance();
     MarchingCubesManager::freeResources();

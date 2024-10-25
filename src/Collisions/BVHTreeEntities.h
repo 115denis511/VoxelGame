@@ -14,6 +14,9 @@ namespace engine {
         BVHTreeEntities() {}
 
         std::vector<int> getOverlapsedRenderComponents(Frustum frustum);
+
+    private:
+        void nodeProcess(unsigned int nodeId, std::vector<int>& overlaps, const Frustum& frustum);
     };
 }
 

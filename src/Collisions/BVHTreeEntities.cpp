@@ -8,7 +8,8 @@ std::vector<int> engine::BVHTreeEntities::getOverlapsedRenderComponents(Frustum 
     std::vector<int> overlaps;
     overlaps.reserve(engine_properties::SCENE_MAX_RENDER_COMPONENTS);
 
-    m_nodesToProcess.push(m_rootNodeId);
+    // stack method
+    /*m_nodesToProcess.push(m_rootNodeId);
 
     while(!m_nodesToProcess.empty()) {
         unsigned int nodeId = m_nodesToProcess.top();
@@ -28,7 +29,35 @@ std::vector<int> engine::BVHTreeEntities::getOverlapsedRenderComponents(Frustum 
                 overlaps.push_back(componentId);
             }
         }
+    }*/
+
+    // recursive method
+    try {
+        if (m_rootNodeId != BVH_TREE_NULL_ID)
+            nodeProcess(m_rootNodeId, overlaps, frustum);
+    }
+    catch(const std::exception& e) {
+        std::string error = "src/Collisions/BVHTreeEntities.cpp::nodeProcess() " + std::string(e.what());
+        std::cerr << error << '\n';
+        Log::addFatalError(error);
     }
 
     return overlaps;
+}
+
+void engine::BVHTreeEntities::nodeProcess(unsigned int nodeId, std::vector<int>& overlaps, const Frustum& frustum) {
+    //if (nodeId == BVH_TREE_NULL_ID) return;
+
+    BVHTreeNode<EntityReferences, SphereVolume>& node = m_nodes[nodeId];
+
+    if(node.bounds.isInFrustum(frustum)) {
+        if(!node.isLeaf()) {
+            nodeProcess(node.leftNodeId, overlaps, frustum);
+            nodeProcess(node.rightNodeId, overlaps, frustum);
+        }
+        else {
+            int componentId = node.entityRef->getRenderComponentId();
+            overlaps.push_back(componentId);
+        }
+    }
 }
