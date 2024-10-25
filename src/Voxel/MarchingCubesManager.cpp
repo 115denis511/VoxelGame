@@ -22,16 +22,16 @@ bool engine::MarchingCubesManager::init() {
     return false;
 }
 
+void engine::MarchingCubesManager::freeResources() {
+    delete g_instance;
+}
+
 void engine::MarchingCubesManager::updateChunks(size_t maxCount) {
     for (size_t i = 0; i < maxCount && !m_toUpdateQueue.empty(); i++) {
         VoxelChunk& chunk = popFromUpdateQueue();
         if (!chunk.isInUse()) continue;
         m_solver.regenerateChunk(m_marchingCubes, chunk);
     }
-}
-
-void engine::MarchingCubesManager::freeResources() {
-
 }
 
 engine::MarchingCubesManager::MarchingCubesManager() {
@@ -122,8 +122,8 @@ bool engine::MarchingCubesManager::raycastVoxel(const glm::vec3& position, const
     if (!isPositionInbounds(position) || (direction.x == 0 && direction.y == 0 && direction.z == 0)) return false;
 
     hitPosition = m_converter.worldPositionToVoxelPosition(position, VOXEL_SIZE);
-    //glm::vec3 next(intbound(hitPosition.x, direction.x), intbound(hitPosition.y, direction.y), intbound(hitPosition.z, direction.z));
-    glm::vec3 next(intbound(position.x, direction.x), intbound(position.y, direction.y), intbound(position.z, direction.z));
+    glm::vec3 next(intbound(hitPosition.x, direction.x), intbound(hitPosition.y, direction.y), intbound(hitPosition.z, direction.z));
+    //glm::vec3 next(intbound(position.x, direction.x), intbound(position.y, direction.y), intbound(position.z, direction.z));
     glm::ivec3 step(signum(direction.x), signum(direction.y), signum(direction.z));
     glm::vec3 delta(step.x / direction.x, step.y / direction.y, step.z / direction.z);
     maxDistance /= std::sqrt(direction.x * direction.x + direction.y * direction.y + direction.z * direction.z);

@@ -4,9 +4,10 @@
 #include "../stdafx.h"
 #include "../Scene/Transform.h"
 #include "Frustum.h"
+#include "IMergeableVolume.h"
 
 namespace engine {
-    class SphereVolume {
+    class SphereVolume : public IMergeableVolume<SphereVolume> {
     public:
         SphereVolume(const glm::vec3& position = glm::vec3(0.f), float radius = 0.f);
 
@@ -19,7 +20,7 @@ namespace engine {
         const float getArea() const { return m_area; }
         bool overlaps(const SphereVolume& other) const noexcept;
         bool contains(const SphereVolume& other) const noexcept;
-        SphereVolume merge(const SphereVolume& other) const noexcept;
+        SphereVolume merge(const SphereVolume& other) const noexcept override;
 
     private:
         glm::vec3 m_position;

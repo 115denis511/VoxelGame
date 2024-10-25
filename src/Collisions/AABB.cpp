@@ -74,7 +74,7 @@ bool engine::AABB::isOnOrForwardPlane(const Plane &plane, const glm::vec3& posit
     return -r <= plane.signedDistanceToPlane(position);
 }
 
-engine::AABB engine::AABB::merge(const AABB &other) {
+engine::AABB engine::AABB::merge(const AABB &other) const noexcept {
     return AABB(glm::vec3(std::min(m_min.x, other.getMin().x), std::min(m_min.y, other.getMin().y), std::min(m_min.z, other.getMin().z)),
                 glm::vec3(std::max(m_min.x, other.getMax().x), std::max(m_min.y, other.getMax().y), std::max(m_min.z, other.getMax().z)));
 }

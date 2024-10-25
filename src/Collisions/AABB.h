@@ -3,10 +3,11 @@
 
 #include "../stdafx.h"
 #include "Frustum.h"
+#include "IMergeableVolume.h"
 #include "../Scene/Transform.h"
 
 namespace engine {
-    class AABB {
+    class AABB : public IMergeableVolume<AABB> {
     public:
         AABB(const glm::vec3& min = glm::vec3(0.f), const glm::vec3& max = glm::vec3(0.f));
         AABB(const glm::vec3& position, float eXYZ);
@@ -19,7 +20,7 @@ namespace engine {
         const glm::vec3& getMin() const { return m_min; }
         const glm::vec3& getMax() const { return m_max; }
         float getArea() const { return m_area; }
-        AABB merge(const AABB& other);
+        AABB merge(const AABB& other) const noexcept override;
 
         inline const glm::vec3& getPosition() const { return m_position; }
         inline const glm::vec3& getExtents() const { return m_extents; }

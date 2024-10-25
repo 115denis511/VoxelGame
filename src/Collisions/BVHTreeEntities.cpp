@@ -16,7 +16,7 @@ std::vector<int> engine::BVHTreeEntities::getOverlapsedRenderComponents(Frustum 
 
         if (nodeId == BVH_TREE_NULL_ID) continue;
 
-        BVHTreeNode<EntityReferences>& node = m_nodes[nodeId];
+        BVHTreeNode<EntityReferences, SphereVolume>& node = m_nodes[nodeId];
 
         if(node.bounds.isInFrustum(frustum)) {
             if(!node.isLeaf()) {

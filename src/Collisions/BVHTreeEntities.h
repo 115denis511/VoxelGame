@@ -6,9 +6,10 @@
 #include "../Scene/RenderComponent.h"
 #include "Frustum.h"
 #include "BVHTree.h"
+#include "SphereVolume.h"
 
 namespace engine {
-    class BVHTreeEntities : public BVHTree<EntityReferences> {
+    class BVHTreeEntities : public BVHTree<EntityReferences, SphereVolume> {
     public:
         BVHTreeEntities() {}
 

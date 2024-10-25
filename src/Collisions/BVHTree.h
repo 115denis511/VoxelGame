@@ -2,10 +2,10 @@
 #define __COLLISIONS__BVH_TREE_H__
 
 #include "../stdafx.h"
-#include "SphereVolume.h"
 #include "../engine_properties.h"
 #include "../Log.h"
 #include "../Utilites/ObjectPool.h"
+#include "IMergeableVolume.h"
 
 // Сделано на основе следующих материалов
 // https://www.azurefromthetrenches.com/introductory-guide-to-aabb-tree-collision-detection/
@@ -20,20 +20,20 @@
 namespace engine {
     constexpr unsigned int BVH_TREE_NULL_ID = 0xffffffff;
 
-    template <typename T>
+    template <typename Item, typename Volume>
     class BVHTree;
-    template <typename T>
+    template <typename Item, typename Volume>
     class IBVHTreeItem {
-        friend BVHTree<T>;
+        friend BVHTree<Item, Volume>;
 
     private:
         unsigned int m_BVHNodeId{ 0xffffffff };
     };
 
-    template <typename T>
+    template <typename Item, typename Volume>
     struct BVHTreeNode {
-        SphereVolume bounds;
-        T* entityRef{ nullptr };
+        Volume bounds;
+        Item* entityRef{ nullptr };
         unsigned int parentNodeId{ BVH_TREE_NULL_ID };
         unsigned int leftNodeId{ BVH_TREE_NULL_ID };
         unsigned int rightNodeId{ BVH_TREE_NULL_ID };
@@ -42,12 +42,16 @@ namespace engine {
         bool isLeaf() const { return leftNodeId == BVH_TREE_NULL_ID; }
     };
 
-    template <typename T>
+    template <typename Item, typename Volume>
     class BVHTree {
     public:
         static_assert(
-            std::is_base_of<IBVHTreeItem<T>, T>::value, 
-            "Class T must inherit from class IBVHTreeItem<T>"
+            std::is_base_of<IBVHTreeItem<Item, Volume>, Item>::value, 
+            "Class <Item> must inherit from class IBVHTreeItem<Item, Volume>"
+        );
+        static_assert(
+            std::is_base_of<IMergeableVolume<Volume>, Volume>::value, 
+            "Class <Volume> must inherit from class IMergeableVolume<Volume>"
         );
 
         BVHTree() {
@@ -59,9 +63,9 @@ namespace engine {
             m_nextFreeNodeId = 0;
         }
 
-        void insertObject(T* entity, const SphereVolume& volume) {
+        void insertObject(Item* entity, const Volume& volume) {
             unsigned nodeId = allocateNode();
-            BVHTreeNode<T>& node = m_nodes[nodeId];
+            BVHTreeNode<Item, Volume>& node = m_nodes[nodeId];
 
             node.bounds = volume;
             node.entityRef = entity;
@@ -70,18 +74,18 @@ namespace engine {
             insertLeaf(nodeId);
         }
 
-        void removeObject(T* entity) {
+        void removeObject(Item* entity) {
             unsigned nodeId = entity->m_BVHNodeId;
             removeLeaf(nodeId);
             deallocateNode(nodeId);
         }
 
-        void updateObject(const T& object, const SphereVolume& newVolume) {
+        void updateObject(const Item& object, const Volume& newVolume) {
             updateLeaf(object.m_BVHNodeId, newVolume);
         }
 
     protected:
-        std::vector<BVHTreeNode<T>> m_nodes;
+        std::vector<BVHTreeNode<Item, Volume>> m_nodes;
         std::stack<unsigned int> m_nodesToProcess;
         unsigned int m_rootNodeId{ BVH_TREE_NULL_ID };
         unsigned int m_nextFreeNodeId{ 0 };
@@ -99,7 +103,7 @@ namespace engine {
             }
 
             unsigned int newNodeId = m_nextFreeNodeId;
-            BVHTreeNode<T>& newNode = m_nodes[newNodeId];
+            BVHTreeNode<Item, Volume>& newNode = m_nodes[newNodeId];
 
             newNode.parentNodeId = BVH_TREE_NULL_ID;
             newNode.leftNodeId = BVH_TREE_NULL_ID;
@@ -111,7 +115,7 @@ namespace engine {
         }
 
         void deallocateNode(unsigned int nodeId) {
-            m_nodes[nodeId] = BVHTreeNode<T>();
+            m_nodes[nodeId] = BVHTreeNode<Item, Volume>();
             m_nodes[nodeId].nextNodeId = m_nextFreeNodeId;
             m_nextFreeNodeId = nodeId;
         }
@@ -127,13 +131,13 @@ namespace engine {
             }
 
             unsigned int treeNodeId = m_rootNodeId;
-            BVHTreeNode<T>& leafNode = m_nodes[nodeId];
+            BVHTreeNode<Item, Volume>& leafNode = m_nodes[nodeId];
             while (!m_nodes[treeNodeId].isLeaf()) {
-                const BVHTreeNode<T>& treeNode = m_nodes[treeNodeId];
-                const BVHTreeNode<T>& leftNode = m_nodes[treeNode.leftNodeId];
-                const BVHTreeNode<T>& rightNode = m_nodes[treeNode.rightNodeId];
+                const BVHTreeNode<Item, Volume>& treeNode = m_nodes[treeNodeId];
+                const BVHTreeNode<Item, Volume>& leftNode = m_nodes[treeNode.leftNodeId];
+                const BVHTreeNode<Item, Volume>& rightNode = m_nodes[treeNode.rightNodeId];
 
-                SphereVolume combinedBounds = treeNode.bounds.merge(leafNode.bounds);
+                Volume combinedBounds = treeNode.bounds.merge(leafNode.bounds);
 
                 float newParentNodeCost = 2.0f * combinedBounds.getArea();
                 float minimumPushDownCost = 2.0f * (combinedBounds.getArea() - treeNode.bounds.getArea());
@@ -144,7 +148,7 @@ namespace engine {
                     costLeft = leafNode.bounds.merge(leftNode.bounds).getArea() + minimumPushDownCost;
                 }
                 else {
-                    SphereVolume newLeftBounds = leafNode.bounds.merge(leftNode.bounds);
+                    Volume newLeftBounds = leafNode.bounds.merge(leftNode.bounds);
                     costLeft = (newLeftBounds.getArea() - leftNode.bounds.getRadius()) + minimumPushDownCost;	
                 }
 
@@ -152,7 +156,7 @@ namespace engine {
                     costRight = leafNode.bounds.merge(rightNode.bounds).getArea() + minimumPushDownCost;
                 }
                 else {
-                    SphereVolume newRightBounds = leafNode.bounds.merge(rightNode.bounds);
+                    Volume newRightBounds = leafNode.bounds.merge(rightNode.bounds);
                     costRight = (newRightBounds.getArea() - rightNode.bounds.getRadius()) + minimumPushDownCost;	
                 }
 
@@ -175,12 +179,12 @@ namespace engine {
             // увеличиться буфер для нод и ссылки на ноды перестанут быть корректными
             unsigned int newParentIndex = allocateNode();
 
-            BVHTreeNode<T>& createdleafNode = m_nodes[nodeId];
+            BVHTreeNode<Item, Volume>& createdleafNode = m_nodes[nodeId];
             unsigned int leafSiblingId = treeNodeId;
-            BVHTreeNode<T>& leafSibling = m_nodes[leafSiblingId];
+            BVHTreeNode<Item, Volume>& leafSibling = m_nodes[leafSiblingId];
             unsigned int oldParentIndex = leafSibling.parentNodeId;
 
-            BVHTreeNode<T>& newParent = m_nodes[newParentIndex];
+            BVHTreeNode<Item, Volume>& newParent = m_nodes[newParentIndex];
             newParent.parentNodeId = oldParentIndex;
             newParent.bounds = createdleafNode.bounds.merge(leafSibling.bounds);
             newParent.leftNodeId = leafSiblingId;
@@ -194,7 +198,7 @@ namespace engine {
                 m_rootNodeId = newParentIndex;
             }
             else {
-                BVHTreeNode<T>& oldParent = m_nodes[oldParentIndex];
+                BVHTreeNode<Item, Volume>& oldParent = m_nodes[oldParentIndex];
                 if (oldParent.leftNodeId == leafSiblingId) {
                     oldParent.leftNodeId = newParentIndex;
                 }
@@ -213,17 +217,17 @@ namespace engine {
                 return;
             }
 
-            BVHTreeNode<T>& leafNode = m_nodes[nodeId];
+            BVHTreeNode<Item, Volume>& leafNode = m_nodes[nodeId];
             unsigned int parentNodeId = leafNode.parentNodeId;
-            const BVHTreeNode<T>& parentNode = m_nodes[parentNodeId];
+            const BVHTreeNode<Item, Volume>& parentNode = m_nodes[parentNodeId];
             unsigned int grandParentNodeId = parentNode.parentNodeId;
             unsigned int siblingNodeId = parentNode.leftNodeId == nodeId ? parentNode.rightNodeId : parentNode.leftNodeId;
             assert(siblingNodeId != BVH_TREE_NULL_ID);
-            BVHTreeNode<T>& siblingNode = m_nodes[siblingNodeId];
+            BVHTreeNode<Item, Volume>& siblingNode = m_nodes[siblingNodeId];
 
             if (grandParentNodeId != BVH_TREE_NULL_ID) {
                 // Если имеется прапредок, то удаляем предка и прикрепляем соседа к прапредку вместо него
-                BVHTreeNode<T>& grandParentNode = m_nodes[grandParentNodeId];
+                BVHTreeNode<Item, Volume>& grandParentNode = m_nodes[grandParentNodeId];
                 if (grandParentNode.leftNodeId == parentNodeId) {
                     grandParentNode.leftNodeId = siblingNodeId;
                 }
@@ -245,8 +249,8 @@ namespace engine {
             leafNode.parentNodeId = BVH_TREE_NULL_ID;
         }
 
-        void updateLeaf(unsigned int nodeId, const SphereVolume& newVolume) {
-            BVHTreeNode<T>& node = m_nodes[nodeId];
+        void updateLeaf(unsigned int nodeId, const Volume& newVolume) {
+            BVHTreeNode<Item, Volume>& node = m_nodes[nodeId];
 
             if (node.bounds.contains(newVolume)) return;
 
@@ -257,12 +261,12 @@ namespace engine {
 
         void fixUpwardsTree(unsigned int treeNodeId) {
             while (treeNodeId != BVH_TREE_NULL_ID) {
-                BVHTreeNode<T>& treeNode = m_nodes[treeNodeId];
+                BVHTreeNode<Item, Volume>& treeNode = m_nodes[treeNodeId];
 
                 assert(treeNode.leftNodeId != BVH_TREE_NULL_ID && treeNode.rightNodeId != BVH_TREE_NULL_ID);
 
-                const BVHTreeNode<T>& leftNode = m_nodes[treeNode.leftNodeId];
-                const BVHTreeNode<T>& rightNode = m_nodes[treeNode.rightNodeId];
+                const BVHTreeNode<Item, Volume>& leftNode = m_nodes[treeNode.leftNodeId];
+                const BVHTreeNode<Item, Volume>& rightNode = m_nodes[treeNode.rightNodeId];
                 treeNode.bounds = leftNode.bounds.merge(rightNode.bounds);
 
                 treeNodeId = treeNode.parentNodeId;

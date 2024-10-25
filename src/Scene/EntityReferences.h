@@ -2,11 +2,12 @@
 #define __SCENE__ENTITY_REFERENCES_H__
 
 #include "../Collisions/BVHTree.h"
+#include "../Collisions/SphereVolume.h"
 
 namespace engine {
     class Scene;
 
-    class EntityReferences : public IBVHTreeItem<EntityReferences> {
+    class EntityReferences : public IBVHTreeItem<EntityReferences, SphereVolume> {
         friend Scene;
     public:
         EntityReferences(int transformId = -1,
