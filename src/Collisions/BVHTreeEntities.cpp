@@ -34,7 +34,7 @@ std::vector<int> engine::BVHTreeEntities::getOverlapsedRenderComponents(Frustum 
     // recursive method
     try {
         if (m_rootNodeId != BVH_TREE_NULL_ID)
-            nodeProcess(m_rootNodeId, overlaps, frustum);
+            processNode(m_rootNodeId, overlaps, frustum);
     }
     catch(const std::exception& e) {
         std::string error = "src/Collisions/BVHTreeEntities.cpp::nodeProcess() " + std::string(e.what());
@@ -45,19 +45,44 @@ std::vector<int> engine::BVHTreeEntities::getOverlapsedRenderComponents(Frustum 
     return overlaps;
 }
 
-void engine::BVHTreeEntities::nodeProcess(unsigned int nodeId, std::vector<int>& overlaps, const Frustum& frustum) {
+void engine::BVHTreeEntities::processNode(unsigned int nodeId, std::vector<int>& overlaps, const Frustum& frustum) {
     //if (nodeId == BVH_TREE_NULL_ID) return;
 
     BVHTreeNode<EntityReferences, SphereVolume>& node = m_nodes[nodeId];
 
-    if(node.bounds.isInFrustum(frustum)) {
+    if(node.bounds.isInFrustum(frustum).isCompletelyInside()) {
         if(!node.isLeaf()) {
-            nodeProcess(node.leftNodeId, overlaps, frustum);
-            nodeProcess(node.rightNodeId, overlaps, frustum);
+            processNodeWithoutFrustumCheck(node.leftNodeId, overlaps);
+            processNodeWithoutFrustumCheck(node.rightNodeId, overlaps);
         }
         else {
             int componentId = node.entityRef->getRenderComponentId();
             overlaps.push_back(componentId);
         }
+    }
+    else if(node.bounds.isInFrustum(frustum).isInsideOrOverlaps()) {
+        if(!node.isLeaf()) {
+            processNode(node.leftNodeId, overlaps, frustum);
+            processNode(node.rightNodeId, overlaps, frustum);
+        }
+        else {
+            int componentId = node.entityRef->getRenderComponentId();
+            overlaps.push_back(componentId);
+        }
+    }
+}
+
+void engine::BVHTreeEntities::processNodeWithoutFrustumCheck(unsigned int nodeId, std::vector<int> &overlaps) {
+    //if (nodeId == BVH_TREE_NULL_ID) return;
+
+    BVHTreeNode<EntityReferences, SphereVolume>& node = m_nodes[nodeId];
+
+    if(!node.isLeaf()) {
+        processNodeWithoutFrustumCheck(node.leftNodeId, overlaps);
+        processNodeWithoutFrustumCheck(node.rightNodeId, overlaps);
+    }
+    else {
+        int componentId = node.entityRef->getRenderComponentId();
+        overlaps.push_back(componentId);
     }
 }

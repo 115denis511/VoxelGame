@@ -16,7 +16,8 @@ namespace engine {
         std::vector<int> getOverlapsedRenderComponents(Frustum frustum);
 
     private:
-        void nodeProcess(unsigned int nodeId, std::vector<int>& overlaps, const Frustum& frustum);
+        void processNode(unsigned int nodeId, std::vector<int>& overlaps, const Frustum& frustum);
+        void processNodeWithoutFrustumCheck(unsigned int nodeId, std::vector<int>& overlaps);
     };
 }
 

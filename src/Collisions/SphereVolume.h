@@ -5,16 +5,17 @@
 #include "../Scene/Transform.h"
 #include "Frustum.h"
 #include "IMergeableVolume.h"
+#include "IsOnOrForwardPlaneResult.h"
 
 namespace engine {
     class SphereVolume : public IMergeableVolume<SphereVolume> {
     public:
         SphereVolume(const glm::vec3& position = glm::vec3(0.f), float radius = 0.f);
 
-        bool isInFrustum(const Frustum& frustum, const Transform &transform);
-        bool isInFrustum(const Frustum& frustum);
-        bool isOnOrForwardPlane(const Plane& plane, const glm::vec3& position) const;
-        bool isOnOrForwardPlane(const Plane& plane, const glm::vec3& position, float radius) const;
+        IsOnOrForwardPlaneResult isInFrustum(const Frustum& frustum, const Transform &transform);
+        IsOnOrForwardPlaneResult isInFrustum(const Frustum& frustum);
+        IsOnOrForwardPlaneResult isOnOrForwardPlane(const Plane& plane, const glm::vec3& position) const;
+        IsOnOrForwardPlaneResult isOnOrForwardPlane(const Plane& plane, const glm::vec3& position, float radius) const;
         const glm::vec3& getPosition() const { return m_position; }
         const float getRadius() const { return m_radius; }
         const float getArea() const { return m_area; }

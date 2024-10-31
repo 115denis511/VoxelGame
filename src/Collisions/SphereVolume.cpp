@@ -6,7 +6,7 @@ engine::SphereVolume::SphereVolume(const glm::vec3 &position, float radius) {
     m_area = calculateArea();
 }
 
-bool engine::SphereVolume::isInFrustum(const Frustum &frustum, const Transform &transform) {
+IsOnOrForwardPlaneResult engine::SphereVolume::isInFrustum(const Frustum &frustum, const Transform &transform) {
     glm::vec3 position = transform.getModelMatrix() * glm::vec4(m_position, 1.f);
     const glm::vec3& scale = transform.getScale();
     float radius = m_radius * std::max(scale.x, std::max(scale.y, scale.z));
@@ -19,7 +19,7 @@ bool engine::SphereVolume::isInFrustum(const Frustum &frustum, const Transform &
             isOnOrForwardPlane(frustum.getBottomPlane(), position, radius) );
 }
 
-bool engine::SphereVolume::isInFrustum(const Frustum &frustum) {
+IsOnOrForwardPlaneResult engine::SphereVolume::isInFrustum(const Frustum &frustum) {
     return (isOnOrForwardPlane(frustum.getNearPlane(), m_position) &&
             isOnOrForwardPlane(frustum.getFarPlane(), m_position) &&
             isOnOrForwardPlane(frustum.getLeftPlane(), m_position) &&
@@ -28,13 +28,23 @@ bool engine::SphereVolume::isInFrustum(const Frustum &frustum) {
             isOnOrForwardPlane(frustum.getBottomPlane(), m_position) );
 }
 
-bool engine::SphereVolume::isOnOrForwardPlane(const Plane &plane, const glm::vec3 &position) const {
+IsOnOrForwardPlaneResult engine::SphereVolume::isOnOrForwardPlane(const Plane &plane, const glm::vec3 &position) const {
     // Для проверки на полное нахождение, не перскающее края плоскости, нужно убрать минус у радиуса
-    return plane.signedDistanceToPlane(position) > -m_radius;
+    //return plane.signedDistanceToPlane(position) > -m_radius;
+
+    float signedDistance = plane.signedDistanceToPlane(position);
+    bool isOnOrForwardPlane = signedDistance > -m_radius;
+    bool completelyInside = signedDistance > m_radius;
+    return IsOnOrForwardPlaneResult(isOnOrForwardPlane, completelyInside);
 }
 
-bool engine::SphereVolume::isOnOrForwardPlane(const Plane &plane, const glm::vec3 &position, float radius) const {
-    return plane.signedDistanceToPlane(position) > -radius;
+IsOnOrForwardPlaneResult engine::SphereVolume::isOnOrForwardPlane(const Plane &plane, const glm::vec3 &position, float radius) const {
+    //return plane.signedDistanceToPlane(position) > -radius;
+
+    float signedDistance = plane.signedDistanceToPlane(position);
+    bool isOnOrForwardPlane = signedDistance > -radius;
+    bool completelyInside = signedDistance > radius;
+    return IsOnOrForwardPlaneResult(isOnOrForwardPlane, completelyInside);
 }
 
 bool engine::SphereVolume::overlaps(const SphereVolume &other) const noexcept {

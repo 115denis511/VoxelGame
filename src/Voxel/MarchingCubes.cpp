@@ -1663,6 +1663,7 @@ engine::MarchingCubes::MarchingCubes() {
     }
     std::cout << "Missed: " << missedCount << "\n";
     */
+    std::cout << "MarchingCubes.cpp m_vertices count: " << m_vertices.size() << "\n";
 
     glGenVertexArrays(1, &m_VAO);
     glGenBuffers(1, &m_VBO);

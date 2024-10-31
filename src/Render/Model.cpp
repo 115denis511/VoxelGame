@@ -37,7 +37,7 @@ const engine::InstancingData& engine::Model::getInstancingData() {
 }
 
 bool engine::Model::isInFrustum(const Frustum &frustum, const Transform &transform) {
-    return m_cullingVolume.isInFrustum(frustum, transform);
+    return m_cullingVolume.isInFrustum(frustum, transform).isInsideOrOverlaps();
 }
 
 const engine::SphereVolume &engine::Model::getVolume() const { 
