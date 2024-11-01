@@ -8,6 +8,7 @@
 #include "VoxelChunk.h"
 #include "VoxelPositionConverter.h"
 #include "ChunkGrid.h"
+#include "VoxelTextures.h"
 
 namespace engine {
     class Core;
@@ -44,11 +45,17 @@ namespace engine {
         std::stack<size_t> m_freeChunkIndices;
         std::stack<size_t> m_toUpdateQueue;
         std::vector<glm::ivec2> m_toGenerateQueue;
+        VoxelTextures m_textures;
 
         static bool init();
         static void freeResources();
         void draw(Shader& shader);
         void updateChunks(size_t maxCount = 8);
+        bool setVoxelTexture(int layer, unsigned char *rawImage, int width, int height, int nrComponents);
+        bool setVoxelTexture(int layer, std::string path);
+        bool setVoxelTexture(int layer, glm::vec4 color);
+        void startTextureEditing();
+        void endTextureEditing();
         
         bool isChunkInbounds(int x, int y, int z);
         bool isPositionInbounds(const glm::vec3& position);

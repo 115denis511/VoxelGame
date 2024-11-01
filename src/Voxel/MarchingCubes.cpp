@@ -1663,7 +1663,14 @@ engine::MarchingCubes::MarchingCubes() {
     }
     std::cout << "Missed: " << missedCount << "\n";
     */
-    std::cout << "MarchingCubes.cpp m_vertices count: " << m_vertices.size() << "\n";
+
+
+    //std::cout << "MarchingCubes.cpp m_verticesTexureIds count: " << m_verticesTextureIds.size() << "\n";
+    glCreateBuffers(1, &m_verticesTextureIdsSSBO);
+    GLuint byteSize = sizeof(GLuint) * m_verticesTextureIds.size();
+    glNamedBufferData(m_verticesTextureIdsSSBO, byteSize, &m_verticesTextureIds[0], GL_STATIC_DRAW);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, engine_properties::SSBO_VOXEL_VERTEXES_TEXTURE_IDS_BLOCK_ID, m_verticesTextureIdsSSBO);
+
 
     glGenVertexArrays(1, &m_VAO);
     glGenBuffers(1, &m_VBO);
@@ -1689,31 +1696,12 @@ engine::MarchingCubes::MarchingCubes() {
     glVertexAttribIPointer(4, 1, GL_INT, sizeof(VoxelVertex), (void*)offsetof(VoxelVertex, offsetDirection)); // <- ВАЖНО, ДЛЯ INT ИСПОЛЬЗУЕТСЯ ФУНКЦИЯ С ПРЕФИКСОМ I
 
     glBindVertexArray(0);
-
-
-    // dbg texture
-    glCreateTextures(GL_TEXTURE_2D, 1, &m_dbg_texture);
-    int width, height, nrComponents;
-    unsigned char* image = stbi_load("grass.jpg", &width, &height, &nrComponents, 0);
-    GLenum format = GL_RGB;
-	if (nrComponents == 1)
-		format = GL_RED;
-	else if (nrComponents == 3)
-		format = GL_RGB;
-	else if (nrComponents == 4)
-		format = GL_RGBA;
-    glTextureStorage2D(m_dbg_texture, 6, GL_RGB8, width, height);
-    glTextureSubImage2D(m_dbg_texture, 0, 0, 0, width, height, format, GL_UNSIGNED_BYTE, image);
-    stbi_image_free(image);
-    glGenerateTextureMipmap(m_dbg_texture);
-    glActiveTexture(GL_TEXTURE0); // Активируем текстурный блок перед привязкой текстуры
-    glBindTexture(GL_TEXTURE_2D, m_dbg_texture);
-
 }
 
 engine::MarchingCubes::~MarchingCubes() {
     glDeleteVertexArrays(1, &m_VAO);
 	glDeleteBuffers(1, &m_VBO);
+    glDeleteBuffers(1, &m_verticesTextureIdsSSBO);
 }
 
 glm::vec3 engine::MarchingCubes::roundVector(glm::vec4 vec) {
@@ -1740,19 +1728,19 @@ inline void engine::MarchingCubes::addTriangle(const glm::vec3 &v0, const glm::v
 
     MarchingCubesVertexData v0data = currentCase.getVertexData(v0);
     m_vertices.push_back(VoxelVertex{ v0, normal, texCoord0, v0data.id, v0data.direction }); // 0
+    m_verticesTextureIds.push_back(v0data.id);
+
     MarchingCubesVertexData v1data = currentCase.getVertexData(v1);
     m_vertices.push_back(VoxelVertex{ v1, normal, texCoord1, v1data.id, v1data.direction }); // 1
+    m_verticesTextureIds.push_back(v1data.id);
+
     MarchingCubesVertexData v2data = currentCase.getVertexData(v2);
     m_vertices.push_back(VoxelVertex{ v2, normal, texCoord2, v2data.id, v2data.direction }); // 2
+    m_verticesTextureIds.push_back(v2data.id);
 }
 
 void engine::MarchingCubes::draw(int drawCount) {
     glBindVertexArray(m_VAO);
-
-    // to delete
-    glActiveTexture(GL_TEXTURE0); // Активируем текстурный блок перед привязкой текстуры
-    glBindTexture(GL_TEXTURE_2D, m_dbg_texture);
-
     glMultiDrawArraysIndirect(GL_TRIANGLES, (GLvoid*)0, drawCount, 0);
 
     #ifndef NDEBUG

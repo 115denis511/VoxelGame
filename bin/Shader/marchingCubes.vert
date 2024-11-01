@@ -7,6 +7,9 @@ layout (location = 3) in int VoxelId;
 layout (location = 4) in int OffsetDirection;
 
 out vec2 texCoord;
+out vec3 vertexTextureWeights;
+flat out uint textureIds[6];
+flat out uvec3 vertexTextures;
 
 layout(std140, binding = 0) uniform DrawVars
 {
@@ -18,20 +21,25 @@ layout(std140, binding = 0) uniform DrawVars
 // !!!binding id is for debug purpose, change later!!!
 layout(std430, binding = 2) readonly buffer ChunkData 
 {
-    ivec2 packedData[];
+    uvec2 packedData[];
+};
+layout(std430, binding = 3) readonly buffer VertexTextureIds
+{
+    uint vertexTextureIds[];
 };
 
 struct UnpackedData {
-    int x;
-    int y;
-    int z;
-    int offsets[6];
-    int textureIds[6];
+    uint x;
+    uint y;
+    uint z;
+    uint offsets[6];
+    uint textureIds[6];
 };
 
 uniform vec3 chunkPosition;
+const vec3 triangleVertexTextureWeights[3] = { vec3(1.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0), vec3(0.0, 0.0, 1.0)};
 
-UnpackedData unpackData(ivec2 data);
+UnpackedData unpackData(uvec2 data);
 
 void main()
 {
@@ -43,10 +51,17 @@ void main()
     gl_Position = projectionView * localPos;//vec4(Position.xyz, 1.0);
     //gl_Position = projection * view * vec4(Position.xyz, 1.0);
 
+    vertexTextures.x = vertexTextureIds[gl_VertexID - 2];
+    vertexTextures.y = vertexTextureIds[gl_VertexID - 1];
+    vertexTextures.z = vertexTextureIds[gl_VertexID];
+
     texCoord = TexCoord;
+    vertexTextureWeights = triangleVertexTextureWeights[gl_VertexID % 3];
+    
+    textureIds = data.textureIds;
 }
 
-UnpackedData unpackData(ivec2 data)
+UnpackedData unpackData(uvec2 data)
 {
     UnpackedData unpaked;
 
@@ -59,11 +74,12 @@ UnpackedData unpackData(ivec2 data)
     unpaked.offsets[3] = (data[0] >> 3) & 7; // 7 = 0b111;
     unpaked.offsets[4] = data[0] & 7; // 7 = 0b111;
 
-    unpaked.offsets[5] = (data[1] >> 28) & 7; // 7 = 0b111;
-    unpaked.textureIds[0] = (data[1] >> 21) & 127; // 127 = 0b1111111;
-    unpaked.textureIds[1] = (data[1] >> 14) & 127; // 127 = 0b1111111;
-    unpaked.textureIds[2] = (data[1] >> 7) & 127; // 127 = 0b1111111;
-    unpaked.textureIds[3] = data[1] & 127; // 127 = 0b1111111;
+    unpaked.offsets[5] = (data.y >> 28) & 7; // 7 = 0b111;
+    unpaked.textureIds[0] = (data.y >> 21) & 127; // 127 = 0b1111111;
+    unpaked.textureIds[1] = (data.y >> 14) & 127; // 127 = 0b1111111;
+    unpaked.textureIds[2] = (data.y >> 7) & 127; // 127 = 0b1111111;
+    unpaked.textureIds[3] = data.y & 127; // 127 = 0b1111111
+
     unpaked.textureIds[4] = unpaked.textureIds[2];
     unpaked.textureIds[5] = unpaked.textureIds[3];
 

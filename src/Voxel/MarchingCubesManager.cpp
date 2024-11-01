@@ -34,6 +34,30 @@ void engine::MarchingCubesManager::updateChunks(size_t maxCount) {
     }
 }
 
+bool engine::MarchingCubesManager::setVoxelTexture(int layer, unsigned char *rawImage, int width, int height, int nrComponents) {
+    return m_textures.setTexture(layer, rawImage, width, height, nrComponents);
+}
+
+bool engine::MarchingCubesManager::setVoxelTexture(int layer, std::string path) {
+    return m_textures.setTexture(layer, path);
+}
+
+bool engine::MarchingCubesManager::setVoxelTexture(int layer, glm::vec4 color) {
+    return m_textures.setTexture(layer, color);
+}
+
+void engine::MarchingCubesManager::startTextureEditing() {
+    if (m_textures.isResident())
+        m_textures.makeNonResident();
+}
+
+void engine::MarchingCubesManager::endTextureEditing() {
+    if (!m_textures.isResident()) {
+        m_textures.updateMipmap();
+        m_textures.makeResident();
+    }
+}
+
 engine::MarchingCubesManager::MarchingCubesManager() {
     for (size_t i = 0; i < std::size(m_chunks); i++) {
         m_freeChunkIndices.push(i);
@@ -41,6 +65,9 @@ engine::MarchingCubesManager::MarchingCubesManager() {
 }
 
 void engine::MarchingCubesManager::draw(Shader& shader) {
+    shader.use();
+    m_textures.use();
+
     for (size_t z = 0; z < 6; z++){
         for (size_t x = 0; x < 6; x++){
             VoxelChunk& chunk = m_chunks[m_grid.getChunkId(x, 0, z)];
@@ -209,7 +236,7 @@ void engine::MarchingCubesManager::resizeChunkGrid(unsigned int size) {
                 if (y == 0) {
                     for (size_t x = 0; x < 32; x++) {
                         for (size_t z = 0; z < 32; z++){
-                            m_chunks[id].setVoxel(x,1,z,10);
+                            m_chunks[id].setVoxel(x,1,z, 0);
                         }
                     }
                 }

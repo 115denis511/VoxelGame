@@ -49,7 +49,7 @@ void SceneTest::update(engine::Camera& camera, engine::SceneResources &resources
             glm::vec3 cameraPos = camera.getPosition(), cameraTarget = camera.getFront();
             glm::ivec3 hit, face;
             if (marching->raycastVoxel(cameraPos, cameraTarget, 100.f, hit, face)) {
-                marching->setVoxel(hit + face, 0);
+                marching->setVoxel(hit + face, 1);
             }
         }
     }
