@@ -41,6 +41,12 @@ void engine::glfw_callbacks::scroll_callback(GLFWwindow *window, double xoffset,
 }
 
 void engine::glfw_callbacks::framebuffer_size_callback(GLFWwindow *window, int width, int height) {
-    glfwGetFramebufferSize(WindowGLFW::g_window, &WindowGLFW::g_viewport.x, &WindowGLFW::g_viewport.y);
-    engine::WindowGLFW::g_isRenderMustUpdateViewport = true;
+    if (width > 0 && height > 0) {
+        glfwGetFramebufferSize(WindowGLFW::g_window, &WindowGLFW::g_viewport.x, &WindowGLFW::g_viewport.y);
+        engine::WindowGLFW::g_isRenderMustUpdateViewport = true;
+        engine::WindowGLFW::g_isWindowCollapsed = false;
+    }
+    else {
+        engine::WindowGLFW::g_isWindowCollapsed = true;
+    }
 }

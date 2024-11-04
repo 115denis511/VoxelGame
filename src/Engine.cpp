@@ -105,14 +105,16 @@ void engine::Core::start(ISceneLogic* sceneLogic) {
 
         WindowGLFW::poolEvents();
 
-        Render::draw(
-            Scene::g_camera.getVars(),
-            *Scene::getSceneResources(),
-            Scene::g_worldBVH);
+        if (!WindowGLFW::isWindowCollapsed()) {
+            Render::draw(
+                Scene::g_camera.getVars(),
+                *Scene::getSceneResources(),
+                Scene::g_worldBVH);
 
-        //mcShader.use();
-        marching->draw(mcShader);
-        marching->updateChunks();
+            //mcShader.use();
+            marching->draw(mcShader);
+            marching->updateChunks();
+        }
 
         //glm::vec3 cameraPos = Scene::g_camera.getPosition();
         //float cellSize = 32.f;

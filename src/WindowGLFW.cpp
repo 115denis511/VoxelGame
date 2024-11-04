@@ -4,6 +4,7 @@ GLFWwindow*  engine::WindowGLFW::g_window = nullptr;
 glm::ivec2   engine::WindowGLFW::g_viewport;
 bool         engine::WindowGLFW::g_isRenderMustUpdateViewport = true;
 bool         engine::WindowGLFW::g_isCursorHidden = false;
+bool         engine::WindowGLFW::g_isWindowCollapsed = false;
 
 bool engine::WindowGLFW::init(int width, int height) {
     if (!glfwInit()) {

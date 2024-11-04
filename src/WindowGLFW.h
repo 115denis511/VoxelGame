@@ -31,6 +31,7 @@ namespace engine {
         static void poolEvents();
         static void swapBuffers();
         static bool isShouldClose();
+        static bool isWindowCollapsed() { return g_isWindowCollapsed; }
         static void hideMouseCursor();
         static void showMouseCursor();
         static bool isMouseCursorHidden();
@@ -45,6 +46,7 @@ namespace engine {
         static glm::ivec2   g_viewport;
         static bool         g_isRenderMustUpdateViewport;
         static bool         g_isCursorHidden;
+        static bool         g_isWindowCollapsed;
     };
 }
 
