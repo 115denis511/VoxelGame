@@ -531,7 +531,7 @@ engine::MarchingCubes::MarchingCubes() {
         currentCaseMirrired.setVertexId(2, 2);
         currentCaseMirrired.setVertexId(3, 1);
 
-        for (int j = 0; j < 3; j++) { // если 3, то закоментируй условие для зеркального случая, если 4 то убрать
+        for (int j = 0; j < 6; j++) { // если 3, то закоментируй условие для зеркального случая, если 4 то убрать
             for (int i = 0; i < 4; i++) {
                 glm::vec3 v0c = roundVector(rotateYaw[i] * glm::vec4(v0, 1.0f));
                 glm::vec3 v1c = roundVector(rotateYaw[i] * glm::vec4(v1, 1.0f));
@@ -559,7 +559,7 @@ engine::MarchingCubes::MarchingCubes() {
                 currentCase = currentCase.rotateRight();
 
                 // зеркальный случай
-                //if (j != 0 && j != 3) {
+                /*if (j != 0 && j != 3) {
                     addTriangle(v2c, v1c, v0c, currentCaseMirrired, v2tex, v1tex, v0tex);
                     addTriangle(v2c, v0c, v4c, currentCaseMirrired, v2tex, v0tex, v4tex);
                     addTriangle(v2c, v4c, v3c, currentCaseMirrired, v2tex, v4tex, v3tex);
@@ -574,9 +574,9 @@ engine::MarchingCubes::MarchingCubes() {
 
                     baseVertex += vetrexCount;
                     currentCaseMirrired = currentCaseMirrired.rotateRight();
-                //}
+                }*/
             }
-            if (j == 0 || j == 2) {
+            if (j == 0 || j == 2 || j == 4) {
                 v0 = roundVector(rotateRollRight[1] * glm::vec4(v0, 1.0f));
                 v1 = roundVector(rotateRollRight[1] * glm::vec4(v1, 1.0f));
                 v2 = roundVector(rotateRollRight[1] * glm::vec4(v2, 1.0f));
@@ -588,7 +588,7 @@ engine::MarchingCubes::MarchingCubes() {
                 currentCase = currentCase.rotateRollRight();
                 currentCaseMirrired = currentCaseMirrired.rotateRollRight();
             }
-            else if (j == 1) {
+            else if (j == 1 || j == 3 || j == 5) {
                 v0 = roundVector(rotateFront[1] * glm::vec4(v0, 1.0f));
                 v1 = roundVector(rotateFront[1] * glm::vec4(v1, 1.0f));
                 v2 = roundVector(rotateFront[1] * glm::vec4(v2, 1.0f));
