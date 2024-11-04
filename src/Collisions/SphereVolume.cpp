@@ -6,7 +6,7 @@ engine::SphereVolume::SphereVolume(const glm::vec3 &position, float radius) {
     m_area = calculateArea();
 }
 
-IsOnOrForwardPlaneResult engine::SphereVolume::isInFrustum(const Frustum &frustum, const Transform &transform) {
+engine::IsOnOrForwardPlaneResult engine::SphereVolume::isInFrustum(const Frustum &frustum, const Transform &transform) {
     glm::vec3 position = transform.getModelMatrix() * glm::vec4(m_position, 1.f);
     const glm::vec3& scale = transform.getScale();
     float radius = m_radius * std::max(scale.x, std::max(scale.y, scale.z));
@@ -19,7 +19,7 @@ IsOnOrForwardPlaneResult engine::SphereVolume::isInFrustum(const Frustum &frustu
             isOnOrForwardPlane(frustum.getBottomPlane(), position, radius) );
 }
 
-IsOnOrForwardPlaneResult engine::SphereVolume::isInFrustum(const Frustum &frustum) {
+engine::IsOnOrForwardPlaneResult engine::SphereVolume::isInFrustum(const Frustum &frustum) {
     return (isOnOrForwardPlane(frustum.getNearPlane(), m_position) &&
             isOnOrForwardPlane(frustum.getFarPlane(), m_position) &&
             isOnOrForwardPlane(frustum.getLeftPlane(), m_position) &&
@@ -28,7 +28,7 @@ IsOnOrForwardPlaneResult engine::SphereVolume::isInFrustum(const Frustum &frustu
             isOnOrForwardPlane(frustum.getBottomPlane(), m_position) );
 }
 
-IsOnOrForwardPlaneResult engine::SphereVolume::isOnOrForwardPlane(const Plane &plane, const glm::vec3 &position) const {
+engine::IsOnOrForwardPlaneResult engine::SphereVolume::isOnOrForwardPlane(const Plane &plane, const glm::vec3 &position) const {
     // Для проверки на полное нахождение, не перскающее края плоскости, нужно убрать минус у радиуса
     //return plane.signedDistanceToPlane(position) > -m_radius;
 
@@ -38,7 +38,7 @@ IsOnOrForwardPlaneResult engine::SphereVolume::isOnOrForwardPlane(const Plane &p
     return IsOnOrForwardPlaneResult(isOnOrForwardPlane, completelyInside);
 }
 
-IsOnOrForwardPlaneResult engine::SphereVolume::isOnOrForwardPlane(const Plane &plane, const glm::vec3 &position, float radius) const {
+engine::IsOnOrForwardPlaneResult engine::SphereVolume::isOnOrForwardPlane(const Plane &plane, const glm::vec3 &position, float radius) const {
     //return plane.signedDistanceToPlane(position) > -radius;
 
     float signedDistance = plane.signedDistanceToPlane(position);
