@@ -199,11 +199,6 @@ void engine::MarchingCubesManager::setVoxel(const glm::vec3 &position, uint8_t i
     pushToUpdateQueue(chunkId);
     chunk.setVoxel(localVoxel.x, localVoxel.y, localVoxel.z, id);
 
-    std::cout << "CHUNCK" << chunkPos.x << " " << chunkPos.z << std::endl; // -1
-    if (localVoxel.x == 0 || localVoxel.z == 0) {
-        std::cout << "border <-----------------------------------\n";
-    }
-
     if (localVoxel.x == 0) {
         glm::ivec3 chunkX = glm::ivec3(chunkPos.x - 1, chunkPos.y, chunkPos.z);
         if (isChunkInbounds(chunkX.x, chunkX.y, chunkX.z)) {
