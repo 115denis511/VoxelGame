@@ -11,6 +11,14 @@ namespace engine {
         int voxelId{ 0 };
         int offsetDirection{ 0 };
     };    
+
+    struct VoxelVertexData {
+        glm::vec3 position;
+        GLuint voxelVertexId;
+        GLuint offsetDirection;
+        // Заполнители места для соответствия размера структуры в разметке std430 структры VertexData в marchingCubes.vert
+        GLuint placeholder[3]{ 0, 0, 0 };
+    };
 }
 
 #endif

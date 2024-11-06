@@ -1667,8 +1667,12 @@ engine::MarchingCubes::MarchingCubes() {
 
     //std::cout << "MarchingCubes.cpp m_verticesTexureIds count: " << m_verticesTextureIds.size() << "\n";
     glCreateBuffers(1, &m_verticesTextureIdsSSBO);
-    GLuint byteSize = sizeof(GLuint) * m_verticesTextureIds.size();
-    glNamedBufferData(m_verticesTextureIdsSSBO, byteSize, &m_verticesTextureIds[0], GL_STATIC_DRAW);
+    /*GLuint byteSize = sizeof(GLuint) * m_verticesTextureIds.size();
+    glNamedBufferData(m_verticesTextureIdsSSBO, byteSize, &m_verticesTextureIds[0], GL_STATIC_DRAW);*/
+
+    GLuint byteSize = sizeof(VoxelVertexData) * m_verticesData.size();
+    glNamedBufferData(m_verticesTextureIdsSSBO, byteSize, &m_verticesData[0], GL_STATIC_DRAW);
+
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, engine_properties::SSBO_VOXEL_VERTEXES_TEXTURE_IDS_BLOCK_ID, m_verticesTextureIdsSSBO);
 
 
@@ -1729,14 +1733,17 @@ inline void engine::MarchingCubes::addTriangle(const glm::vec3 &v0, const glm::v
     MarchingCubesVertexData v0data = currentCase.getVertexData(v0);
     m_vertices.push_back(VoxelVertex{ v0, normal, texCoord0, v0data.id, v0data.direction }); // 0
     m_verticesTextureIds.push_back(v0data.id);
+    m_verticesData.push_back(VoxelVertexData{v0, (unsigned int)v0data.id, (unsigned int)v0data.direction});
 
     MarchingCubesVertexData v1data = currentCase.getVertexData(v1);
     m_vertices.push_back(VoxelVertex{ v1, normal, texCoord1, v1data.id, v1data.direction }); // 1
     m_verticesTextureIds.push_back(v1data.id);
+    m_verticesData.push_back(VoxelVertexData{v1, (unsigned int)v1data.id, (unsigned int)v1data.direction});
 
     MarchingCubesVertexData v2data = currentCase.getVertexData(v2);
     m_vertices.push_back(VoxelVertex{ v2, normal, texCoord2, v2data.id, v2data.direction }); // 2
     m_verticesTextureIds.push_back(v2data.id);
+    m_verticesData.push_back(VoxelVertexData{v2, (unsigned int)v2data.id, (unsigned int)v2data.direction});
 }
 
 void engine::MarchingCubes::draw(int drawCount) {
