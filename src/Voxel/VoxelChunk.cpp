@@ -24,8 +24,9 @@ bool engine::VoxelChunk::isVoxelSolid(short x, short y, short z) {
     return m_voxels(x, y, z).id < 128;
 }
 
-void engine::VoxelChunk::setVoxel(short x, short y, short z, uint8_t id) {
+void engine::VoxelChunk::setVoxel(short x, short y, short z, uint8_t id, uint8_t size) {
     m_voxels(x, y, z).id = id;
+    m_voxels(x, y, z).size = size < 8 ? size : 7;
 }
 
 void engine::VoxelChunk::clear() {

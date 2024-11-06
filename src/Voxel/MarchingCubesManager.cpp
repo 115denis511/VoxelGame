@@ -188,7 +188,7 @@ bool engine::MarchingCubesManager::raycastVoxel(const glm::vec3& position, const
     return false;
 }
 
-void engine::MarchingCubesManager::setVoxel(const glm::vec3 &position, uint8_t id) {
+void engine::MarchingCubesManager::setVoxel(const glm::vec3 &position, uint8_t id, uint8_t size) {
     glm::ivec3 chunkPos = m_converter.worldPositionToChunkPosition(position, CHUNCK_DIMENSION_SIZE);
     if (!isChunkInbounds(chunkPos.x, chunkPos.y, chunkPos.z)) return;
     glm::ivec2 localXZ = m_converter.worldChunkToLocalChunkPosition(chunkPos.x, chunkPos.z, m_currentOriginChunk.x, m_currentOriginChunk.y);
@@ -197,14 +197,14 @@ void engine::MarchingCubesManager::setVoxel(const glm::vec3 &position, uint8_t i
     size_t chunkId = m_grid.getChunkId(localXZ.x, chunkPos.y, localXZ.y);
     VoxelChunk& chunk = m_chunks[chunkId];
     pushToUpdateQueue(chunkId);
-    chunk.setVoxel(localVoxel.x, localVoxel.y, localVoxel.z, id);
+    chunk.setVoxel(localVoxel.x, localVoxel.y, localVoxel.z, id, size);
 
     if (localVoxel.x == 0) {
         glm::ivec3 chunkX = glm::ivec3(chunkPos.x - 1, chunkPos.y, chunkPos.z);
         if (isChunkInbounds(chunkX.x, chunkX.y, chunkX.z)) {
             chunkId = m_grid.getChunkId(localXZ.x - 1, chunkPos.y, localXZ.y);
             pushToUpdateQueue(chunkId);
-            m_chunks[chunkId].setVoxel(CHUNCK_DIMENSION_SIZE, localVoxel.y, localVoxel.z, id);
+            m_chunks[chunkId].setVoxel(CHUNCK_DIMENSION_SIZE, localVoxel.y, localVoxel.z, id, size);
         }
     }
 
@@ -213,7 +213,7 @@ void engine::MarchingCubesManager::setVoxel(const glm::vec3 &position, uint8_t i
         if (isChunkInbounds(chunkZ.x, chunkZ.y, chunkZ.z)) {
             chunkId = m_grid.getChunkId(localXZ.x, chunkPos.y, localXZ.y - 1);
             pushToUpdateQueue(chunkId);
-            m_chunks[chunkId].setVoxel(localVoxel.x, localVoxel.y, CHUNCK_DIMENSION_SIZE, id);
+            m_chunks[chunkId].setVoxel(localVoxel.x, localVoxel.y, CHUNCK_DIMENSION_SIZE, id, size);
         }
     }
 
@@ -222,7 +222,7 @@ void engine::MarchingCubesManager::setVoxel(const glm::vec3 &position, uint8_t i
         if (isChunkInbounds(chunkY.x, chunkY.y, chunkY.z)) {
             chunkId = m_grid.getChunkId(localXZ.x, chunkPos.y - 1, localXZ.y);
             pushToUpdateQueue(chunkId);
-            m_chunks[chunkId].setVoxel(localVoxel.x, CHUNCK_DIMENSION_SIZE, localVoxel.z, id);
+            m_chunks[chunkId].setVoxel(localVoxel.x, CHUNCK_DIMENSION_SIZE, localVoxel.z, id, size);
         }
     }
 
@@ -231,7 +231,7 @@ void engine::MarchingCubesManager::setVoxel(const glm::vec3 &position, uint8_t i
         if (isChunkInbounds(chunkXZ.x, chunkXZ.y, chunkXZ.z)) {
             chunkId = m_grid.getChunkId(localXZ.x - 1, chunkPos.y, localXZ.y - 1);
             pushToUpdateQueue(chunkId);
-            m_chunks[chunkId].setVoxel(CHUNCK_DIMENSION_SIZE, localVoxel.y, CHUNCK_DIMENSION_SIZE, id);
+            m_chunks[chunkId].setVoxel(CHUNCK_DIMENSION_SIZE, localVoxel.y, CHUNCK_DIMENSION_SIZE, id, size);
         }
     }
 
@@ -240,7 +240,7 @@ void engine::MarchingCubesManager::setVoxel(const glm::vec3 &position, uint8_t i
         if (isChunkInbounds(chunkXY.x, chunkXY.y, chunkXY.z)) {
             chunkId = m_grid.getChunkId(localXZ.x - 1, chunkPos.y - 1, localXZ.y);
             pushToUpdateQueue(chunkId);
-            m_chunks[chunkId].setVoxel(CHUNCK_DIMENSION_SIZE, CHUNCK_DIMENSION_SIZE, localVoxel.z, id);
+            m_chunks[chunkId].setVoxel(CHUNCK_DIMENSION_SIZE, CHUNCK_DIMENSION_SIZE, localVoxel.z, id, size);
         }
     }
 
@@ -249,7 +249,7 @@ void engine::MarchingCubesManager::setVoxel(const glm::vec3 &position, uint8_t i
         if (isChunkInbounds(chunkYZ.x, chunkYZ.y, chunkYZ.z)) {
             chunkId = m_grid.getChunkId(localXZ.x, chunkPos.y - 1, localXZ.y - 1);
             pushToUpdateQueue(chunkId);
-            m_chunks[chunkId].setVoxel(localVoxel.x, CHUNCK_DIMENSION_SIZE, CHUNCK_DIMENSION_SIZE, id);
+            m_chunks[chunkId].setVoxel(localVoxel.x, CHUNCK_DIMENSION_SIZE, CHUNCK_DIMENSION_SIZE, id, size);
         }
     }
 
@@ -258,9 +258,21 @@ void engine::MarchingCubesManager::setVoxel(const glm::vec3 &position, uint8_t i
         if (isChunkInbounds(chunkXYZ.x, chunkXYZ.y, chunkXYZ.z)) {
             chunkId = m_grid.getChunkId(localXZ.x - 1, chunkPos.y - 1, localXZ.y - 1);
             pushToUpdateQueue(chunkId);
-            m_chunks[chunkId].setVoxel(CHUNCK_DIMENSION_SIZE, CHUNCK_DIMENSION_SIZE, CHUNCK_DIMENSION_SIZE, id);
+            m_chunks[chunkId].setVoxel(CHUNCK_DIMENSION_SIZE, CHUNCK_DIMENSION_SIZE, CHUNCK_DIMENSION_SIZE, id, size);
         }
     }
+}
+
+engine::MarchingCubesVoxel engine::MarchingCubesManager::getVoxel(const glm::vec3 &position) {
+    glm::ivec3 chunkPos = m_converter.worldPositionToChunkPosition(position, CHUNCK_DIMENSION_SIZE);
+    if (!isChunkInbounds(chunkPos.x, chunkPos.y, chunkPos.z)) return MarchingCubesVoxel(255, 0);
+    glm::ivec2 localXZ = m_converter.worldChunkToLocalChunkPosition(chunkPos.x, chunkPos.z, m_currentOriginChunk.x, m_currentOriginChunk.y);
+    glm::ivec3 localVoxel = m_converter.worldPositionToLocalVoxelPosition(position, CHUNCK_DIMENSION_SIZE);
+
+    size_t chunkId = m_grid.getChunkId(localXZ.x, chunkPos.y, localXZ.y);
+    VoxelChunk& chunk = m_chunks[chunkId];
+
+    return chunk.getVoxel(localVoxel.x, localVoxel.y, localVoxel.z);
 }
 
 void engine::MarchingCubesManager::resizeChunkGrid(unsigned int size) {

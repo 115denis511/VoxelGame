@@ -4,8 +4,8 @@
 
 in vec2 texCoord;
 in vec3 vertexTextureWeights;
-flat in uint textureIds[6];
-flat in uvec3 vertexTextures;
+flat in uint marchingCubeTextureIds[6];
+flat in uvec3 triangleVertexVoxelIds;
 
 out vec4 fragColor;
 
@@ -23,10 +23,10 @@ float getCoord(uint capacity, uint layer)
 
 void main()
 {
-    //fragColor = vec4(texture(texArray, vec3(texCoord, getCoord(capacity, vertexTextures.x))));
-    uint layer0 = textureIds[vertexTextures.x];
-    uint layer1 = textureIds[vertexTextures.y];
-    uint layer2 = textureIds[vertexTextures.z];
+    //fragColor = vec4(texture(texArray, vec3(texCoord, getCoord(capacity, triangleVertexVoxelIds.x))));
+    uint layer0 = marchingCubeTextureIds[triangleVertexVoxelIds.x];
+    uint layer1 = marchingCubeTextureIds[triangleVertexVoxelIds.y];
+    uint layer2 = marchingCubeTextureIds[triangleVertexVoxelIds.z];
 
     vec4 tex0 = vec4(texture(texArray, vec3(texCoord, getCoord(capacity, layer0))));
     vec4 tex1 = vec4(texture(texArray, vec3(texCoord, getCoord(capacity, layer1))));

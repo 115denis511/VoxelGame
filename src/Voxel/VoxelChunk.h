@@ -10,6 +10,7 @@
 namespace engine {
     struct MarchingCubesVoxel {
         uint8_t id = 255;
+        uint8_t size = 3;
     };
 
     class VoxelChunk { 
@@ -19,7 +20,7 @@ namespace engine {
 
         MarchingCubesVoxel getVoxel(short x, short y, short z);
         bool isVoxelSolid(short x, short y, short z);
-        void setVoxel(short x, short y, short z, uint8_t id);
+        void setVoxel(short x, short y, short z, uint8_t id, uint8_t size = 3);
         void setDrawCount(int drawCount) { m_drawCount = drawCount; };
         void setInUpdateQueueFlag(bool flag) { m_isInUpdateQueue = flag; };
         void setInUseFlag(bool flag) { m_isInUse = flag; };

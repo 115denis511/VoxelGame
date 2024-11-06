@@ -8,8 +8,8 @@ layout (location = 4) in int OffsetDirection;
 
 out vec2 texCoord;
 out vec3 vertexTextureWeights;
-flat out uint textureIds[6];
-flat out uvec3 vertexTextures;
+flat out uint marchingCubeTextureIds[6];
+flat out uvec3 triangleVertexVoxelIds;
 
 layout(std140, binding = 0) uniform DrawVars
 {
@@ -18,14 +18,13 @@ layout(std140, binding = 0) uniform DrawVars
     mat4 view;
 };
 
-// !!!binding id is for debug purpose, change later!!!
 layout(std430, binding = 2) readonly buffer ChunkData 
 {
     uvec2 packedData[];
 };
-layout(std430, binding = 3) readonly buffer VertexTextureIds
+layout(std430, binding = 3) readonly buffer VertexVoxelIds
 {
-    uint vertexTextureIds[];
+    uint vertexVoxelIds[];
 };
 
 struct UnpackedData {
@@ -38,6 +37,9 @@ struct UnpackedData {
 
 uniform vec3 chunkPosition;
 const vec3 triangleVertexTextureWeights[3] = { vec3(1.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0), vec3(0.0, 0.0, 1.0)};
+// X_LEFT = 0, X_RIGHT = 1, Y_UP = 2, Y_DOWN = 3, Z_FRONT = 4, Z_BACK = 5;
+const vec3 directionMul[6] = { vec3(-1.0, 0.0, 0.0), vec3(1.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0), vec3(0.0, -1.0, 0.0), vec3(0.0, 0.0, 1.0), vec3(0.0, 0.0, -1.0) };
+const float offsetsStrengh[8] = { -0.375, -0.25, -0.125, 0.0, 0.125, 0.25, 0.375, 0.5 };
 
 UnpackedData unpackData(uvec2 data);
 
@@ -47,18 +49,22 @@ void main()
     UnpackedData data = unpackData(packedData[currentInstance]);
     vec3 cornerPos = vec3(Position.x + 0.5 + chunkPosition.x, Position.y + 0.5 + chunkPosition.y, Position.z + 0.5 + chunkPosition.z);
     vec4 localPos = vec4(cornerPos.x + data.x, cornerPos.y + data.y, cornerPos.z + data.z, 1.0);
-    //vec4 localPos = vec4(Position.x + gl_InstanceID, Position.y, Position.z, 1.0);
-    gl_Position = projectionView * localPos;//vec4(Position.xyz, 1.0);
-    //gl_Position = projection * view * vec4(Position.xyz, 1.0);
 
-    vertexTextures.x = vertexTextureIds[gl_VertexID - 2];
-    vertexTextures.y = vertexTextureIds[gl_VertexID - 1];
-    vertexTextures.z = vertexTextureIds[gl_VertexID];
+    uint offsetId = data.offsets[vertexVoxelIds[gl_VertexID]];
+    float offsetStrengh = offsetsStrengh[offsetId];
+    vec3 offsetDirMul = directionMul[OffsetDirection];
+    localPos = vec4(localPos.x + (offsetStrengh * offsetDirMul.x), localPos.y + (offsetStrengh * offsetDirMul.y), localPos.z + (offsetStrengh * offsetDirMul.z), 1.0);
+
+    gl_Position = projectionView * localPos;
+
+    triangleVertexVoxelIds.x = vertexVoxelIds[gl_VertexID - 2];
+    triangleVertexVoxelIds.y = vertexVoxelIds[gl_VertexID - 1];
+    triangleVertexVoxelIds.z = vertexVoxelIds[gl_VertexID];
 
     texCoord = TexCoord;
     vertexTextureWeights = triangleVertexTextureWeights[gl_VertexID % 3];
     
-    textureIds = data.textureIds;
+    marchingCubeTextureIds = data.textureIds;
 }
 
 UnpackedData unpackData(uvec2 data)

@@ -41,15 +41,31 @@ void SceneTest::update(engine::Camera& camera, engine::SceneResources &resources
             glm::vec3 cameraPos = camera.getPosition(), cameraTarget = camera.getFront();
             glm::ivec3 hit, face;
             if (marching->raycastVoxel(cameraPos, cameraTarget, 100.f, hit, face)) {
-                std::cout << "Break voxel at " << hit.x << " " << hit.y << " " << hit.z << std::endl;
-                marching->setVoxel(hit, 255); 
+                if (engine::Controls::isKeyPressed(GLFW_KEY_LEFT_CONTROL)) {
+                    auto voxel = marching->getVoxel(hit);
+                    if (voxel.size > 0) {
+                        std::cout << "Voxel size decreased at " << hit.x << " " << hit.y << " " << hit.z << "\n";
+                        marching->setVoxel(hit, voxel.id, voxel.size - 1);
+                    }
+                }
+                else {
+                    std::cout << "Break voxel at " << hit.x << " " << hit.y << " " << hit.z << "\n";
+                    marching->setVoxel(hit, 255); 
+                }
             }
         }
         else if (engine::Controls::isMouseButtonDown(GLFW_MOUSE_BUTTON_RIGHT)) {
             glm::vec3 cameraPos = camera.getPosition(), cameraTarget = camera.getFront();
             glm::ivec3 hit, face;
             if (marching->raycastVoxel(cameraPos, cameraTarget, 100.f, hit, face)) {
-                marching->setVoxel(hit + face, 1);
+                if (engine::Controls::isKeyPressed(GLFW_KEY_LEFT_CONTROL)) {
+                    auto voxel = marching->getVoxel(hit);
+                    std::cout << "Voxel size increased at " << hit.x << " " << hit.y << " " << hit.z << "\n";
+                    marching->setVoxel(hit, voxel.id, voxel.size + 1);
+                }
+                else {
+                    marching->setVoxel(hit + face, 1, 0);
+                }
             }
         }
     }

@@ -26,11 +26,12 @@ void engine::MarchingCubesSolver::regenerateChunk(MarchingCubes &marchingCubes, 
                 if (caseId == 0 || caseId == 255) continue;
 
                 auto verticesIds = marchingCubes.getVertecesIds(caseId);
+                // vId - Id вершины в марширующем кубе, соответствующий индексу в массиве voxels[8]
                 int offsets[6] = { 0, 0, 0, 0, 0, 0 };
                 for (int i = 0; i < 6; i++) {
                     if (verticesIds.ids[i] == -1) break;
-                    //int vId = verticesIds.ids[i];
-                    //offsets[i] = voxels[vId].id;
+                    int vId = verticesIds.ids[i];
+                    offsets[i] = voxels[vId].size;
                 }
                 int textures[4] = { 0, 0, 0, 0 };
                 for (int i = 0; i < 4; i++) {
