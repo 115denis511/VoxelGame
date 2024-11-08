@@ -22,12 +22,15 @@ namespace engine {
     private:
         MarchingCubes();
 
+        struct VertexPack { glm::vec4 data[16]; };
+
         DrawArraysIndirectCommand m_caseDrawCommand[256];
         MarchingCubesVertecesIds m_caseVertecesIds[256];
         std::vector<VoxelVertex> m_vertices;
         GLuint m_VAO, m_VBO, m_verticesTextureIdsSSBO;
         std::vector<GLuint> m_verticesTextureIds;
         std::vector<VoxelVertexData> m_verticesData;
+        std::vector<VertexPack> m_verticesPack;
 
         glm::vec3 roundVector(glm::vec4 vec);
         glm::vec3 getNormal(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c);

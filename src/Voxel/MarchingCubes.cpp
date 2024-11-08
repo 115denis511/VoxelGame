@@ -1681,9 +1681,10 @@ engine::MarchingCubes::MarchingCubes() {
 
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(VoxelVertex), &m_vertices[0], GL_STATIC_DRAW);  
+    //glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(VoxelVertex), &m_vertices[0], GL_STATIC_DRAW);  
+    glBufferData(GL_ARRAY_BUFFER, m_verticesPack.size() * sizeof(VertexPack), &m_verticesPack[0], GL_STATIC_DRAW);  
 
-    // Позиции
+    /*// Позиции
     glEnableVertexAttribArray(0);	
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VoxelVertex), (void*)0);
     // Нормали
@@ -1697,9 +1698,32 @@ engine::MarchingCubes::MarchingCubes() {
     glVertexAttribIPointer(3, 1, GL_INT, sizeof(VoxelVertex), (void*)offsetof(VoxelVertex, voxelId)); // <- ВАЖНО, ДЛЯ INT ИСПОЛЬЗУЕТСЯ ФУНКЦИЯ С ПРЕФИКСОМ I
     // Id направления смещения
     glEnableVertexAttribArray(4);
-    glVertexAttribIPointer(4, 1, GL_INT, sizeof(VoxelVertex), (void*)offsetof(VoxelVertex, offsetDirection)); // <- ВАЖНО, ДЛЯ INT ИСПОЛЬЗУЕТСЯ ФУНКЦИЯ С ПРЕФИКСОМ I
+    glVertexAttribIPointer(4, 1, GL_INT, sizeof(VoxelVertex), (void*)offsetof(VoxelVertex, offsetDirection)); // <- ВАЖНО, ДЛЯ INT ИСПОЛЬЗУЕТСЯ ФУНКЦИЯ С ПРЕФИКСОМ I*/
+    for (GLint i = 0; i < 16; i++) {
+        glEnableVertexAttribArray(i);	
+        glVertexAttribPointer(i, 4, GL_FLOAT, GL_FALSE, sizeof(VertexPack), (void*)(i * sizeof(glm::vec4)) );
+    }
 
     glBindVertexArray(0);
+
+    #ifndef NDEBUG
+    int errors = 0;
+    GLenum errorCode;
+    while ((errorCode = glGetError()) != GL_NO_ERROR) {
+        errors++;
+        std::string error;
+        switch (errorCode) {
+        case GL_INVALID_ENUM:                  error = "INVALID_ENUM"; break;
+        case GL_INVALID_VALUE:                 error = "INVALID_VALUE"; break;
+        case GL_INVALID_OPERATION:             error = "INVALID_OPERATION"; break;
+        case GL_STACK_OVERFLOW:                error = "STACK_OVERFLOW"; break;
+        case GL_STACK_UNDERFLOW:               error = "STACK_UNDERFLOW"; break;
+        case GL_OUT_OF_MEMORY:                 error = "OUT_OF_MEMORY"; break;
+        case GL_INVALID_FRAMEBUFFER_OPERATION: error = "INVALID_FRAMEBUFFER_OPERATION"; break;
+        }
+        std::cout << "engine::MarchingCubes::MarchingCubes() " << error << std::endl;
+    }
+    #endif
 }
 
 engine::MarchingCubes::~MarchingCubes() {
@@ -1733,17 +1757,113 @@ inline void engine::MarchingCubes::addTriangle(const glm::vec3 &v0, const glm::v
     MarchingCubesVertexData v0data = currentCase.getVertexData(v0);
     m_vertices.push_back(VoxelVertex{ v0, normal, texCoord0, v0data.id, v0data.direction }); // 0
     m_verticesTextureIds.push_back(v0data.id);
-    m_verticesData.push_back(VoxelVertexData{v0, (unsigned int)v0data.id, (unsigned int)v0data.direction});
+    //m_verticesData.push_back(VoxelVertexData{v0, (unsigned int)v0data.id, (unsigned int)v0data.direction});
 
     MarchingCubesVertexData v1data = currentCase.getVertexData(v1);
     m_vertices.push_back(VoxelVertex{ v1, normal, texCoord1, v1data.id, v1data.direction }); // 1
     m_verticesTextureIds.push_back(v1data.id);
-    m_verticesData.push_back(VoxelVertexData{v1, (unsigned int)v1data.id, (unsigned int)v1data.direction});
+    //m_verticesData.push_back(VoxelVertexData{v1, (unsigned int)v1data.id, (unsigned int)v1data.direction});
 
     MarchingCubesVertexData v2data = currentCase.getVertexData(v2);
     m_vertices.push_back(VoxelVertex{ v2, normal, texCoord2, v2data.id, v2data.direction }); // 2
     m_verticesTextureIds.push_back(v2data.id);
-    m_verticesData.push_back(VoxelVertexData{v2, (unsigned int)v2data.id, (unsigned int)v2data.direction});
+    //m_verticesData.push_back(VoxelVertexData{v2, (unsigned int)v2data.id, (unsigned int)v2data.direction});
+
+    constexpr float offsetsStrengh[8] = { -0.375, -0.25, -0.125, 0.0, 0.125, 0.25, 0.375, 0.5 };
+    // X_LEFT = 0, X_RIGHT = 1, Y_UP = 2, Y_DOWN = 3, Z_FRONT = 4, Z_BACK = 5;
+    constexpr glm::vec3 directionMul[6] = { glm::vec3(-1.0, 0.0, 0.0), 
+                                            glm::vec3(1.0, 0.0, 0.0), 
+                                            glm::vec3(0.0, 1.0, 0.0), 
+                                            glm::vec3(0.0, -1.0, 0.0), 
+                                            glm::vec3(0.0, 0.0, 1.0), 
+                                            glm::vec3(0.0, 0.0, -1.0) 
+    };
+
+    VertexPack v0vertex;
+    VertexPack v1vertex;
+    VertexPack v2vertex;
+    glm::vec3 tangents[8];
+    glm::vec3 bitangents[8];
+    for (int i = 0; i < 8; i++) {
+        // Позиции
+        glm::vec4 v0vertexSized(v0.x + offsetsStrengh[i] * directionMul[v0data.direction].x, 
+                                v0.y + offsetsStrengh[i] * directionMul[v0data.direction].y, 
+                                v0.z + offsetsStrengh[i] * directionMul[v0data.direction].z, 
+                                v0vertex.data[i].w); // COPY W = SAVE TEXTURE DATA VALUE!!!!
+        v0vertex.data[i] = v0vertexSized;
+
+        glm::vec4 v1vertexSized(v1.x + offsetsStrengh[i] * directionMul[v1data.direction].x, 
+                                v1.y + offsetsStrengh[i] * directionMul[v1data.direction].y, 
+                                v1.z + offsetsStrengh[i] * directionMul[v1data.direction].z, 
+                                v1vertex.data[i].w);
+        v1vertex.data[i] = v1vertexSized;
+
+        glm::vec4 v2vertexSized(v2.x + offsetsStrengh[i] * directionMul[v2data.direction].x, 
+                                v2.y + offsetsStrengh[i] * directionMul[v2data.direction].y, 
+                                v2.z + offsetsStrengh[i] * directionMul[v2data.direction].z, 
+                                v2vertex.data[i].w);
+        v2vertex.data[i] = v2vertexSized;
+
+        // Нормали
+        glm::vec3 normalSized = getNormal(v0vertexSized, v1vertexSized, v2vertexSized);
+        v0vertex.data[i + 8] = glm::vec4(normalSized.x, normalSized.y, normalSized.z, v0vertex.data[i + 8].w);
+        v1vertex.data[i + 8] = glm::vec4(normalSized.x, normalSized.y, normalSized.z, v1vertex.data[i + 8].w);
+        v2vertex.data[i + 8] = glm::vec4(normalSized.x, normalSized.y, normalSized.z, v2vertex.data[i + 8].w);
+
+        // Текстуры
+        // Позаимствовано отсюда https://stackoverflow.com/questions/8705201/troubles-with-marching-cubes-and-texture-coordinates
+        glm::vec3 normalAbs = glm::vec3(std::abs(normalSized.x), std::abs(normalSized.y), std::abs(normalSized.z));
+        glm::vec2 uvs[3];
+        if (normalAbs.x >= normalAbs.z && normalAbs.x >= normalAbs.y) { // x plane
+            uvs[0] = glm::vec2(v0vertexSized.z, v0vertexSized.y);
+            uvs[1] = glm::vec2(v1vertexSized.z, v1vertexSized.y);
+            uvs[2] = glm::vec2(v2vertexSized.z, v2vertexSized.y);
+        }
+        else if (normalAbs.z >= normalAbs.x && normalAbs.z >= normalAbs.y) { // z plane
+            uvs[0] = glm::vec2(v0vertexSized.x, v0vertexSized.y);
+            uvs[1] = glm::vec2(v1vertexSized.x, v1vertexSized.y);
+            uvs[2] = glm::vec2(v2vertexSized.x, v2vertexSized.y);
+        }
+        else if (normalAbs.y >= normalAbs.x && normalAbs.y >= normalAbs.z) { // y plane
+            uvs[0] = glm::vec2(v0vertexSized.x, v0vertexSized.z);
+            uvs[1] = glm::vec2(v1vertexSized.x, v1vertexSized.z);
+            uvs[2] = glm::vec2(v2vertexSized.x, v2vertexSized.z);
+        }
+        int texIdU = i * 2, texIdV = i * 2 + 1;
+        v0vertex.data[texIdU].w = uvs[0].x;
+        v0vertex.data[texIdV].w = uvs[0].y;
+        
+        v1vertex.data[texIdU].w = uvs[1].x;
+        v1vertex.data[texIdV].w = uvs[1].y;
+
+        v2vertex.data[texIdU].w = uvs[2].x;
+        v2vertex.data[texIdV].w = uvs[2].y;
+
+        // Тангент и битангент
+        glm::vec3 edge_A = v1vertexSized - v0vertexSized;
+        glm::vec3 edge_B = v2vertexSized - v0vertexSized;
+        glm::vec2 deltaUV_A = glm::vec2(uvs[1].x - uvs[0].x, uvs[1].y - uvs[0].y);
+        glm::vec2 deltaUV_B = glm::vec2(uvs[2].x - uvs[0].x, uvs[2].y - uvs[0].y);
+        float f = 1.0f / (deltaUV_A.x * deltaUV_B.y - deltaUV_B.x * deltaUV_A.y);
+
+        tangents[i] = glm::vec3(
+            f * (deltaUV_B.y * edge_A.x - deltaUV_A.y * edge_B.x),
+            f * (deltaUV_B.y * edge_A.y - deltaUV_A.y * edge_B.y),
+            f * (deltaUV_B.y * edge_A.z - deltaUV_A.y * edge_B.z)  
+        );
+        tangents[i] = glm::normalize(tangents[i]);
+
+        bitangents[i] = glm::cross(normal, tangents[i]);
+        bitangents[i] = glm::normalize(bitangents[i]);
+    }
+    m_verticesPack.push_back(v0vertex);
+    m_verticesPack.push_back(v1vertex);
+    m_verticesPack.push_back(v2vertex);
+
+
+    m_verticesData.push_back(VoxelVertexData(tangents, bitangents, (unsigned int)v0data.id));
+    m_verticesData.push_back(VoxelVertexData(tangents, bitangents, (unsigned int)v1data.id));
+    m_verticesData.push_back(VoxelVertexData(tangents, bitangents, (unsigned int)v2data.id));
 }
 
 void engine::MarchingCubes::draw(int drawCount) {

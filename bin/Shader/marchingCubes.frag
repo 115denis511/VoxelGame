@@ -4,6 +4,7 @@
 
 in vec2 texCoord;
 in vec3 vertexTextureWeights;
+in mat3 TBN;
 flat in uint marchingCubeTextureIds[6];
 flat in uvec3 triangleVertexVoxelIds;
 
@@ -38,4 +39,10 @@ void main()
         tex0.z * vertexTextureWeights.x + tex1.z * vertexTextureWeights.y + tex2.z * vertexTextureWeights.z,
         1.0
     );
+
+    // TBN test
+    /*vec3 normalTest = vec3(0.0, 0.0, 1.0);
+    //normalTest = normalize(normalTest * 2.0 - 1.0); // this is needed for normal from textures
+    normalTest = normalize(TBN * normalTest);
+    fragColor = vec4(normalTest.xyz, 1.0);*/ 
 }
