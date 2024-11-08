@@ -5,7 +5,7 @@
 #include "../Render/DrawIndirectCommand.h"
 #include "../Utilites/MultidimensionalArrays.h"
 #include "../engine_properties.h"
-#include "VoxelVertex.h"
+#include "VoxelVertexData.h"
 
 namespace engine {
     struct MarchingCubesVoxel {

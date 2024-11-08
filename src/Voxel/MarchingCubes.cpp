@@ -28,9 +28,6 @@ engine::MarchingCubes::MarchingCubes() {
         glm::vec3 v0 = glm::vec3(0.0f, 0.5f, 1.0f) - 0.5f;
         glm::vec3 v1 = glm::vec3(0.0f, 1.0f, 0.5f) - 0.5f;
         glm::vec3 v2 = glm::vec3(0.5f, 1.0f, 1.0f) - 0.5f;
-        glm::vec2 v0tex = glm::vec2(0.0f, 1.0f);
-        glm::vec2 v1tex = glm::vec2(0.0f, 0.5f);
-        glm::vec2 v2tex = glm::vec2(0.5f, 1.0f);
 
         // TOP CASES
         // CASE 00000001 = 1   | MIRRORED CASE 11111110 = 254
@@ -54,7 +51,7 @@ engine::MarchingCubes::MarchingCubes() {
                 glm::vec3 v1current = roundVector(rotateYaw[i] * glm::vec4(v1, 1.0f));
                 glm::vec3 v2current = roundVector(rotateYaw[i] * glm::vec4(v2, 1.0f));
 
-                addTriangle(v0current, v1current, v2current, currentCase, v0tex, v1tex, v2tex);
+                addTriangle(v0current, v1current, v2current, currentCase);
 
                 DrawArraysIndirectCommand command;
                 command.first = baseVertex;
@@ -67,7 +64,7 @@ engine::MarchingCubes::MarchingCubes() {
                 currentCase = currentCase.rotateRight();
 
                 // Зеркальный случай
-                addTriangle(v2current, v1current, v0current, currentCaseMirrired, v0tex, v1tex, v2tex);
+                addTriangle(v2current, v1current, v0current, currentCaseMirrired);
 
                 command.first = baseVertex;
                 command.count = vetrexCount;
@@ -95,10 +92,6 @@ engine::MarchingCubes::MarchingCubes() {
         glm::vec3 v1 = glm::vec3(0.0f, 1.0f, 0.5f) - 0.5f;
         glm::vec3 v2 = glm::vec3(1.0f, 0.5f, 1.0f) - 0.5f;
         glm::vec3 v3 = glm::vec3(1.0f, 1.0f, 0.5f) - 0.5f;
-        glm::vec2 v0tex = glm::vec2(0.0f, 0.0f);
-        glm::vec2 v1tex = glm::vec2(0.0f, 0.5f);
-        glm::vec2 v2tex = glm::vec2(1.0f, 0.0f);
-        glm::vec2 v3tex = glm::vec2(1.0f, 0.5f);
 
         // TOP CASES
         // CASE 00000011 = 3  | MIRRORED CASE 11111100 = 252
@@ -131,8 +124,8 @@ engine::MarchingCubes::MarchingCubes() {
                 glm::vec3 v2c = roundVector(rotateYaw[i] * glm::vec4(v2, 1.0f));
                 glm::vec3 v3c = roundVector(rotateYaw[i] * glm::vec4(v3, 1.0f));
 
-                addTriangle(v0c, v1c, v3c, currentCase, v0tex, v1tex, v3tex);
-                addTriangle(v0c, v3c, v2c, currentCase, v0tex, v3tex, v2tex);
+                addTriangle(v0c, v1c, v3c, currentCase);
+                addTriangle(v0c, v3c, v2c, currentCase);
 
                 DrawArraysIndirectCommand command;
                 command.first = baseVertex;
@@ -145,8 +138,8 @@ engine::MarchingCubes::MarchingCubes() {
                 currentCase = currentCase.rotateRight();
 
                 // Зеркальный случай
-                addTriangle(v3c, v1c, v0c, currentCaseMirrired, v3tex, v1tex, v0tex);
-                addTriangle(v2c, v3c, v0c, currentCaseMirrired, v2tex, v3tex, v0tex);
+                addTriangle(v3c, v1c, v0c, currentCaseMirrired);
+                addTriangle(v2c, v3c, v0c, currentCaseMirrired);
 
                 command.first = baseVertex;
                 command.count = vetrexCount;
@@ -175,9 +168,6 @@ engine::MarchingCubes::MarchingCubes() {
         glm::vec3 v0 = glm::vec3(0.0f, 0.5f, 1.0f) - 0.5f;
         glm::vec3 v1 = glm::vec3(0.0f, 1.0f, 0.5f) - 0.5f;
         glm::vec3 v2 = glm::vec3(0.5f, 1.0f, 1.0f) - 0.5f;
-        glm::vec2 v0tex = glm::vec2(0.0f, 1.0f);
-        glm::vec2 v1tex = glm::vec2(0.0f, 0.5f);
-        glm::vec2 v2tex = glm::vec2(0.5f, 1.0f);
         glm::vec3 v3 = glm::vec3(1.0f, 0.5f, 0.0f) - 0.5f;
         glm::vec3 v4 = glm::vec3(1.0f, 1.0f, 0.5f) - 0.5f;
         glm::vec3 v5 = glm::vec3(0.5f, 1.0f, 0.0f) - 0.5f;   
@@ -210,8 +200,8 @@ engine::MarchingCubes::MarchingCubes() {
                 glm::vec3 v4c = roundVector(rotateYaw[i] * glm::vec4(v4, 1.0f));
                 glm::vec3 v5c = roundVector(rotateYaw[i] * glm::vec4(v5, 1.0f));
 
-                addTriangle(v0c, v1c, v2c, currentCase, v0tex, v1tex, v2tex);
-                addTriangle(v3c, v4c, v5c, currentCase, v0tex, v1tex, v2tex);
+                addTriangle(v0c, v1c, v2c, currentCase);
+                addTriangle(v3c, v4c, v5c, currentCase);
 
                 DrawArraysIndirectCommand command;
                 command.first = baseVertex;
@@ -248,8 +238,8 @@ engine::MarchingCubes::MarchingCubes() {
                 glm::vec3 v4c = roundVector(rotateYaw[i] * glm::vec4(v4, 1.0f));
                 glm::vec3 v5c = roundVector(rotateYaw[i] * glm::vec4(v5, 1.0f));
 
-                addTriangle(v0c, v1c, v2c, currentCase, v0tex, v1tex, v2tex);
-                addTriangle(v3c, v4c, v5c, currentCase, v0tex, v1tex, v2tex);
+                addTriangle(v0c, v1c, v2c, currentCase);
+                addTriangle(v3c, v4c, v5c, currentCase);
 
                 DrawArraysIndirectCommand command;
                 command.first = baseVertex;
@@ -282,11 +272,6 @@ engine::MarchingCubes::MarchingCubes() {
         glm::vec3 v2 = glm::vec3(0.0f, 0.5f, 0.0f) - 0.5f;
         glm::vec3 v3 = glm::vec3(0.0f, 0.0f, 0.5f) - 0.5f;
         glm::vec3 v4 = glm::vec3(0.5f, 0.0f, 1.0f) - 0.5f;
-        glm::vec2 v0tex = glm::vec2(1.0f, 1.0f);
-        glm::vec2 v1tex = glm::vec2(1.0f, 0.0f);
-        glm::vec2 v2tex = glm::vec2(0.0f, 0.0f);
-        glm::vec2 v3tex = glm::vec2(0.0f, 0.5f);
-        glm::vec2 v4tex = glm::vec2(0.5f, 1.0f);
 
         // BOTTOM CASES
         // CASE 11100000 = 224 | MIRRORED CASE 00011111 = 31
@@ -336,9 +321,9 @@ engine::MarchingCubes::MarchingCubes() {
                 glm::vec3 v3c = roundVector(rotateYaw[i] * glm::vec4(v3, 1.0f));
                 glm::vec3 v4c = roundVector(rotateYaw[i] * glm::vec4(v4, 1.0f));
 
-                addTriangle(v0c, v1c, v2c, currentCase, v0tex, v1tex, v2tex);
-                addTriangle(v4c, v0c, v2c, currentCase, v4tex, v0tex, v2tex);
-                addTriangle(v3c, v4c, v2c, currentCase, v3tex, v4tex, v2tex);
+                addTriangle(v0c, v1c, v2c, currentCase);
+                addTriangle(v4c, v0c, v2c, currentCase);
+                addTriangle(v3c, v4c, v2c, currentCase);
 
                 DrawArraysIndirectCommand command;
                 command.first = baseVertex;
@@ -352,9 +337,9 @@ engine::MarchingCubes::MarchingCubes() {
                 currentCase = currentCase.rotateRight();
 
                 // зеркальный случай
-                addTriangle(v2c, v1c, v0c, currentCaseMirrired, v2tex, v1tex, v0tex);
-                addTriangle(v2c, v0c, v4c, currentCaseMirrired, v2tex, v0tex, v4tex);
-                addTriangle(v2c, v4c, v3c, currentCaseMirrired, v2tex, v4tex, v3tex);
+                addTriangle(v2c, v1c, v0c, currentCaseMirrired);
+                addTriangle(v2c, v0c, v4c, currentCaseMirrired);
+                addTriangle(v2c, v4c, v3c, currentCaseMirrired);
 
                 command.first = baseVertex;
                 command.count = vetrexCount;
@@ -405,10 +390,6 @@ engine::MarchingCubes::MarchingCubes() {
         glm::vec3 v1 = glm::vec3(0.0f, 0.5f, 1.0f) - 0.5f;
         glm::vec3 v2 = glm::vec3(1.0f, 0.5f, 1.0f) - 0.5f;
         glm::vec3 v3 = glm::vec3(1.0f, 0.5f, 0.0f) - 0.5f;
-        glm::vec2 v0tex = glm::vec2(0.0f, 0.0f);
-        glm::vec2 v1tex = glm::vec2(0.0f, 1.0f);
-        glm::vec2 v2tex = glm::vec2(1.0f, 1.0f);
-        glm::vec2 v3tex = glm::vec2(1.0f, 0.0f);
 
         // TOP CASE    11110000 = 240 | BOTTOM CASE 00001111 = 15
         // RIGHT CASE  10011001 = 153 | LEFT CASE   01100110 = 102
@@ -425,8 +406,8 @@ engine::MarchingCubes::MarchingCubes() {
         currentCaseMirrired.setVertexId(3, 3);
 
         for (size_t i = 0; i < 3; i++) {
-            addTriangle(v0, v1, v2, currentCase, v0tex, v1tex, v2tex);
-            addTriangle(v0, v2, v3, currentCase, v0tex, v2tex, v3tex);
+            addTriangle(v0, v1, v2, currentCase);
+            addTriangle(v0, v2, v3, currentCase);
 
             DrawArraysIndirectCommand command;
             command.first = baseVertex;
@@ -439,8 +420,8 @@ engine::MarchingCubes::MarchingCubes() {
             baseVertex += vetrexCount;
 
             // зеркальный случай
-            addTriangle(v2, v1, v0, currentCaseMirrired, v2tex, v1tex, v0tex);
-            addTriangle(v3, v2, v0, currentCaseMirrired, v3tex, v2tex, v0tex);
+            addTriangle(v2, v1, v0, currentCaseMirrired);
+            addTriangle(v3, v2, v0, currentCaseMirrired);
 
             command.first = baseVertex;
             command.count = vetrexCount;
@@ -489,17 +470,9 @@ engine::MarchingCubes::MarchingCubes() {
         glm::vec3 v2 = glm::vec3(0.0f, 0.5f, 0.0f) - 0.5f;
         glm::vec3 v3 = glm::vec3(0.0f, 0.0f, 0.5f) - 0.5f;
         glm::vec3 v4 = glm::vec3(0.5f, 0.0f, 1.0f) - 0.5f;
-        glm::vec2 v0tex = glm::vec2(1.0f, 1.0f);
-        glm::vec2 v1tex = glm::vec2(1.0f, 0.0f);
-        glm::vec2 v2tex = glm::vec2(0.0f, 0.0f);
-        glm::vec2 v3tex = glm::vec2(0.0f, 0.5f);
-        glm::vec2 v4tex = glm::vec2(0.5f, 1.0f);
         glm::vec3 v5 = glm::vec3(0.0f, 0.5f, 1.0f) - 0.5f;
         glm::vec3 v6 = glm::vec3(0.0f, 1.0f, 0.5f) - 0.5f;
         glm::vec3 v7 = glm::vec3(0.5f, 1.0f, 1.0f) - 0.5f;
-        glm::vec2 v5tex = glm::vec2(0.0f, 1.0f);
-        glm::vec2 v6tex = glm::vec2(0.0f, 0.5f);
-        glm::vec2 v7tex = glm::vec2(0.5f, 1.0f);
 
         // BOTTOM CASES
         // CASE 11100001 = 225 | MIRRORED CASE 00011110 = 30
@@ -542,10 +515,10 @@ engine::MarchingCubes::MarchingCubes() {
                 glm::vec3 v6c = roundVector(rotateYaw[i] * glm::vec4(v6, 1.0f));
                 glm::vec3 v7c = roundVector(rotateYaw[i] * glm::vec4(v7, 1.0f));
 
-                addTriangle(v0c, v1c, v2c, currentCase, v0tex, v1tex, v2tex);
-                addTriangle(v4c, v0c, v2c, currentCase, v4tex, v0tex, v2tex);
-                addTriangle(v3c, v4c, v2c, currentCase, v3tex, v4tex, v2tex);
-                addTriangle(v5c, v6c, v7c, currentCase, v5tex, v6tex, v7tex);
+                addTriangle(v0c, v1c, v2c, currentCase);
+                addTriangle(v4c, v0c, v2c, currentCase);
+                addTriangle(v3c, v4c, v2c, currentCase);
+                addTriangle(v5c, v6c, v7c, currentCase);
 
                 DrawArraysIndirectCommand command;
                 command.first = baseVertex;
@@ -614,9 +587,6 @@ engine::MarchingCubes::MarchingCubes() {
         glm::vec3 v3 = glm::vec3(1.0f, 0.5f, 0.0f) - 0.5f;
         glm::vec3 v4 = glm::vec3(1.0f, 1.0f, 0.5f) - 0.5f;
         glm::vec3 v5 = glm::vec3(0.5f, 1.0f, 0.0f) - 0.5f;
-        glm::vec2 v0tex = glm::vec2(0.0f, 1.0f);
-        glm::vec2 v1tex = glm::vec2(0.0f, 0.5f);
-        glm::vec2 v2tex = glm::vec2(0.5f, 1.0f);
 
         // CASE 00010100 = 20  | MIRRORED CASE 11101011 = 235
         // CASE 00101000 = 40  | MIRRORED CASE 11010111 = 215
@@ -641,8 +611,8 @@ engine::MarchingCubes::MarchingCubes() {
             glm::vec3 v4c = roundVector(rotateYaw[i] * glm::vec4(v4, 1.0f));
             glm::vec3 v5c = roundVector(rotateYaw[i] * glm::vec4(v5, 1.0f));
 
-            addTriangle(v0c, v1c, v2c, currentCase, v0tex, v1tex, v2tex);
-            addTriangle(v3c, v4c, v5c, currentCase, v0tex, v1tex, v2tex);
+            addTriangle(v0c, v1c, v2c, currentCase);
+            addTriangle(v3c, v4c, v5c, currentCase);
 
             DrawArraysIndirectCommand command;
             command.first = baseVertex;
@@ -656,8 +626,8 @@ engine::MarchingCubes::MarchingCubes() {
             currentCase = currentCase.rotateRight();
 
             // зеркальный случай
-            addTriangle(v2c, v1c, v0c, currentCaseMirrired, v2tex, v1tex, v0tex);
-            addTriangle(v5c, v4c, v3c, currentCaseMirrired, v2tex, v1tex, v0tex);
+            addTriangle(v2c, v1c, v0c, currentCaseMirrired);
+            addTriangle(v5c, v4c, v3c, currentCaseMirrired);
 
             command.first = baseVertex;
             command.count = vetrexCount;
@@ -679,16 +649,10 @@ engine::MarchingCubes::MarchingCubes() {
         glm::vec3 v1 = glm::vec3(0.0f, 1.0f, 0.5f) - 0.5f;
         glm::vec3 v2 = glm::vec3(1.0f, 0.5f, 1.0f) - 0.5f;
         glm::vec3 v3 = glm::vec3(1.0f, 1.0f, 0.5f) - 0.5f;
-        glm::vec2 v0tex = glm::vec2(0.0f, 0.0f);
-        glm::vec2 v1tex = glm::vec2(0.0f, 0.5f);
-        glm::vec2 v2tex = glm::vec2(1.0f, 0.0f);
-        glm::vec2 v3tex = glm::vec2(1.0f, 0.5f);
+
         glm::vec3 v4 = glm::vec3(1.0f, 0.5f, 0.0f) - 0.5f;
         glm::vec3 v5 = glm::vec3(0.5f, 0.0f, 0.0f) - 0.5f;
         glm::vec3 v6 = glm::vec3(1.0f, 0.0f, 0.5f) - 0.5f;
-        glm::vec2 v4tex = glm::vec2(0.0f, 1.0f);
-        glm::vec2 v5tex = glm::vec2(0.0f, 0.5f);
-        glm::vec2 v6tex = glm::vec2(0.5f, 1.0f);
 
         // TOP CASES
         // CASE 01000011 = 67
@@ -720,9 +684,9 @@ engine::MarchingCubes::MarchingCubes() {
                 glm::vec3 v5c = roundVector(rotateYaw[i] * glm::vec4(v5, 1.0f));
                 glm::vec3 v6c = roundVector(rotateYaw[i] * glm::vec4(v6, 1.0f));
 
-                addTriangle(v0c, v1c, v3c, currentCase, v0tex, v1tex, v3tex);
-                addTriangle(v0c, v3c, v2c, currentCase, v0tex, v3tex, v2tex);
-                addTriangle(v4c, v5c, v6c, currentCase, v4tex, v5tex, v6tex);
+                addTriangle(v0c, v1c, v3c, currentCase);
+                addTriangle(v0c, v3c, v2c, currentCase);
+                addTriangle(v4c, v5c, v6c, currentCase);
 
                 DrawArraysIndirectCommand command;
                 command.first = baseVertex;
@@ -755,16 +719,10 @@ engine::MarchingCubes::MarchingCubes() {
         glm::vec3 v1 = glm::vec3(0.0f, 1.0f, 0.5f) - 0.5f;
         glm::vec3 v2 = glm::vec3(1.0f, 0.5f, 1.0f) - 0.5f;
         glm::vec3 v3 = glm::vec3(1.0f, 1.0f, 0.5f) - 0.5f;
-        glm::vec2 v0tex = glm::vec2(0.0f, 0.0f);
-        glm::vec2 v1tex = glm::vec2(0.0f, 0.5f);
-        glm::vec2 v2tex = glm::vec2(1.0f, 0.0f);
-        glm::vec2 v3tex = glm::vec2(1.0f, 0.5f);
+
         glm::vec3 v4 = glm::vec3(0.0f, 0.5f, 0.0f) - 0.5f;
         glm::vec3 v5 = glm::vec3(0.0f, 0.0f, 0.5f) - 0.5f;
         glm::vec3 v6 = glm::vec3(0.5f, 0.0f, 0.0f) - 0.5f;
-        glm::vec2 v4tex = glm::vec2(0.0f, 1.0f);
-        glm::vec2 v5tex = glm::vec2(0.0f, 0.5f);
-        glm::vec2 v6tex = glm::vec2(0.5f, 1.0f);
 
         // TOP CASES
         // CASE 10000011 = 131
@@ -796,9 +754,9 @@ engine::MarchingCubes::MarchingCubes() {
                 glm::vec3 v5c = roundVector(rotateYaw[i] * glm::vec4(v5, 1.0f));
                 glm::vec3 v6c = roundVector(rotateYaw[i] * glm::vec4(v6, 1.0f));
 
-                addTriangle(v0c, v1c, v3c, currentCase, v0tex, v1tex, v3tex);
-                addTriangle(v0c, v3c, v2c, currentCase, v0tex, v3tex, v2tex);
-                addTriangle(v4c, v5c, v6c, currentCase, v4tex, v5tex, v6tex);
+                addTriangle(v0c, v1c, v3c, currentCase);
+                addTriangle(v0c, v3c, v2c, currentCase);
+                addTriangle(v4c, v5c, v6c, currentCase);
 
                 DrawArraysIndirectCommand command;
                 command.first = baseVertex;
@@ -830,9 +788,6 @@ engine::MarchingCubes::MarchingCubes() {
         glm::vec3 v0 = glm::vec3(0.0f, 0.5f, 1.0f) - 0.5f;
         glm::vec3 v1 = glm::vec3(0.0f, 1.0f, 0.5f) - 0.5f;
         glm::vec3 v2 = glm::vec3(0.5f, 1.0f, 1.0f) - 0.5f;
-        glm::vec2 v0tex = glm::vec2(0.0f, 1.0f);
-        glm::vec2 v1tex = glm::vec2(0.0f, 0.5f);
-        glm::vec2 v2tex = glm::vec2(0.5f, 1.0f);
         glm::vec3 v3 = glm::vec3(1.0f, 0.5f, 1.0f) - 0.5f;
         glm::vec3 v4 = glm::vec3(1.0f, 0.0f, 0.5f) - 0.5f;
         glm::vec3 v5 = glm::vec3(0.5f, 0.0f, 1.0f) - 0.5f;
@@ -867,9 +822,9 @@ engine::MarchingCubes::MarchingCubes() {
                 glm::vec3 v7c = roundVector(rotateYaw[i] * glm::vec4(v7, 1.0f));
                 glm::vec3 v8c = roundVector(rotateYaw[i] * glm::vec4(v8, 1.0f));
 
-                addTriangle(v0c, v1c, v2c, currentCase, v0tex, v1tex, v2tex);
-                addTriangle(v3c, v4c, v5c, currentCase, v0tex, v1tex, v2tex);
-                addTriangle(v6c, v7c, v8c, currentCase, v0tex, v1tex, v2tex);
+                addTriangle(v0c, v1c, v2c, currentCase);
+                addTriangle(v3c, v4c, v5c, currentCase);
+                addTriangle(v6c, v7c, v8c, currentCase);
 
                 DrawArraysIndirectCommand command;
                 command.first = baseVertex;
@@ -904,10 +859,7 @@ engine::MarchingCubes::MarchingCubes() {
         glm::vec3 v1 = glm::vec3(0.0f, 1.0f, 0.5f) - 0.5f;
         glm::vec3 v2 = glm::vec3(0.5f, 0.0f, 1.0f) - 0.5f;
         glm::vec3 v3 = glm::vec3(0.5f, 1.0f, 1.0f) - 0.5f;
-        glm::vec2 v0tex = glm::vec2(0.0f, 0.0f);
-        glm::vec2 v1tex = glm::vec2(0.0f, 0.75f);
-        glm::vec2 v2tex = glm::vec2(1.0f, 0.0f);
-        glm::vec2 v3tex = glm::vec2(1.0f, 0.75f);
+
         glm::vec3 v4 = glm::vec3(0.5f, 0.0f, 0.0f) - 0.5f;
         glm::vec3 v5 = glm::vec3(1.0f, 0.0f, 0.5f) - 0.5f;
         glm::vec3 v6 = glm::vec3(1.0f, 1.0f, 0.5f) - 0.5f;
@@ -939,10 +891,10 @@ engine::MarchingCubes::MarchingCubes() {
                 glm::vec3 v6c = roundVector(rotateYaw[i] * glm::vec4(v6, 1.0f));
                 glm::vec3 v7c = roundVector(rotateYaw[i] * glm::vec4(v7, 1.0f));
 
-                addTriangle(v0c, v1c, v2c, currentCase, v0tex, v1tex, v2tex);
-                addTriangle(v3c, v2c, v1c, currentCase, v3tex, v2tex, v1tex);
-                addTriangle(v4c, v5c, v6c, currentCase, v0tex, v2tex, v3tex);
-                addTriangle(v4c, v6c, v7c, currentCase, v0tex, v3tex, v1tex);
+                addTriangle(v0c, v1c, v2c, currentCase);
+                addTriangle(v3c, v2c, v1c, currentCase);
+                addTriangle(v4c, v5c, v6c, currentCase);
+                addTriangle(v4c, v6c, v7c, currentCase);
 
                 DrawArraysIndirectCommand command;
                 command.first = baseVertex;
@@ -980,12 +932,6 @@ engine::MarchingCubes::MarchingCubes() {
         glm::vec3 v3 = glm::vec3(0.5f, 1.0f, 0.0f) - 0.5f;
         glm::vec3 v4 = glm::vec3(1.0f, 1.0f, 0.5f) - 0.5f;
         glm::vec3 v5 = glm::vec3(1.0f, 0.0f, 0.5f) - 0.5f;
-        glm::vec2 v0tex = glm::vec2(0.0f, 0.0f);
-        glm::vec2 v1tex = glm::vec2(0.0f, 1.0f);
-        glm::vec2 v2tex = glm::vec2(0.5f, 1.0f);
-        glm::vec2 v3tex = glm::vec2(0.5f, 0.0f);
-        glm::vec2 v4tex = glm::vec2(1.0f, 0.5f);
-        glm::vec2 v5tex = glm::vec2(1.0f, 1.0f);
 
         // BOTTOM CASES
         // CASE 11010100 = 212 | MIRRORED CASE 11101011 = 43
@@ -1017,10 +963,10 @@ engine::MarchingCubes::MarchingCubes() {
                 glm::vec3 v4c = roundVector(rotateYaw[i] * glm::vec4(v4, 1.0f));
                 glm::vec3 v5c = roundVector(rotateYaw[i] * glm::vec4(v5, 1.0f));
 
-                addTriangle(v0c, v1c, v2c, currentCase, v0tex, v1tex, v2tex);
-                addTriangle(v3c, v0c, v4c, currentCase, v3tex, v0tex, v4tex);
-                addTriangle(v0c, v2c, v4c, currentCase, v0tex, v2tex, v4tex);
-                addTriangle(v4c, v2c, v5c, currentCase, v4tex, v2tex, v5tex);
+                addTriangle(v0c, v1c, v2c, currentCase);
+                addTriangle(v3c, v0c, v4c, currentCase);
+                addTriangle(v0c, v2c, v4c, currentCase);
+                addTriangle(v4c, v2c, v5c, currentCase);
 
                 DrawArraysIndirectCommand command;
                 command.first = baseVertex;
@@ -1034,10 +980,10 @@ engine::MarchingCubes::MarchingCubes() {
                 currentCase = currentCase.rotateRight();
 
                 // зеркальный случай
-                addTriangle(v2c, v1c, v0c, currentCaseMirrired, v2tex, v1tex, v0tex);
-                addTriangle(v4c, v0c, v3c, currentCaseMirrired, v4tex, v0tex, v3tex);
-                addTriangle(v4c, v2c, v0c, currentCaseMirrired, v4tex, v2tex, v0tex);
-                addTriangle(v5c, v2c, v4c, currentCaseMirrired, v5tex, v2tex, v4tex);
+                addTriangle(v2c, v1c, v0c, currentCaseMirrired);
+                addTriangle(v4c, v0c, v3c, currentCaseMirrired);
+                addTriangle(v4c, v2c, v0c, currentCaseMirrired);
+                addTriangle(v5c, v2c, v4c, currentCaseMirrired);
 
                 command.first = baseVertex;
                 command.count = vetrexCount;
@@ -1068,9 +1014,7 @@ engine::MarchingCubes::MarchingCubes() {
         glm::vec3 v0 = glm::vec3(1.0f, 0.5f, 1.0f) - 0.5f;
         glm::vec3 v1 = glm::vec3(0.5f, 1.0f, 1.0f) - 0.5f;
         glm::vec3 v2 = glm::vec3(1.0f, 1.0f, 0.5f) - 0.5f;
-        glm::vec2 v0tex = glm::vec2(0.0f, 1.0f);
-        glm::vec2 v1tex = glm::vec2(0.0f, 0.5f);
-        glm::vec2 v2tex = glm::vec2(0.5f, 1.0f);
+
         glm::vec3 v3 = glm::vec3(0.0f, 0.5f, 0.0f) - 0.5f;
         glm::vec3 v4 = glm::vec3(0.5f, 1.0f, 0.0f) - 0.5f;
         glm::vec3 v5 = glm::vec3(0.0f, 1.0f, 0.5f) - 0.5f;
@@ -1097,7 +1041,25 @@ engine::MarchingCubes::MarchingCubes() {
         currentCaseMirrired.setVertexId(3, 7);
 
         {
-            /*v0 = roundVector(rotateYaw[i] * glm::vec4(v0, 1.0f));
+
+            addTriangle(v0, v1, v2, currentCase);
+            addTriangle(v3, v4, v5, currentCase);
+            addTriangle(v6, v7, v8, currentCase);
+            addTriangle(v9, v10, v11, currentCase);
+
+            DrawArraysIndirectCommand command;
+            command.first = baseVertex;
+            command.count = vetrexCount;
+            int caseId = currentCase.resolve();
+            assert(m_caseDrawCommand[caseId].count == 0);
+            m_caseDrawCommand[caseId] = command;
+            m_caseVertecesIds[caseId] = currentCase.copyVertecesId();
+            
+            baseVertex += vetrexCount;
+            currentCase = currentCase.rotateRight();
+
+            int i = 1;
+            v0 = roundVector(rotateYaw[i] * glm::vec4(v0, 1.0f));
             v1 = roundVector(rotateYaw[i] * glm::vec4(v1, 1.0f));
             v2 = roundVector(rotateYaw[i] * glm::vec4(v2, 1.0f));
             v3 = roundVector(rotateYaw[i] * glm::vec4(v3, 1.0f));
@@ -1108,29 +1070,17 @@ engine::MarchingCubes::MarchingCubes() {
             v8 = roundVector(rotateYaw[i] * glm::vec4(v8, 1.0f));
             v9 = roundVector(rotateYaw[i] * glm::vec4(v9, 1.0f));
             v10 = roundVector(rotateYaw[i] * glm::vec4(v10, 1.0f));
-            v11 = roundVector(rotateYaw[i] * glm::vec4(v11, 1.0f));*/
-
-            addTriangle(v0, v1, v2, currentCase, v0tex, v1tex, v2tex);
-            addTriangle(v3, v4, v5, currentCase, v0tex, v1tex, v2tex);
-            addTriangle(v6, v7, v8, currentCase, v0tex, v1tex, v2tex);
-            addTriangle(v9, v10, v11, currentCase, v0tex, v1tex, v2tex);
-
-            DrawArraysIndirectCommand command;
-            command.first = baseVertex;
-            command.count = vetrexCount;
-            int caseId = currentCase.resolve();
-            assert(m_caseDrawCommand[caseId].count == 0);
-            m_caseDrawCommand[caseId] = command;
-            m_caseVertecesIds[caseId] = currentCase.copyVertecesId();
-
-            baseVertex += vetrexCount;
-            currentCase = currentCase.rotateRight();
+            v11 = roundVector(rotateYaw[i] * glm::vec4(v11, 1.0f));
 
             // зеркальный случай
-            addTriangle(v2, v1, v0, currentCase, v2tex, v1tex, v0tex);
-            addTriangle(v5, v4, v3, currentCase, v2tex, v1tex, v0tex);
-            addTriangle(v8, v7, v6, currentCase, v2tex, v1tex, v0tex);
-            addTriangle(v11, v10, v9, currentCase, v2tex, v1tex, v0tex);
+            /*addTriangle(v2, v1, v0, currentCase);
+            addTriangle(v5, v4, v3, currentCase);
+            addTriangle(v8, v7, v6, currentCase);
+            addTriangle(v11, v10, v9, currentCase);*/
+            addTriangle(v0, v1, v2, currentCase);
+            addTriangle(v3, v4, v5, currentCase);
+            addTriangle(v6, v7, v8, currentCase);
+            addTriangle(v9, v10, v11, currentCase);
 
             command.first = baseVertex;
             command.count = vetrexCount;
@@ -1154,12 +1104,6 @@ engine::MarchingCubes::MarchingCubes() {
         glm::vec3 v3 = glm::vec3(0.5f, 0.0f, 1.0f) - 0.5f;
         glm::vec3 v4 = glm::vec3(1.0f, 0.5f, 0.0f) - 0.5f;
         glm::vec3 v5 = glm::vec3(1.0f, 0.0f, 0.5f) - 0.5f;
-        glm::vec2 v0tex = glm::vec2(0.0f, 0.5f);
-        glm::vec2 v1tex = glm::vec2(0.0f, 1.0f);
-        glm::vec2 v2tex = glm::vec2(0.5f, 0.0f);
-        glm::vec2 v3tex = glm::vec2(0.5f, 1.0f);
-        glm::vec2 v4tex = glm::vec2(1.0f, 0.0f);
-        glm::vec2 v5tex = glm::vec2(1.0f, 0.5f);
 
         // CASES
         // CASE 11011000 = 216 | MIRRORED CASE 11011000 = 39
@@ -1185,10 +1129,10 @@ engine::MarchingCubes::MarchingCubes() {
             glm::vec3 v4c = roundVector(rotateYaw[i] * glm::vec4(v4, 1.0f));
             glm::vec3 v5c = roundVector(rotateYaw[i] * glm::vec4(v5, 1.0f));
 
-            addTriangle(v0c, v1c, v2c, currentCase, v0tex, v1tex, v2tex);
-            addTriangle(v2c, v1c, v3c, currentCase, v2tex, v1tex, v3tex);
-            addTriangle(v2c, v3c, v4c, currentCase, v2tex, v3tex, v4tex);
-            addTriangle(v4c, v3c, v5c, currentCase, v4tex, v3tex, v5tex);
+            addTriangle(v0c, v1c, v2c, currentCase);
+            addTriangle(v2c, v1c, v3c, currentCase);
+            addTriangle(v2c, v3c, v4c, currentCase);
+            addTriangle(v4c, v3c, v5c, currentCase);
 
             DrawArraysIndirectCommand command;
             command.first = baseVertex;
@@ -1202,10 +1146,10 @@ engine::MarchingCubes::MarchingCubes() {
             currentCase = currentCase.rotateRight();
 
             // зеркальный случай
-            addTriangle(v2c, v1c, v0c, currentCaseMirrired, v0tex, v1tex, v2tex);
-            addTriangle(v3c, v1c, v2c, currentCaseMirrired, v2tex, v1tex, v3tex);
-            addTriangle(v4c, v3c, v2c, currentCaseMirrired, v2tex, v3tex, v4tex);
-            addTriangle(v5c, v3c, v4c, currentCaseMirrired, v4tex, v3tex, v5tex);
+            addTriangle(v2c, v1c, v0c, currentCaseMirrired);
+            addTriangle(v3c, v1c, v2c, currentCaseMirrired);
+            addTriangle(v4c, v3c, v2c, currentCaseMirrired);
+            addTriangle(v5c, v3c, v4c, currentCaseMirrired);
 
             command.first = baseVertex;
             command.count = vetrexCount;
@@ -1229,12 +1173,6 @@ engine::MarchingCubes::MarchingCubes() {
         glm::vec3 v3 = glm::vec3(0.5f, 1.0f, 0.0f) - 0.5f;
         glm::vec3 v4 = glm::vec3(0.0f, 1.0f, 0.5f) - 0.5f;
         glm::vec3 v5 = glm::vec3(0.0f, 0.0f, 0.5f) - 0.5f;
-        glm::vec2 v0tex = glm::vec2(1.0f, 1.0f);
-        glm::vec2 v1tex = glm::vec2(1.0f, 0.0f);
-        glm::vec2 v2tex = glm::vec2(0.5f, 1.0f);
-        glm::vec2 v3tex = glm::vec2(0.5f, 0.0f);
-        glm::vec2 v4tex = glm::vec2(0.0f, 0.5f);
-        glm::vec2 v5tex = glm::vec2(0.0f, 1.0f);
 
         // BOTTOM CASES
         // CASE 11101000 = 232 | MIRRORED CASE 00010111 = 23
@@ -1266,10 +1204,10 @@ engine::MarchingCubes::MarchingCubes() {
                 glm::vec3 v4c = roundVector(rotateYaw[i] * glm::vec4(v4, 1.0f));
                 glm::vec3 v5c = roundVector(rotateYaw[i] * glm::vec4(v5, 1.0f));
 
-                addTriangle(v0c, v1c, v2c, currentCase, v0tex, v1tex, v2tex);
-                addTriangle(v3c, v4c, v1c, currentCase, v3tex, v4tex, v1tex);
-                addTriangle(v1c, v4c, v2c, currentCase, v1tex, v4tex, v2tex);
-                addTriangle(v4c, v5c, v2c, currentCase, v4tex, v5tex, v2tex);
+                addTriangle(v0c, v1c, v2c, currentCase);
+                addTriangle(v3c, v4c, v1c, currentCase);
+                addTriangle(v1c, v4c, v2c, currentCase);
+                addTriangle(v4c, v5c, v2c, currentCase);
 
                 DrawArraysIndirectCommand command;
                 command.first = baseVertex;
@@ -1287,10 +1225,10 @@ engine::MarchingCubes::MarchingCubes() {
                 addTriangle(v4c, v0c, v3c, currentCaseMirrired, v4tex, v0tex, v3tex);
                 addTriangle(v4c, v2c, v0c, currentCaseMirrired, v4tex, v2tex, v0tex);
                 addTriangle(v5c, v2c, v4c, currentCaseMirrired, v5tex, v2tex, v4tex);*/
-                addTriangle(v2c, v1c, v0c, currentCaseMirrired, v2tex, v1tex, v0tex);
-                addTriangle(v1c, v4c, v3c, currentCaseMirrired, v1tex, v4tex, v3tex);
-                addTriangle(v2c, v4c, v1c, currentCaseMirrired, v2tex, v4tex, v1tex);
-                addTriangle(v2c, v5c, v4c, currentCaseMirrired, v2tex, v5tex, v4tex);
+                addTriangle(v2c, v1c, v0c, currentCaseMirrired);
+                addTriangle(v1c, v4c, v3c, currentCaseMirrired);
+                addTriangle(v2c, v4c, v1c, currentCaseMirrired);
+                addTriangle(v2c, v5c, v4c, currentCaseMirrired);
 
                 command.first = baseVertex;
                 command.count = vetrexCount;
@@ -1324,18 +1262,9 @@ engine::MarchingCubes::MarchingCubes() {
         glm::vec3 v3 = glm::vec3(0.5f, 0.0f, 1.0f) - 0.5f;
         glm::vec3 v4 = glm::vec3(1.0f, 0.5f, 0.0f) - 0.5f;
         glm::vec3 v5 = glm::vec3(1.0f, 0.0f, 0.5f) - 0.5f;
-        glm::vec2 v0tex = glm::vec2(0.0f, 0.5f);
-        glm::vec2 v1tex = glm::vec2(0.0f, 1.0f);
-        glm::vec2 v2tex = glm::vec2(0.5f, 0.0f);
-        glm::vec2 v3tex = glm::vec2(0.5f, 1.0f);
-        glm::vec2 v4tex = glm::vec2(1.0f, 0.0f);
-        glm::vec2 v5tex = glm::vec2(1.0f, 0.5f);
         glm::vec3 v6 = glm::vec3(1.0f, 0.5f, 1.0f) - 0.5f;
         glm::vec3 v7 = glm::vec3(0.5f, 1.0f, 1.0f) - 0.5f;
         glm::vec3 v8 = glm::vec3(1.0f, 1.0f, 0.5f) - 0.5f;
-        glm::vec2 v6tex = glm::vec2(0.0f, 1.0f);
-        glm::vec2 v7tex = glm::vec2(0.0f, 0.5f);
-        glm::vec2 v8tex = glm::vec2(0.5f, 1.0f);
 
         // CASES
         // CASE 11011010 = 218
@@ -1364,11 +1293,11 @@ engine::MarchingCubes::MarchingCubes() {
                 glm::vec3 v7c = roundVector(rotateYaw[i] * glm::vec4(v7, 1.0f));
                 glm::vec3 v8c = roundVector(rotateYaw[i] * glm::vec4(v8, 1.0f));
 
-                addTriangle(v0c, v1c, v2c, currentCase, v0tex, v1tex, v2tex);
-                addTriangle(v2c, v1c, v3c, currentCase, v2tex, v1tex, v3tex);
-                addTriangle(v2c, v3c, v4c, currentCase, v2tex, v3tex, v4tex);
-                addTriangle(v4c, v3c, v5c, currentCase, v4tex, v3tex, v5tex);
-                addTriangle(v6c, v7c, v8c, currentCase, v6tex, v7tex, v8tex);
+                addTriangle(v0c, v1c, v2c, currentCase);
+                addTriangle(v2c, v1c, v3c, currentCase);
+                addTriangle(v2c, v3c, v4c, currentCase);
+                addTriangle(v4c, v3c, v5c, currentCase);
+                addTriangle(v6c, v7c, v8c, currentCase);
 
                 DrawArraysIndirectCommand command;
                 command.first = baseVertex;
@@ -1406,13 +1335,6 @@ engine::MarchingCubes::MarchingCubes() {
         glm::vec3 v4 = glm::vec3(0.0f, 0.5f, 1.0f) - 0.5f;
         glm::vec3 v5 = glm::vec3(1.0f, 1.0f, 0.5f) - 0.5f;
         glm::vec3 v6 = glm::vec3(1.0f, 0.5f, 1.0f) - 0.5f;
-        glm::vec2 v0tex = glm::vec2(1.0f, 0.0f);
-        glm::vec2 v1tex = glm::vec2(0.0f, 0.0f);
-        glm::vec2 v2tex = glm::vec2(0.5f, 1.0f);
-        glm::vec2 v3tex = glm::vec2(1.0f, 0.5f);
-        glm::vec2 v4tex = glm::vec2(1.0f, 0.0f);
-        glm::vec2 v5tex = glm::vec2(0.0f, 0.5f);
-        glm::vec2 v6tex = glm::vec2(0.0f, 0.0f);
 
         // TOP CASES
         // CASE 11001011 = 203
@@ -1446,11 +1368,11 @@ engine::MarchingCubes::MarchingCubes() {
                 glm::vec3 v5c = roundVector(rotateYaw[i] * glm::vec4(v5, 1.0f));
                 glm::vec3 v6c = roundVector(rotateYaw[i] * glm::vec4(v6, 1.0f));
 
-                addTriangle(v2c, v1c, v0c, currentCase, v2tex, v1tex, v0tex);
-                addTriangle(v3c, v2c, v0c, currentCase, v3tex, v2tex, v0tex);
-                addTriangle(v2c, v4c, v1c, currentCase, v2tex, v4tex, v1tex);
-                addTriangle(v2c, v6c, v4c, currentCase, v2tex, v6tex, v4tex);
-                addTriangle(v2c, v5c, v6c, currentCase, v2tex, v5tex, v6tex);
+                addTriangle(v2c, v1c, v0c, currentCase);
+                addTriangle(v3c, v2c, v0c, currentCase);
+                addTriangle(v2c, v4c, v1c, currentCase);
+                addTriangle(v2c, v6c, v4c, currentCase);
+                addTriangle(v2c, v5c, v6c, currentCase);
 
                 DrawArraysIndirectCommand command;
                 command.first = baseVertex;
@@ -1487,13 +1409,6 @@ engine::MarchingCubes::MarchingCubes() {
         glm::vec3 v4 = glm::vec3(1.0f, 0.5f, 1.0f) - 0.5f;
         glm::vec3 v5 = glm::vec3(0.0f, 1.0f, 0.5f) - 0.5f;
         glm::vec3 v6 = glm::vec3(0.0f, 0.5f, 1.0f) - 0.5f;
-        glm::vec2 v0tex = glm::vec2(1.0f, 0.0f);
-        glm::vec2 v1tex = glm::vec2(0.0f, 0.0f);
-        glm::vec2 v2tex = glm::vec2(0.5f, 1.0f);
-        glm::vec2 v3tex = glm::vec2(1.0f, 0.5f);
-        glm::vec2 v4tex = glm::vec2(1.0f, 0.0f);
-        glm::vec2 v5tex = glm::vec2(0.0f, 0.5f);
-        glm::vec2 v6tex = glm::vec2(0.0f, 0.0f);
 
         // TOP CASES
         // CASE 11000111 = 199
@@ -1527,11 +1442,11 @@ engine::MarchingCubes::MarchingCubes() {
                 glm::vec3 v5c = roundVector(rotateYaw[i] * glm::vec4(v5, 1.0f));
                 glm::vec3 v6c = roundVector(rotateYaw[i] * glm::vec4(v6, 1.0f));
 
-                addTriangle(v0c, v1c, v2c, currentCase, v0tex, v1tex, v2tex);
-                addTriangle(v0c, v2c, v3c, currentCase, v0tex, v2tex, v3tex);
-                addTriangle(v1c, v4c, v2c, currentCase, v1tex, v4tex, v2tex);
-                addTriangle(v4c, v6c, v2c, currentCase, v4tex, v6tex, v2tex);
-                addTriangle(v6c, v5c, v2c, currentCase, v6tex, v5tex, v2tex);
+                addTriangle(v0c, v1c, v2c, currentCase);
+                addTriangle(v0c, v2c, v3c, currentCase);
+                addTriangle(v1c, v4c, v2c, currentCase);
+                addTriangle(v4c, v6c, v2c, currentCase);
+                addTriangle(v6c, v5c, v2c, currentCase);
 
                 DrawArraysIndirectCommand command;
                 command.first = baseVertex;
@@ -1567,12 +1482,6 @@ engine::MarchingCubes::MarchingCubes() {
         glm::vec3 v3 = glm::vec3(1.0f, 1.0f, 0.5f) - 0.5f;
         glm::vec3 v4 = glm::vec3(1.0f, 0.5f, 1.0f) - 0.5f;
         glm::vec3 v5 = glm::vec3(0.5f, 0.0f, 1.0f) - 0.5f;
-        glm::vec2 v0tex = glm::vec2(0.0f, 0.0f);
-        glm::vec2 v1tex = glm::vec2(0.0f, 0.5f);
-        glm::vec2 v2tex = glm::vec2(0.5f, 1.0f);
-        glm::vec2 v3tex = glm::vec2(1.0f, 1.0f);
-        glm::vec2 v4tex = glm::vec2(1.0f, 0.5f);
-        glm::vec2 v5tex = glm::vec2(0.5f, 0.0f);
 
         // TOP CASES
         // CASE 11101101 = 245
@@ -1606,10 +1515,10 @@ engine::MarchingCubes::MarchingCubes() {
                 glm::vec3 v4c = roundVector(rotateYaw[i] * glm::vec4(v4, 1.0f));
                 glm::vec3 v5c = roundVector(rotateYaw[i] * glm::vec4(v5, 1.0f));
 
-                addTriangle(v0c, v2c, v1c, currentCase, v0tex, v2tex, v1tex);
-                addTriangle(v0c, v3c, v2c, currentCase, v0tex, v3tex, v2tex);
-                addTriangle(v0c, v4c, v3c, currentCase, v0tex, v4tex, v3tex);
-                addTriangle(v0c, v5c, v4c, currentCase, v0tex, v5tex, v4tex);
+                addTriangle(v0c, v2c, v1c, currentCase);
+                addTriangle(v0c, v3c, v2c, currentCase);
+                addTriangle(v0c, v4c, v3c, currentCase);
+                addTriangle(v0c, v5c, v4c, currentCase);
 
                 DrawArraysIndirectCommand command;
                 command.first = baseVertex;
@@ -1661,18 +1570,11 @@ engine::MarchingCubes::MarchingCubes() {
             missedCount++;
         }
     }
-    std::cout << "Missed: " << missedCount << "\n";
-    */
+    std::cout << "Missed: " << missedCount << "\n";*/
 
-
-    //std::cout << "MarchingCubes.cpp m_verticesTexureIds count: " << m_verticesTextureIds.size() << "\n";
     glCreateBuffers(1, &m_verticesTextureIdsSSBO);
-    /*GLuint byteSize = sizeof(GLuint) * m_verticesTextureIds.size();
-    glNamedBufferData(m_verticesTextureIdsSSBO, byteSize, &m_verticesTextureIds[0], GL_STATIC_DRAW);*/
-
     GLuint byteSize = sizeof(VoxelVertexData) * m_verticesData.size();
     glNamedBufferData(m_verticesTextureIdsSSBO, byteSize, &m_verticesData[0], GL_STATIC_DRAW);
-
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, engine_properties::SSBO_VOXEL_VERTEXES_TEXTURE_IDS_BLOCK_ID, m_verticesTextureIdsSSBO);
 
 
@@ -1681,24 +1583,8 @@ engine::MarchingCubes::MarchingCubes() {
 
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    //glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(VoxelVertex), &m_vertices[0], GL_STATIC_DRAW);  
     glBufferData(GL_ARRAY_BUFFER, m_verticesPack.size() * sizeof(VertexPack), &m_verticesPack[0], GL_STATIC_DRAW);  
 
-    /*// Позиции
-    glEnableVertexAttribArray(0);	
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VoxelVertex), (void*)0);
-    // Нормали
-    glEnableVertexAttribArray(1);	
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VoxelVertex), (void*)offsetof(VoxelVertex, normal));
-    // Текстурные координаты
-    glEnableVertexAttribArray(2);	
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(VoxelVertex), (void*)offsetof(VoxelVertex, texCoord));
-    // Id воселей
-    glEnableVertexAttribArray(3);
-    glVertexAttribIPointer(3, 1, GL_INT, sizeof(VoxelVertex), (void*)offsetof(VoxelVertex, voxelId)); // <- ВАЖНО, ДЛЯ INT ИСПОЛЬЗУЕТСЯ ФУНКЦИЯ С ПРЕФИКСОМ I
-    // Id направления смещения
-    glEnableVertexAttribArray(4);
-    glVertexAttribIPointer(4, 1, GL_INT, sizeof(VoxelVertex), (void*)offsetof(VoxelVertex, offsetDirection)); // <- ВАЖНО, ДЛЯ INT ИСПОЛЬЗУЕТСЯ ФУНКЦИЯ С ПРЕФИКСОМ I*/
     for (GLint i = 0; i < 16; i++) {
         glEnableVertexAttribArray(i);	
         glVertexAttribPointer(i, 4, GL_FLOAT, GL_FALSE, sizeof(VertexPack), (void*)(i * sizeof(glm::vec4)) );
@@ -1743,32 +1629,13 @@ glm::vec3 engine::MarchingCubes::roundVector(glm::vec4 vec) {
     return glm::vec3(x, y, z);
 }
 
-glm::vec3 engine::MarchingCubes::getNormal(const glm::vec3 &a, const glm::vec3 &b, const glm::vec3 &c) {
+inline glm::vec3 engine::MarchingCubes::getNormal(const glm::vec3 &a, const glm::vec3 &b, const glm::vec3 &c) {
     glm::vec3 ab = b - a;
     glm::vec3 ac = c - a;
     return glm::normalize(glm::cross(ab, ac));
 }
 
-inline void engine::MarchingCubes::addTriangle(const glm::vec3 &v0, const glm::vec3 &v1, const glm::vec3 &v2, 
-                                                      MarchingCubesCase& currentCase,
-                                                      const glm::vec2 &texCoord0, const glm::vec2 &texCoord1, const glm::vec2 &texCoord2) {
-    glm::vec3 normal = getNormal(v0, v1, v2);
-
-    MarchingCubesVertexData v0data = currentCase.getVertexData(v0);
-    m_vertices.push_back(VoxelVertex{ v0, normal, texCoord0, v0data.id, v0data.direction }); // 0
-    m_verticesTextureIds.push_back(v0data.id);
-    //m_verticesData.push_back(VoxelVertexData{v0, (unsigned int)v0data.id, (unsigned int)v0data.direction});
-
-    MarchingCubesVertexData v1data = currentCase.getVertexData(v1);
-    m_vertices.push_back(VoxelVertex{ v1, normal, texCoord1, v1data.id, v1data.direction }); // 1
-    m_verticesTextureIds.push_back(v1data.id);
-    //m_verticesData.push_back(VoxelVertexData{v1, (unsigned int)v1data.id, (unsigned int)v1data.direction});
-
-    MarchingCubesVertexData v2data = currentCase.getVertexData(v2);
-    m_vertices.push_back(VoxelVertex{ v2, normal, texCoord2, v2data.id, v2data.direction }); // 2
-    m_verticesTextureIds.push_back(v2data.id);
-    //m_verticesData.push_back(VoxelVertexData{v2, (unsigned int)v2data.id, (unsigned int)v2data.direction});
-
+inline void engine::MarchingCubes::addTriangle(const glm::vec3 &v0, const glm::vec3 &v1, const glm::vec3 &v2, MarchingCubesCase& currentCase) {
     constexpr float offsetsStrengh[8] = { -0.375, -0.25, -0.125, 0.0, 0.125, 0.25, 0.375, 0.5 };
     // X_LEFT = 0, X_RIGHT = 1, Y_UP = 2, Y_DOWN = 3, Z_FRONT = 4, Z_BACK = 5;
     constexpr glm::vec3 directionMul[6] = { glm::vec3(-1.0, 0.0, 0.0), 
@@ -1779,11 +1646,16 @@ inline void engine::MarchingCubes::addTriangle(const glm::vec3 &v0, const glm::v
                                             glm::vec3(0.0, 0.0, -1.0) 
     };
 
+    MarchingCubesVertexData v0data = currentCase.getVertexData(v0);
+    MarchingCubesVertexData v1data = currentCase.getVertexData(v1);
+    MarchingCubesVertexData v2data = currentCase.getVertexData(v2);
+
     VertexPack v0vertex;
     VertexPack v1vertex;
     VertexPack v2vertex;
     glm::vec3 tangents[8];
     glm::vec3 bitangents[8];
+
     for (int i = 0; i < 8; i++) {
         // Позиции
         glm::vec4 v0vertexSized(v0.x + offsetsStrengh[i] * directionMul[v0data.direction].x, 
@@ -1853,7 +1725,7 @@ inline void engine::MarchingCubes::addTriangle(const glm::vec3 &v0, const glm::v
         );
         tangents[i] = glm::normalize(tangents[i]);
 
-        bitangents[i] = glm::cross(normal, tangents[i]);
+        bitangents[i] = glm::cross(normalSized, tangents[i]);
         bitangents[i] = glm::normalize(bitangents[i]);
     }
     m_verticesPack.push_back(v0vertex);
@@ -1888,77 +1760,4 @@ void engine::MarchingCubes::draw(int drawCount) {
         std::cout << "engine::MarchingCubes::draw() " << error << std::endl;
     }
     #endif
-}
-
-glm::ivec2 engine::MarchingCubes::debugPackData(int x, int y, int z) {
-    assert(x >= 0 && x < 32 && y >= 0 && y < 32 && z >= 0 && z < 32 && "MarchingCubes::debugPackData - index out of range");
-
-    /* Текущий план:
-    * Левый int
-    * 1. 5 байт - позиция X в чанке   (5 /32)
-    * 2. 5 байт - позиция Y в чанке   (10/32)
-    * 3. 5 байт - позиция Z в чанке   (15/32)
-    * 4. 3 байта - смещение вокселя 1 (18/32)
-    * 5. 3 байта - смещение вокселя 2 (21/32)
-    * 6. 3 байта - смещение вокселя 3 (24/32)
-    * 7. 3 байта - смещение вокселя 4 (27/32)
-    * 8. 3 байта - смещение вокселя 5 (30/32)
-    * Правый int
-    * 1. 3 байта - смещение вокселя 6   (3 /32)
-    * 2. 7 байт - id текстуры вокселя 1 (10/32)
-    * 3. 7 байт - id текстуры вокселя 2 (17/32)
-    * 4. 7 байт - id текстуры вокселя 3 (24/32)
-    * 5. 7 байт - id текстуры вокселя 4 (31/32)
-    * В итоге для вокселей возможны 128 уникальных текстур, но случаи
-    * использующие более 4 вокселей будут использовать неправильные текстуры.
-    * 6-й воксель будет использовать тестуры 4-ого, а 5-й текстуры 3-его.
-    */
-    int offset[] {0b111, 0b110, 0b101, 0b100, 0b11, 0b10};
-    int textureId[] {100, 50, 25, 10};
-
-    int left = x;
-    left <<= 5;
-    left |= y;
-    left <<= 5;
-    left |= z;
-    left <<= 3;
-    left |= offset[0]; // 1
-    left <<= 3;
-    left |= offset[1]; // 2
-    left <<= 3;
-    left |= offset[2]; // 3
-    left <<= 3;
-    left |= offset[3]; // 4
-    left <<= 3;
-    left |= offset[4]; // 5
-    int right = offset[5]; // 6
-    right <<= 7;
-    right |= textureId[0]; // 1
-    right <<= 7;
-    right |= textureId[1]; // 2
-    right <<= 7;
-    right |= textureId[2]; // 3
-    right <<= 7;
-    right |= textureId[3]; // 4
-    /*
-    int dX, dY, dZ;
-    int unpackOffsets[6], unpackTexs[4];
-    dX = (left_test >> 25) & 0b11111;
-    dY = (left_test >> 20) & 0b11111;
-    dZ = (left_test >> 15) & 0b11111;
-    
-    unpackOffsets[0] = (left_test >> 12) & 0b111;
-    unpackOffsets[1] = (left_test >> 9) & 0b111;
-    unpackOffsets[2] = (left_test >> 6) & 0b111;
-    unpackOffsets[3] = (left_test >> 3) & 0b111;
-    unpackOffsets[4] = left_test & 0b111;
-
-    unpackOffsets[5] = (right_test >> 28) & 0b111;
-    unpackTexs[0] = (right_test >> 21) & 0b1111111;
-    unpackTexs[1] = (right_test >> 14) & 0b1111111;
-    unpackTexs[2] = (right_test >> 7) & 0b1111111;
-    unpackTexs[3] = right_test & 0b111111;
-    */
-
-    return glm::ivec2(left, right);
 }

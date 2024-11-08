@@ -1,24 +1,9 @@
-#ifndef __VOXEL__VOXEL_VERTEX_H__
-#define __VOXEL__VOXEL_VERTEX_H__
+#ifndef __VOXEL__VOXEL_VERTEX_DATA_H__
+#define __VOXEL__VOXEL_VERTEX_DATA_H__
 
 #include "../stdafx.h"
 
 namespace engine {
-    struct VoxelVertex {
-        glm::vec3 position;
-        glm::vec3 normal{ 0.0f, 1.0f, 0.0f };
-        glm::vec2 texCoord{ 0.f, 0.f };
-        int voxelId{ 0 };
-        int offsetDirection{ 0 };
-    };    
-
-    struct VoxelVertexDataOLD {
-        glm::vec3 position;
-        GLuint voxelVertexId;
-        GLuint offsetDirection;
-        // Заполнители места для соответствия размера структуры в разметке std430 структры VertexData в marchingCubes.vert
-        GLuint placeholder[3]{ 0, 0, 0 };
-    };
     struct VoxelVertexData {
         VoxelVertexData(glm::vec3 tangents[8], glm::vec3 bitangents[8], GLuint voxelVertexId) {
             this->tangents[0] = glm::vec4(tangents[0], 0.f);
@@ -45,6 +30,7 @@ namespace engine {
         glm::vec4 tangents[8];
         glm::vec4 bitangents[8];
         GLuint voxelVertexId;
+        // Заполнители места для соответствия размера структуры в разметке std430 структры VertexData в marchingCubes.vert
         GLuint placeholder[3];
     };
 }

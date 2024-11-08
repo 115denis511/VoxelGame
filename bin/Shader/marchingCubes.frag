@@ -24,7 +24,6 @@ float getCoord(uint capacity, uint layer)
 
 void main()
 {
-    //fragColor = vec4(texture(texArray, vec3(texCoord, getCoord(capacity, triangleVertexVoxelIds.x))));
     uint layer0 = marchingCubeTextureIds[triangleVertexVoxelIds.x];
     uint layer1 = marchingCubeTextureIds[triangleVertexVoxelIds.y];
     uint layer2 = marchingCubeTextureIds[triangleVertexVoxelIds.z];

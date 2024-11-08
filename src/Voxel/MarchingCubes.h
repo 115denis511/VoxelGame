@@ -4,7 +4,7 @@
 #include "../stdafx.h"
 #include "../Render/DrawIndirectCommand.h"
 #include "MarchingCubesCase.h"
-#include "VoxelVertex.h"
+#include "VoxelVertexData.h"
 #include "../Render/UniformManager.h"
 
 namespace engine {
@@ -26,19 +26,13 @@ namespace engine {
 
         DrawArraysIndirectCommand m_caseDrawCommand[256];
         MarchingCubesVertecesIds m_caseVertecesIds[256];
-        std::vector<VoxelVertex> m_vertices;
         GLuint m_VAO, m_VBO, m_verticesTextureIdsSSBO;
-        std::vector<GLuint> m_verticesTextureIds;
         std::vector<VoxelVertexData> m_verticesData;
         std::vector<VertexPack> m_verticesPack;
 
         glm::vec3 roundVector(glm::vec4 vec);
-        glm::vec3 getNormal(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c);
-        inline void addTriangle(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2, 
-                                MarchingCubesCase& currentCase,
-                                const glm::vec2& texCoord0, const glm::vec2& texCoord1, const glm::vec2& texCoord2);
-
-        glm::ivec2 debugPackData(int x, int y, int z);
+        inline glm::vec3 getNormal(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c);
+        inline void addTriangle(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2, MarchingCubesCase& currentCase);
 
     };
 }

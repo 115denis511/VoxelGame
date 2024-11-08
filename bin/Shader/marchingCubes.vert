@@ -26,11 +26,6 @@ layout(std430, binding = 2) readonly buffer ChunkData
     uvec2 packedData[];
 };
 
-/*struct VertexData {
-    vec3 position;
-    uint vertexVoxelId;
-    uint offsetDirection;
-};*/
 struct VertexData {
     vec4 tangents[8];
     vec4 bitangents[8];
