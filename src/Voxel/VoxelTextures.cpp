@@ -23,8 +23,7 @@ void engine::VoxelTextures::use() {
     UniformManager::setTexturePack(pack);
 }
 
-bool engine::VoxelTextures::setTexture(int layer, unsigned char *rawImage, int width, int height, int nrComponents)
-{
+bool engine::VoxelTextures::setTexture(int layer, unsigned char *rawImage, int width, int height, int nrComponents) {
     if (layer >= (int)LAYERS) {
         Log::addMessage("src/Voxel/VoxelTextures.cpp: WARNING! can't add image in texture array - layer out of range");
         return false;
@@ -53,6 +52,12 @@ bool engine::VoxelTextures::setTexture(int layer, unsigned char *rawImage, int w
 bool engine::VoxelTextures::setTexture(int layer, std::string path) {
     int width, height, nrComponents;
     unsigned char* image = stbi_load(path.c_str(), &width, &height, &nrComponents, 0);
+    if(image == nullptr) {
+        Log::addFatalError("engine::VoxelTextures::setTexture(int layer, std::string path): ERROR! stbi_failure_reason: " + std::string(stbi_failure_reason()) +
+                           "\nPath: " + path);
+        stbi_image_free(image);
+        return false;
+    }
 
     bool success = setTexture(layer, image, width, height, nrComponents);
     if (!success)

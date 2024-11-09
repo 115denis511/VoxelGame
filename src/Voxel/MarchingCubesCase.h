@@ -5,7 +5,8 @@
 
 namespace engine {
     struct MarchingCubesVertecesIds {
-        int ids[6] = { -1, -1, -1, -1, -1, -1 };
+        //int ids[6] = { -1, -1, -1, -1, -1, -1 };
+        int ids[6] = { 0, 0, 0, 0, 0, 0 };
     };
 
     struct MarchingCubesVertexData {

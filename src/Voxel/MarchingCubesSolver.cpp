@@ -29,13 +29,11 @@ void engine::MarchingCubesSolver::regenerateChunk(MarchingCubes &marchingCubes, 
                 // vId - Id вершины в марширующем кубе, соответствующий индексу в массиве voxels[8]
                 int offsets[6] = { 0, 0, 0, 0, 0, 0 };
                 for (int i = 0; i < 6; i++) {
-                    if (verticesIds.ids[i] == -1) break;
                     int vId = verticesIds.ids[i];
                     offsets[i] = voxels[vId].size;
                 }
                 int textures[4] = { 0, 0, 0, 0 };
                 for (int i = 0; i < 4; i++) {
-                    if (verticesIds.ids[i] == -1) break;
                     int vId = verticesIds.ids[i];
                     textures[i] = voxels[vId].id;
                 }
@@ -124,13 +122,13 @@ glm::ivec2 engine::MarchingCubesSolver::packData(int x, int y, int z, int offset
     left |= offset[4]; // 5
     int right = offset[5]; // 6
     right <<= 7;
-    right |= textureId[0]; // 1
+    right |= textureId[0] & 0b1111111; // 1
     right <<= 7;
-    right |= textureId[1]; // 2
+    right |= textureId[1] & 0b1111111; // 2
     right <<= 7;
-    right |= textureId[2]; // 3
+    right |= textureId[2] & 0b1111111; // 3
     right <<= 7;
-    right |= textureId[3]; // 4
+    right |= textureId[3] & 0b1111111; // 4
 
     return glm::ivec2(left, right);
 }
