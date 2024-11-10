@@ -37,6 +37,17 @@ void SceneTest::update(engine::Camera& camera, engine::SceneResources &resources
         }
 
         engine::MarchingCubesManager* marching = engine::MarchingCubesManager::getInstance();
+        if (engine::Controls::isKeyPressed(GLFW_KEY_SPACE)) {
+            constexpr float offset[8] = { 0.0f, 0.125f, 0.25f, 0.375f, 0.5f, 0.625f, 0.75f, 0.875f };
+            glm::vec3 cameraPos = camera.getPosition(), cameraTarget = camera.getFront();
+            glm::ivec3 hit, face;
+            if (marching->raycastVoxel(cameraPos, cameraTarget, 100.f, hit, face)) {
+                auto size = marching->getVoxel(hit).size;
+                glm::vec3 place(hit.x + offset[size] * face.x, hit.y + offset[size] * face.y, hit.z + offset[size] * face.z);
+                resources.transforms.get(0).getObject().setPosition(place);
+            }
+        }
+
         if (engine::Controls::isMouseButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
             glm::vec3 cameraPos = camera.getPosition(), cameraTarget = camera.getFront();
             glm::ivec3 hit, face;
@@ -71,7 +82,7 @@ void SceneTest::update(engine::Camera& camera, engine::SceneResources &resources
     }
 
     // Тест обновления BVH и трансформаций
-    if (resources.transforms.get(0).isInUse()) {
+    /*if (resources.transforms.get(0).isInUse()) {
         resources.transforms.get(0).getObject().movePosition(glm::vec3(-0.001f, 0.f, 0.001f));
-    }
+    }*/
 }

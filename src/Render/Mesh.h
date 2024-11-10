@@ -27,7 +27,7 @@ namespace engine {
 
         void draw();
         void drawInstanced(GLuint count);
-        MeshRef getMeshRef();
+        MeshRef getMeshRef() const;
 
     private:
         GLuint m_VAO, m_VBO, m_EBO, m_indicesCount;

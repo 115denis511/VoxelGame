@@ -56,7 +56,7 @@ void engine::Mesh::drawInstanced(GLuint count) {
     glBindVertexArray(0);
 }
 
-engine::MeshRef engine::Mesh::getMeshRef() {
+engine::MeshRef engine::Mesh::getMeshRef() const {
     return MeshRef(m_VAO, m_indicesCount);
 }
 

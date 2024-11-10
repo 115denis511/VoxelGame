@@ -6,6 +6,20 @@ engine::Model::Model(const aiScene *scene, std::string_view path) {
     processNode(scene->mRootNode, scene);
 }
 
+engine::Model::Model(const Mesh &mesh, const TextureArrayRef &texture) {
+    m_meshes.push_back(mesh.getMeshRef());
+
+    // НУЖНО КАК-ТО ДОБАВИТЬ ДОБАВЛЕНИЕ ОБЪЁМА МЕША
+
+    uniform_structs::TexturePack texturePack;
+    if (texture.isValidRef()) {
+        texturePack.colorSpec = texture.getHandler();
+        texturePack.colorSpecLayer = texture.getLayer();
+        texturePack.colorSpecCapacity = texture.getCapacity();
+    }
+    m_textures.push_back(texturePack);
+}
+
 engine::Model::~Model() {
     
 }

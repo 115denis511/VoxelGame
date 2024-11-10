@@ -16,14 +16,19 @@
 #include <assimp/material.h>
 
 namespace engine {
+    class AssetManager;
+
     struct BoneInfo {
         int id;
         glm::mat4 offset;
     };
 
     class Model {
+        friend AssetManager;
+        
         public:
             Model(const aiScene *scene, std::string_view path);
+            Model(const Mesh& mesh, const TextureArrayRef& texture);
             ~Model();
 
             void draw();

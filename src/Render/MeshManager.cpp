@@ -213,6 +213,18 @@ engine::Mesh *engine::MeshManager::getPrimitiveSphere(float radius, int sectorCo
     return mesh;
 }
 
+std::string engine::MeshManager::getRectName(GLfloat leftX, GLfloat topY, GLfloat rightX, GLfloat bottomY) {
+    return "__primitiveRect_" + std::to_string(leftX) + "_" + std::to_string(topY) + "_" + std::to_string(rightX) + "_" + std::to_string(bottomY) + "__";
+}
+
+std::string engine::MeshManager::getCubeName(GLfloat size) {
+    return "__primitiveCube_" + std::to_string(size) + "__";
+}
+
+std::string engine::MeshManager::getSphereName(float radius, int sectorCount, int stackCount) {
+    return "__primitiveSphere_" + std::to_string(radius) + "_" + std::to_string(sectorCount) + "_" + std::to_string(stackCount) + "__";
+}
+
 void engine::MeshManager::freeResources() {
     for (auto data : g_meshes) {
         delete data.second.mesh;

@@ -24,6 +24,10 @@ namespace engine {
         static Mesh* getPrimitiveCube(GLfloat size);
         static Mesh* getPrimitiveSphere(float radius, int sectorCount, int stackCount);
 
+        static std::string getRectName(GLfloat leftX, GLfloat topY, GLfloat rightX, GLfloat bottomY);
+        static std::string getCubeName(GLfloat size);
+        static std::string getSphereName(float radius, int sectorCount, int stackCount);
+
     private:
         MeshManager() {}
 

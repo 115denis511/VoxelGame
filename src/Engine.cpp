@@ -45,7 +45,18 @@ void engine::Core::start(ISceneLogic* sceneLogic) {
 
     // TEST
     Transform trs;
+
+    TextureArrayRef texture = TextureManager::addTexture(glm::vec4(1.f, 0.f, 0.f, 0.f), 512, 512, "whiteTexture");
+    // НЕ ЗАБЫВАЙ ПОСЛЕ ДОБАВЛЕНИЯ ТЕКСТУР ОБНОВЛЯТЬ МИПМАПЫ!
+    TextureManager::updateMipmapsAndMakeResident();
+    //RenderComponent cube(AssetManager::addModel("cubePointer", *MeshManager::getPrimitiveCube(1.f), texture));
+    //RenderComponent cube(AssetManager::addPrimitiveRectangle(-1.f, 1.f, 1.f, -1.f, texture));
+    //RenderComponent cube(AssetManager::addPrimitiveCube(0.2f, texture));
+    RenderComponent cube(AssetManager::addPrimitiveSphere(0.2f, 16, 16, texture));
+    Scene::g_requests->addEntity(trs, cube);
+
     trs.setRotation(glm::vec3(-45.f, 0.f, 0.f));
+    trs.setScale(glm::vec3(1.f));
     RenderComponent rc(AssetManager::getModel("Model/simpleChar.gltf"));
 
     for (size_t i = 0; i < 50; i++) {
