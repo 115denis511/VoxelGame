@@ -56,9 +56,9 @@ void main()
     int vertexTriangleId = gl_VertexID % 3;
     uint offsetId = data.offsets[vertexData[gl_VertexID].vertexVoxelId];
 
-    vec3 cornerPos = vec3(VertexPack[offsetId].x + 0.5 + chunkPosition.x, 
-                          VertexPack[offsetId].y + 0.5 + chunkPosition.y, 
-                          VertexPack[offsetId].z + 0.5 + chunkPosition.z);
+    vec3 cornerPos = vec3(VertexPack[offsetId].x + chunkPosition.x, 
+                          VertexPack[offsetId].y + chunkPosition.y, 
+                          VertexPack[offsetId].z + chunkPosition.z);
     vec4 localPos = vec4(cornerPos.x + data.x, cornerPos.y + data.y, cornerPos.z + data.z, 1.0);
 
     gl_Position = projectionView * localPos;

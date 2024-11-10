@@ -1637,6 +1637,7 @@ inline glm::vec3 engine::MarchingCubes::getNormal(const glm::vec3 &a, const glm:
 
 inline void engine::MarchingCubes::addTriangle(const glm::vec3 &v0, const glm::vec3 &v1, const glm::vec3 &v2, MarchingCubesCase& currentCase) {
     constexpr float offsetsStrengh[8] = { -0.375, -0.25, -0.125, 0.0, 0.125, 0.25, 0.375, 0.5 };
+    constexpr float cornerOffset = 0.5f;
     // X_LEFT = 0, X_RIGHT = 1, Y_UP = 2, Y_DOWN = 3, Z_FRONT = 4, Z_BACK = 5;
     constexpr glm::vec3 directionMul[6] = { glm::vec3(-1.0, 0.0, 0.0), 
                                             glm::vec3(1.0, 0.0, 0.0), 
@@ -1658,21 +1659,21 @@ inline void engine::MarchingCubes::addTriangle(const glm::vec3 &v0, const glm::v
 
     for (int i = 0; i < 8; i++) {
         // Позиции
-        glm::vec4 v0vertexSized(v0.x + offsetsStrengh[i] * directionMul[v0data.direction].x, 
-                                v0.y + offsetsStrengh[i] * directionMul[v0data.direction].y, 
-                                v0.z + offsetsStrengh[i] * directionMul[v0data.direction].z, 
+        glm::vec4 v0vertexSized(v0.x + cornerOffset + offsetsStrengh[i] * directionMul[v0data.direction].x, 
+                                v0.y + cornerOffset + offsetsStrengh[i] * directionMul[v0data.direction].y, 
+                                v0.z + cornerOffset + offsetsStrengh[i] * directionMul[v0data.direction].z, 
                                 v0vertex.data[i].w); // COPY W = SAVE TEXTURE DATA VALUE!!!!
         v0vertex.data[i] = v0vertexSized;
 
-        glm::vec4 v1vertexSized(v1.x + offsetsStrengh[i] * directionMul[v1data.direction].x, 
-                                v1.y + offsetsStrengh[i] * directionMul[v1data.direction].y, 
-                                v1.z + offsetsStrengh[i] * directionMul[v1data.direction].z, 
+        glm::vec4 v1vertexSized(v1.x + cornerOffset + offsetsStrengh[i] * directionMul[v1data.direction].x, 
+                                v1.y + cornerOffset + offsetsStrengh[i] * directionMul[v1data.direction].y, 
+                                v1.z + cornerOffset + offsetsStrengh[i] * directionMul[v1data.direction].z, 
                                 v1vertex.data[i].w);
         v1vertex.data[i] = v1vertexSized;
 
-        glm::vec4 v2vertexSized(v2.x + offsetsStrengh[i] * directionMul[v2data.direction].x, 
-                                v2.y + offsetsStrengh[i] * directionMul[v2data.direction].y, 
-                                v2.z + offsetsStrengh[i] * directionMul[v2data.direction].z, 
+        glm::vec4 v2vertexSized(v2.x + cornerOffset + offsetsStrengh[i] * directionMul[v2data.direction].x, 
+                                v2.y + cornerOffset + offsetsStrengh[i] * directionMul[v2data.direction].y, 
+                                v2.z + cornerOffset + offsetsStrengh[i] * directionMul[v2data.direction].z, 
                                 v2vertex.data[i].w);
         v2vertex.data[i] = v2vertexSized;
 
