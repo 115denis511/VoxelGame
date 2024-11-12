@@ -64,43 +64,55 @@ engine::MarchingCubesManager::MarchingCubesManager() {
     }
 }
 
-void engine::MarchingCubesManager::draw(Shader& shader) {
+void engine::MarchingCubesManager::draw(Shader& shader, Frustum frustum) {
     shader.use();
     m_textures.use();
 
-    for (size_t z = 0; z < 6; z++){
-        for (size_t x = 0; x < 6; x++){
-            VoxelChunk& chunk = m_chunks[m_grid.getChunkId(x, 0, z)];
-            if (chunk.getDrawCount() == 0) continue;
+    unsigned int gridWidth = m_grid.getUsedChunkDistance();
 
-            glm::ivec2 worldPos = m_converter.localChunkToWorldChunkPosition(x, z, m_currentOriginChunk.x, m_currentOriginChunk.y);
-            chunk.bindCommandBuffer();
-            chunk.bindSSBO();
-            shader.setVec3("chunkPosition", glm::vec3(worldPos.x * CHUNCK_DIMENSION_SIZE, 0, worldPos.y * CHUNCK_DIMENSION_SIZE));
-            int drawCount = chunk.getDrawCount();
-            //glMemoryBarrier(GL_ALL_BARRIER_BITS);
-            m_marchingCubes.draw(drawCount);
+    for (size_t z = 0; z < gridWidth; z++){
+        for (size_t x = 0; x < gridWidth; x++){
+            for (size_t y = 0; y < ChunkGrid::CHUNK_MAX_Y_SIZE; y++){
+                VoxelChunk& chunk = m_chunks[m_grid.getChunkId(x, y, z)];
+                glm::ivec2 worldChunkPos = m_converter.localChunkToWorldChunkPosition(x, z, m_currentOriginChunk.x, m_currentOriginChunk.y);
+                unsigned int height = y * CHUNCK_DIMENSION_SIZE;
+
+                if (chunk.getDrawCount() == 0) continue;
+                glm::vec3 worldPos(worldChunkPos.x * CHUNCK_DIMENSION_SIZE, height, worldChunkPos.y * CHUNCK_DIMENSION_SIZE);
+                AABB aabb(glm::vec3(worldPos), glm::vec3(worldPos.x + CHUNCK_DIMENSION_SIZE, worldPos.y + CHUNCK_DIMENSION_SIZE, worldPos.z + CHUNCK_DIMENSION_SIZE));
+                if (!aabb.isInFrustum(frustum)) continue;
+
+                chunk.bindCommandBuffer();
+                chunk.bindSSBO();
+                shader.setVec3("chunkPosition", worldPos);
+                int drawCount = chunk.getDrawCount();
+                //glMemoryBarrier(GL_ALL_BARRIER_BITS);
+                m_marchingCubes.draw(drawCount);
+            }
         }
     }
 }
 
 bool engine::MarchingCubesManager::isChunkInbounds(int x, int y, int z) {
-    int maxX = m_currentOriginChunk.x + CHUNK_MAX_X_Z_SIZE;
-    int maxZ = m_currentOriginChunk.y + CHUNK_MAX_X_Z_SIZE;
-    int maxY = CHUNK_MAX_Y_SIZE;
+    unsigned int gridWidth = m_grid.getUsedChunkDistance();
+    int maxX = m_currentOriginChunk.x + gridWidth;
+    int maxZ = m_currentOriginChunk.y + gridWidth;
+    int maxY = ChunkGrid::CHUNK_MAX_Y_SIZE;
     bool result = x >= m_currentOriginChunk.x && x < maxX && z >= m_currentOriginChunk.y && z < maxZ && y >= 0 && y < maxY;
     return result;
 }
 
 bool engine::MarchingCubesManager::isPositionInbounds(const glm::vec3& position) {
-    glm::ivec3 local = m_converter.worldPositionToLocalVoxelPosition(position, CHUNCK_DIMENSION_SIZE);
+    //glm::ivec3 local = m_converter.worldPositionToLocalVoxelPosition(position, CHUNCK_DIMENSION_SIZE);
+    unsigned int gridWidth = m_grid.getUsedChunkDistance();
     int minX = m_currentOriginChunk.x * CHUNCK_DIMENSION_SIZE;
     int minZ = m_currentOriginChunk.y * CHUNCK_DIMENSION_SIZE;
     int minY = 0;
-    int maxX = minX + (CHUNK_MAX_X_Z_SIZE * CHUNCK_DIMENSION_SIZE);
-    int maxZ = minZ + (CHUNK_MAX_X_Z_SIZE * CHUNCK_DIMENSION_SIZE);
-    int maxY = minY + (CHUNK_MAX_Y_SIZE * CHUNCK_DIMENSION_SIZE);
-    return local.x >= minX && local.x < maxX && local.y >= minY && local.y < maxY && local.z >= minZ && local.z < maxZ;
+    int maxX = minX + (gridWidth * CHUNCK_DIMENSION_SIZE);
+    int maxZ = minZ + (gridWidth * CHUNCK_DIMENSION_SIZE);
+    int maxY = minY + (ChunkGrid::CHUNK_MAX_Y_SIZE * CHUNCK_DIMENSION_SIZE);
+    //return local.x >= minX && local.x < maxX && local.y >= minY && local.y < maxY && local.z >= minZ && local.z < maxZ;
+    return position.x >= minX && position.x < maxX && position.y >= minY && position.y < maxY && position.z >= minZ && position.z < maxZ;
 }
 
 int engine::MarchingCubesManager::signum(float x) {
@@ -275,25 +287,41 @@ engine::MarchingCubesVoxel engine::MarchingCubesManager::getVoxel(const glm::vec
     return chunk.getVoxel(localVoxel.x, localVoxel.y, localVoxel.z);
 }
 
+void engine::MarchingCubesManager::setRenderChunkRadius(int radius) {
+    unsigned int uRadius = (unsigned int)radius;
+
+    if (radius <= 0) uRadius = 0;
+    else if (uRadius > MAX_RENDER_CHUNK_RADIUS) uRadius = MAX_RENDER_CHUNK_RADIUS;
+
+    if (uRadius == m_renderChunkRadius) return;
+
+    m_renderChunkRadius = uRadius;
+    resizeChunkGrid(uRadius * 2);
+
+    m_currentOriginChunk = glm::ivec2(m_currentCenterChunk.x - radius, m_currentCenterChunk.y - radius);
+}
+
 void engine::MarchingCubesManager::resizeChunkGrid(unsigned int size) {
     if (size % 2 == 1) size -= 1;
     if (size > m_grid.CHUNK_MAX_X_Z_SIZE) size = m_grid.CHUNK_MAX_X_Z_SIZE;
     unsigned int usedChunkDistance = m_grid.getUsedChunkDistance();
     if (usedChunkDistance == size) return;
-    int diffirence = size - usedChunkDistance;
 
     if (size < usedChunkDistance) {
         std::vector<int> chunksToDelete;
-        m_grid.resizeToSmaller(diffirence, chunksToDelete); 
+        m_grid.resizeToSmaller(size, chunksToDelete); 
 
         for (int id : chunksToDelete) {
             m_freeChunkIndices.push(id);
             m_chunks[id].setInUseFlag(false);
+            // чистим количество рисований, чтобы когда чанк станет снова используемым, но не перегенерированным,
+            // при отрисовке он не будет рендерить старый необновленный чанк
+            m_chunks[id].clearDrawCount();
         }
     }
     else {
         m_toGenerateQueue.clear();
-        m_grid.resizeToBigger(diffirence, m_toGenerateQueue);
+        m_grid.resizeToBigger(size, m_toGenerateQueue);
 
         for (glm::ivec2& pos : m_toGenerateQueue) {
             for (int y = 0; y < m_grid.CHUNK_MAX_Y_SIZE; y++) {

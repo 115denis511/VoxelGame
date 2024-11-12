@@ -1,6 +1,8 @@
 #include "SceneTest.h"
 
 void SceneTest::update(engine::Camera& camera, engine::SceneResources &resources) {
+    engine::MarchingCubesManager* marching = engine::MarchingCubesManager::getInstance();
+
     const std::vector<int>& keysDown = engine::Controls::getKeysDown();
     for (size_t i = 0; i < keysDown.size(); i++) {
         switch (keysDown[i]) {
@@ -10,6 +12,18 @@ void SceneTest::update(engine::Camera& camera, engine::SceneResources &resources
             else
                 engine::WindowGLFW::hideMouseCursor();
             break;
+
+        case GLFW_KEY_MINUS: {
+            int renderChunkRadius = marching->getRenderChunkRadius();
+            marching->setRenderChunkRadius(renderChunkRadius - 1);
+        }
+        break;
+
+        case GLFW_KEY_EQUAL: {
+            int renderChunkRadius = marching->getRenderChunkRadius();
+            marching->setRenderChunkRadius(renderChunkRadius + 1);
+        }
+        break;
         
         default:
             break;
@@ -36,7 +50,6 @@ void SceneTest::update(engine::Camera& camera, engine::SceneResources &resources
             camera.movePosition(-right * 0.1f);
         }
 
-        engine::MarchingCubesManager* marching = engine::MarchingCubesManager::getInstance();
         if (engine::Controls::isKeyPressed(GLFW_KEY_SPACE)) {
             constexpr float offset[8] = { 0.0f, 0.125f, 0.25f, 0.375f, 0.5f, 0.625f, 0.75f, 0.875f };
             glm::vec3 cameraPos = camera.getPosition(), cameraTarget = camera.getFront();

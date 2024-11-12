@@ -17,44 +17,46 @@ void engine::ChunkGrid::setChunk(int x, int y, int z, int id) {
     m_grid[x][z].chunk[y] = id;
 }
 
-void engine::ChunkGrid::resizeToBigger(unsigned int distance, std::vector<glm::ivec2> &chunksToCreate) {
-    assert(distance > m_usedChunkDistance);
+void engine::ChunkGrid::resizeToBigger(int distance, std::vector<glm::ivec2> &chunksToCreate) {
+    assert(distance > (int)m_usedChunkDistance);
+    unsigned int uDistance = (unsigned int)distance;
 
     // Если старая сетка была пуста, то вся расширенная сетка отправляется в очередь для генерации
     if (m_usedChunkDistance == 0) {
-        for (size_t i = 0; i < distance; i++) {
-            for (size_t j = 0; j < distance; j++) {
+        for (size_t i = 0; i < uDistance; i++) {
+            for (size_t j = 0; j < uDistance; j++) {
                 chunksToCreate.push_back(glm::ivec2(i, j));
             }
         }
-        m_usedChunkDistance = distance;
+        m_usedChunkDistance = uDistance;
         return;
     }
 
     // Перемещение имеющихся чанков в центр расширенной сетки
-    unsigned int halfDiffirence = (distance - m_usedChunkDistance) / 2;
-    for (size_t x = m_usedChunkDistance - 1; x >= 0; x--) {
-        for (size_t z = m_usedChunkDistance - 1; z >= 0; z--) {
+    unsigned int halfDiffirence = ((unsigned int)distance - m_usedChunkDistance) / 2;
+    // счётчики должны быть INT потому что могут быть отрицательные значения!
+    for (int x = m_usedChunkDistance - 1; x >= 0; x--) {
+        for (int z = m_usedChunkDistance - 1; z >= 0; z--) {
             m_grid[x + halfDiffirence][z + halfDiffirence] = m_grid[x][z];
             m_grid[x][z] = GridYSlice();
         }
     }
     // Поиск пустых чанков и добавление их в очередь для генерации
-    for (size_t x = 0; x < distance; x++) {
-        for (size_t z = 0; z < distance; z++) {
+    for (size_t x = 0; x < (unsigned int)distance; x++) {
+        for (size_t z = 0; z < (unsigned int)distance; z++) {
             if (m_grid[x][z].chunk[0] == -1) {
                 chunksToCreate.push_back(glm::ivec2(x, z));
             }
         }
     }
-    m_usedChunkDistance = distance;
+    m_usedChunkDistance = (unsigned int)distance;
 }
 
-void engine::ChunkGrid::resizeToSmaller(unsigned int distance, std::vector<int> &chunksToDelete) {
-    assert(distance < m_usedChunkDistance);
+void engine::ChunkGrid::resizeToSmaller(int distance, std::vector<int> &chunksToDelete) {
+    assert(distance < (int)m_usedChunkDistance);
 
     // Если размер именённой сетки будет равен нулю, то отправляем все чанки на удаление
-    if (distance == 0) {
+    if (distance <= 0) {
         for (size_t x = 0; x < m_usedChunkDistance; x++) {
             for (size_t z = 0; z < m_usedChunkDistance; z++) {
                 for (size_t y = 0; y < CHUNK_MAX_Y_SIZE; y++) {
@@ -63,7 +65,7 @@ void engine::ChunkGrid::resizeToSmaller(unsigned int distance, std::vector<int> 
                 }
             }
         }
-        m_usedChunkDistance = distance;
+        m_usedChunkDistance = (unsigned int)distance;
         return;
     }
 
@@ -93,8 +95,8 @@ void engine::ChunkGrid::resizeToSmaller(unsigned int distance, std::vector<int> 
         }
     }
     // Сдвигаем оставшиеся чанки к левому верхнему краю
-    for (size_t x = 0; x < distance; x++) {
-        for (size_t z = 0; z < distance; z++) {
+    for (size_t x = 0; x < (unsigned int)distance; x++) {
+        for (size_t z = 0; z < (unsigned int)distance; z++) {
             unsigned int oldX = x + halfDiffirence, 
                          oldZ = z + halfDiffirence;
             m_grid[x][z] = m_grid[oldX][oldZ];

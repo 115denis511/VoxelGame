@@ -30,6 +30,7 @@ namespace engine {
         const GLuint getCommandBuffer() { return m_commandBuffer; };
         const GLuint getSSBO() { return m_ssbo; };
         const int getDrawCount() { return m_drawCount; };
+        void clearDrawCount() { m_drawCount = 0; };
         bool isInUpdateQueue() { return m_isInUpdateQueue; };
         bool isInUse() { return m_isInUse; };
 

@@ -3,6 +3,7 @@
 engine::Shader*                 engine::Render::g_shaderFinal;
 engine::Shader*                 engine::Render::g_shaderMix_RGB_A;
 engine::Shader*                 engine::Render::g_shaderFill_RGB;
+engine::Shader*                 engine::Render::g_shaderMarchingCubes;
 engine::GBuffer*                engine::Render::g_gBuffer;
 engine::MeshRef                 engine::Render::g_primitiveFullScreenRect;
 engine::ProjectionPerspective   engine::Render::g_projectionPerspective;
@@ -20,6 +21,7 @@ bool engine::Render::init() {
     g_shaderFinal = new Shader("Shader/test3d.vert", "Shader/simple.frag");
     g_shaderMix_RGB_A = new Shader("Shader/fillViewport_InvertY.vert", "Shader/mix_RGB_A.frag");
     g_shaderFill_RGB = new Shader("Shader/fillViewport_InvertY.vert", "Shader/fill_RGB.frag");
+    g_shaderMarchingCubes = new Shader("Shader/marchingCubes.vert", "Shader/marchingCubes.frag"); 
 
     g_gBuffer = new GBuffer(viewport);
 
@@ -106,7 +108,10 @@ void engine::Render::draw(CameraVars cameraVars, SceneResources& sceneResources,
     //MeshManager::getPrimitiveCube(1.f)->draw();
     //MeshManager::getPrimitiveSphere(1.f, 32, 32)->draw();
 
-    accamulateInstancingBuffers(sceneResources, worldBVH, Frustum(cameraVars, g_projectionPerspective));
+    Frustum frustum(cameraVars, g_projectionPerspective);
+
+    MarchingCubesManager::getInstance()->draw(*g_shaderMarchingCubes, frustum);
+    accamulateInstancingBuffers(sceneResources, worldBVH, frustum);
     drawInstanced();
      
 

@@ -14,6 +14,7 @@
 #include "Scene/SceneResources.h"
 #include "Collisions/Frustum.h"
 #include "Collisions/BVHTreeEntities.h"
+#include "Voxel/MarchingCubesManager.h"
 
 // test, to delete
 #include "Voxel/VoxelChunk.h"
@@ -37,6 +38,7 @@ namespace engine {
         static Shader*                  g_shaderFinal;
         static Shader*                  g_shaderMix_RGB_A;
         static Shader*                  g_shaderFill_RGB;
+        static Shader*                  g_shaderMarchingCubes;
         static GBuffer*                 g_gBuffer;
         static MeshRef                  g_primitiveFullScreenRect;
         static ProjectionPerspective    g_projectionPerspective;

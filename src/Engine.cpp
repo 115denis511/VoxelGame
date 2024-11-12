@@ -71,12 +71,11 @@ void engine::Core::start(ISceneLogic* sceneLogic) {
 
     MarchingCubesManager::init();
     // REMEMBER DELETE FREE RESOURCES AT MAIN LOOP END
-    Shader mcShader("Shader/marchingCubes.vert", "Shader/marchingCubes.frag"); 
-    mcShader.use();
-    mcShader.setInt("tex", 0);
+    //Shader mcShader("Shader/marchingCubes.vert", "Shader/marchingCubes.frag"); 
 
     auto marching = MarchingCubesManager::getInstance();
-    marching->resizeChunkGrid(24);
+    //marching->resizeChunkGrid(24);
+    marching->setRenderChunkRadius(3);
     marching->startTextureEditing();
     marching->setVoxelTexture(0, "grass.jpg");
     marching->setVoxelTexture(1, "bricksx64.png");
@@ -120,12 +119,12 @@ void engine::Core::start(ISceneLogic* sceneLogic) {
             Render::draw(
                 Scene::g_camera.getVars(),
                 *Scene::getSceneResources(),
-                Scene::g_worldBVH);
+                Scene::g_worldBVH
+            );
 
-            //mcShader.use();
-            marching->draw(mcShader);
-            marching->updateChunks();
+            //marching->draw(mcShader);
         }
+        marching->updateChunks();
 
         //glm::vec3 cameraPos = Scene::g_camera.getPosition();
         //float cellSize = 32.f;

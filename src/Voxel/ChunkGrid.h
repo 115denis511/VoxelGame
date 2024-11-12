@@ -15,8 +15,8 @@ namespace engine {
         int getChunkId(int x,  int y, int z);
         unsigned int getUsedChunkDistance() { return m_usedChunkDistance; }
         void setChunk(int x, int y, int z, int id);
-        void resizeToBigger(unsigned int distance, std::vector<glm::ivec2>& chunksToCreate);
-        void resizeToSmaller(unsigned int distance, std::vector<int>& chunksToDelete);
+        void resizeToBigger(int distance, std::vector<glm::ivec2>& chunksToCreate);
+        void resizeToSmaller(int distance, std::vector<int>& chunksToDelete);
 
     private:
         struct GridYSlice {
