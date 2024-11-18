@@ -30,26 +30,36 @@
 namespace engine {
     class Render {
     public:
+        ~Render();
+
+        static Render* getInstance() { return g_instance; }
         static bool init();
         static void freeResources();
-        static void draw(CameraVars cameraVars, SceneResources& sceneResources, BVHTreeEntities& worldBVH);
+
+        void draw(CameraVars cameraVars, SceneResources& sceneResources, BVHTreeEntities& worldBVH);
 
     private:
-        static Shader*                  g_shaderFinal;
-        static Shader*                  g_shaderMix_RGB_A;
-        static Shader*                  g_shaderFill_RGB;
-        static Shader*                  g_shaderMarchingCubes;
-        static GBuffer*                 g_gBuffer;
-        static MeshRef                  g_primitiveFullScreenRect;
-        static ProjectionPerspective    g_projectionPerspective;
-        static std::vector<Model*>      g_modelsToInstancedDraw;
+        Render(bool& hasError);
 
-        static Model* test_model;
+        static Render* g_instance;
 
-        static void updateViewports();
-        static void accamulateInstancingBuffers(SceneResources& sceneResources, BVHTreeEntities& worldBVH, Frustum frustum);
-        static void drawInstanced();
-        static void addToInstancedDrawList(Model* model);
+        Shader*                  m_shaderFinal;
+        Shader*                  m_shaderMix_RGB_A;
+        Shader*                  m_shaderFill_RGB;
+        Shader*                  m_shaderMarchingCubes;
+        Shader*                  m_shaderMarchingCubesPrecomp;
+        Shader*                  m_shaderComputeMarchingCubes;
+        GBuffer*                 m_gBuffer;
+        MeshRef                  m_primitiveFullScreenRect;
+        ProjectionPerspective    m_projectionPerspective;
+        std::vector<Model*>      m_modelsToInstancedDraw;
+
+        Model* test_model;
+
+        void updateViewports();
+        void accamulateInstancingBuffers(SceneResources& sceneResources, BVHTreeEntities& worldBVH, Frustum frustum);
+        void drawInstanced();
+        void addToInstancedDrawList(Model* model);
     };
 }
 

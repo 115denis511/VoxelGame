@@ -102,6 +102,7 @@ void engine::Core::start(ISceneLogic* sceneLogic) {
 
 
 
+    Render& render = *Render::getInstance();
     while(!WindowGLFW::isShouldClose() && !Log::isHaveFatalError()) {
         GLfloat currentFrame = (float)glfwGetTime();
         static int frameCount = 0;
@@ -116,7 +117,7 @@ void engine::Core::start(ISceneLogic* sceneLogic) {
         WindowGLFW::poolEvents();
 
         if (!WindowGLFW::isWindowCollapsed()) {
-            Render::draw(
+            render.draw(
                 Scene::g_camera.getVars(),
                 *Scene::getSceneResources(),
                 Scene::g_worldBVH

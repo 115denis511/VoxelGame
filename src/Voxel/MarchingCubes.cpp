@@ -51,7 +51,7 @@ engine::MarchingCubes::MarchingCubes() {
                 glm::vec3 v1current = roundVector(rotateYaw[i] * glm::vec4(v1, 1.0f));
                 glm::vec3 v2current = roundVector(rotateYaw[i] * glm::vec4(v2, 1.0f));
 
-                addTriangle(v0current, v1current, v2current, currentCase);
+                addTriangle(v0current, v1current, v2current, currentCase, 0);
 
                 DrawArraysIndirectCommand command;
                 command.first = baseVertex;
@@ -64,7 +64,7 @@ engine::MarchingCubes::MarchingCubes() {
                 currentCase = currentCase.rotateRight();
 
                 // Зеркальный случай
-                addTriangle(v2current, v1current, v0current, currentCaseMirrired);
+                addTriangle(v2current, v1current, v0current, currentCaseMirrired, 0);
 
                 command.first = baseVertex;
                 command.count = vetrexCount;
@@ -124,8 +124,8 @@ engine::MarchingCubes::MarchingCubes() {
                 glm::vec3 v2c = roundVector(rotateYaw[i] * glm::vec4(v2, 1.0f));
                 glm::vec3 v3c = roundVector(rotateYaw[i] * glm::vec4(v3, 1.0f));
 
-                addTriangle(v0c, v1c, v3c, currentCase);
-                addTriangle(v0c, v3c, v2c, currentCase);
+                addTriangle(v0c, v1c, v3c, currentCase, 0);
+                addTriangle(v0c, v3c, v2c, currentCase, 1);
 
                 DrawArraysIndirectCommand command;
                 command.first = baseVertex;
@@ -138,8 +138,8 @@ engine::MarchingCubes::MarchingCubes() {
                 currentCase = currentCase.rotateRight();
 
                 // Зеркальный случай
-                addTriangle(v3c, v1c, v0c, currentCaseMirrired);
-                addTriangle(v2c, v3c, v0c, currentCaseMirrired);
+                addTriangle(v3c, v1c, v0c, currentCaseMirrired, 0);
+                addTriangle(v2c, v3c, v0c, currentCaseMirrired, 1);
 
                 command.first = baseVertex;
                 command.count = vetrexCount;
@@ -200,8 +200,8 @@ engine::MarchingCubes::MarchingCubes() {
                 glm::vec3 v4c = roundVector(rotateYaw[i] * glm::vec4(v4, 1.0f));
                 glm::vec3 v5c = roundVector(rotateYaw[i] * glm::vec4(v5, 1.0f));
 
-                addTriangle(v0c, v1c, v2c, currentCase);
-                addTriangle(v3c, v4c, v5c, currentCase);
+                addTriangle(v0c, v1c, v2c, currentCase, 0);
+                addTriangle(v3c, v4c, v5c, currentCase, 1);
 
                 DrawArraysIndirectCommand command;
                 command.first = baseVertex;
@@ -238,8 +238,8 @@ engine::MarchingCubes::MarchingCubes() {
                 glm::vec3 v4c = roundVector(rotateYaw[i] * glm::vec4(v4, 1.0f));
                 glm::vec3 v5c = roundVector(rotateYaw[i] * glm::vec4(v5, 1.0f));
 
-                addTriangle(v0c, v1c, v2c, currentCase);
-                addTriangle(v3c, v4c, v5c, currentCase);
+                addTriangle(v0c, v1c, v2c, currentCase, 0);
+                addTriangle(v3c, v4c, v5c, currentCase, 1);
 
                 DrawArraysIndirectCommand command;
                 command.first = baseVertex;
@@ -321,9 +321,9 @@ engine::MarchingCubes::MarchingCubes() {
                 glm::vec3 v3c = roundVector(rotateYaw[i] * glm::vec4(v3, 1.0f));
                 glm::vec3 v4c = roundVector(rotateYaw[i] * glm::vec4(v4, 1.0f));
 
-                addTriangle(v0c, v1c, v2c, currentCase);
-                addTriangle(v4c, v0c, v2c, currentCase);
-                addTriangle(v3c, v4c, v2c, currentCase);
+                addTriangle(v0c, v1c, v2c, currentCase, 0);
+                addTriangle(v4c, v0c, v2c, currentCase, 1);
+                addTriangle(v3c, v4c, v2c, currentCase, 2);
 
                 DrawArraysIndirectCommand command;
                 command.first = baseVertex;
@@ -337,9 +337,9 @@ engine::MarchingCubes::MarchingCubes() {
                 currentCase = currentCase.rotateRight();
 
                 // зеркальный случай
-                addTriangle(v2c, v1c, v0c, currentCaseMirrired);
-                addTriangle(v2c, v0c, v4c, currentCaseMirrired);
-                addTriangle(v2c, v4c, v3c, currentCaseMirrired);
+                addTriangle(v2c, v1c, v0c, currentCaseMirrired, 0);
+                addTriangle(v2c, v0c, v4c, currentCaseMirrired, 1);
+                addTriangle(v2c, v4c, v3c, currentCaseMirrired, 2);
 
                 command.first = baseVertex;
                 command.count = vetrexCount;
@@ -406,8 +406,8 @@ engine::MarchingCubes::MarchingCubes() {
         currentCaseMirrired.setVertexId(3, 3);
 
         for (size_t i = 0; i < 3; i++) {
-            addTriangle(v0, v1, v2, currentCase);
-            addTriangle(v0, v2, v3, currentCase);
+            addTriangle(v0, v1, v2, currentCase, 0);
+            addTriangle(v0, v2, v3, currentCase, 1);
 
             DrawArraysIndirectCommand command;
             command.first = baseVertex;
@@ -420,8 +420,8 @@ engine::MarchingCubes::MarchingCubes() {
             baseVertex += vetrexCount;
 
             // зеркальный случай
-            addTriangle(v2, v1, v0, currentCaseMirrired);
-            addTriangle(v3, v2, v0, currentCaseMirrired);
+            addTriangle(v2, v1, v0, currentCaseMirrired, 0);
+            addTriangle(v3, v2, v0, currentCaseMirrired, 1);
 
             command.first = baseVertex;
             command.count = vetrexCount;
@@ -515,10 +515,10 @@ engine::MarchingCubes::MarchingCubes() {
                 glm::vec3 v6c = roundVector(rotateYaw[i] * glm::vec4(v6, 1.0f));
                 glm::vec3 v7c = roundVector(rotateYaw[i] * glm::vec4(v7, 1.0f));
 
-                addTriangle(v0c, v1c, v2c, currentCase);
-                addTriangle(v4c, v0c, v2c, currentCase);
-                addTriangle(v3c, v4c, v2c, currentCase);
-                addTriangle(v5c, v6c, v7c, currentCase);
+                addTriangle(v0c, v1c, v2c, currentCase, 0);
+                addTriangle(v4c, v0c, v2c, currentCase, 1);
+                addTriangle(v3c, v4c, v2c, currentCase, 2);
+                addTriangle(v5c, v6c, v7c, currentCase, 3);
 
                 DrawArraysIndirectCommand command;
                 command.first = baseVertex;
@@ -611,8 +611,8 @@ engine::MarchingCubes::MarchingCubes() {
             glm::vec3 v4c = roundVector(rotateYaw[i] * glm::vec4(v4, 1.0f));
             glm::vec3 v5c = roundVector(rotateYaw[i] * glm::vec4(v5, 1.0f));
 
-            addTriangle(v0c, v1c, v2c, currentCase);
-            addTriangle(v3c, v4c, v5c, currentCase);
+            addTriangle(v0c, v1c, v2c, currentCase, 0);
+            addTriangle(v3c, v4c, v5c, currentCase, 1);
 
             DrawArraysIndirectCommand command;
             command.first = baseVertex;
@@ -626,8 +626,8 @@ engine::MarchingCubes::MarchingCubes() {
             currentCase = currentCase.rotateRight();
 
             // зеркальный случай
-            addTriangle(v2c, v1c, v0c, currentCaseMirrired);
-            addTriangle(v5c, v4c, v3c, currentCaseMirrired);
+            addTriangle(v2c, v1c, v0c, currentCaseMirrired, 0);
+            addTriangle(v5c, v4c, v3c, currentCaseMirrired, 1);
 
             command.first = baseVertex;
             command.count = vetrexCount;
@@ -684,9 +684,9 @@ engine::MarchingCubes::MarchingCubes() {
                 glm::vec3 v5c = roundVector(rotateYaw[i] * glm::vec4(v5, 1.0f));
                 glm::vec3 v6c = roundVector(rotateYaw[i] * glm::vec4(v6, 1.0f));
 
-                addTriangle(v0c, v1c, v3c, currentCase);
-                addTriangle(v0c, v3c, v2c, currentCase);
-                addTriangle(v4c, v5c, v6c, currentCase);
+                addTriangle(v0c, v1c, v3c, currentCase, 0);
+                addTriangle(v0c, v3c, v2c, currentCase, 1);
+                addTriangle(v4c, v5c, v6c, currentCase, 2);
 
                 DrawArraysIndirectCommand command;
                 command.first = baseVertex;
@@ -754,9 +754,9 @@ engine::MarchingCubes::MarchingCubes() {
                 glm::vec3 v5c = roundVector(rotateYaw[i] * glm::vec4(v5, 1.0f));
                 glm::vec3 v6c = roundVector(rotateYaw[i] * glm::vec4(v6, 1.0f));
 
-                addTriangle(v0c, v1c, v3c, currentCase);
-                addTriangle(v0c, v3c, v2c, currentCase);
-                addTriangle(v4c, v5c, v6c, currentCase);
+                addTriangle(v0c, v1c, v3c, currentCase, 0);
+                addTriangle(v0c, v3c, v2c, currentCase, 1);
+                addTriangle(v4c, v5c, v6c, currentCase, 2);
 
                 DrawArraysIndirectCommand command;
                 command.first = baseVertex;
@@ -822,9 +822,9 @@ engine::MarchingCubes::MarchingCubes() {
                 glm::vec3 v7c = roundVector(rotateYaw[i] * glm::vec4(v7, 1.0f));
                 glm::vec3 v8c = roundVector(rotateYaw[i] * glm::vec4(v8, 1.0f));
 
-                addTriangle(v0c, v1c, v2c, currentCase);
-                addTriangle(v3c, v4c, v5c, currentCase);
-                addTriangle(v6c, v7c, v8c, currentCase);
+                addTriangle(v0c, v1c, v2c, currentCase, 0);
+                addTriangle(v3c, v4c, v5c, currentCase, 1);
+                addTriangle(v6c, v7c, v8c, currentCase, 2);
 
                 DrawArraysIndirectCommand command;
                 command.first = baseVertex;
@@ -891,10 +891,10 @@ engine::MarchingCubes::MarchingCubes() {
                 glm::vec3 v6c = roundVector(rotateYaw[i] * glm::vec4(v6, 1.0f));
                 glm::vec3 v7c = roundVector(rotateYaw[i] * glm::vec4(v7, 1.0f));
 
-                addTriangle(v0c, v1c, v2c, currentCase);
-                addTriangle(v3c, v2c, v1c, currentCase);
-                addTriangle(v4c, v5c, v6c, currentCase);
-                addTriangle(v4c, v6c, v7c, currentCase);
+                addTriangle(v0c, v1c, v2c, currentCase, 0);
+                addTriangle(v3c, v2c, v1c, currentCase, 1);
+                addTriangle(v4c, v5c, v6c, currentCase, 2);
+                addTriangle(v4c, v6c, v7c, currentCase, 3);
 
                 DrawArraysIndirectCommand command;
                 command.first = baseVertex;
@@ -963,10 +963,10 @@ engine::MarchingCubes::MarchingCubes() {
                 glm::vec3 v4c = roundVector(rotateYaw[i] * glm::vec4(v4, 1.0f));
                 glm::vec3 v5c = roundVector(rotateYaw[i] * glm::vec4(v5, 1.0f));
 
-                addTriangle(v0c, v1c, v2c, currentCase);
-                addTriangle(v3c, v0c, v4c, currentCase);
-                addTriangle(v0c, v2c, v4c, currentCase);
-                addTriangle(v4c, v2c, v5c, currentCase);
+                addTriangle(v0c, v1c, v2c, currentCase, 0);
+                addTriangle(v3c, v0c, v4c, currentCase, 1);
+                addTriangle(v0c, v2c, v4c, currentCase, 2);
+                addTriangle(v4c, v2c, v5c, currentCase, 3);
 
                 DrawArraysIndirectCommand command;
                 command.first = baseVertex;
@@ -980,10 +980,10 @@ engine::MarchingCubes::MarchingCubes() {
                 currentCase = currentCase.rotateRight();
 
                 // зеркальный случай
-                addTriangle(v2c, v1c, v0c, currentCaseMirrired);
-                addTriangle(v4c, v0c, v3c, currentCaseMirrired);
-                addTriangle(v4c, v2c, v0c, currentCaseMirrired);
-                addTriangle(v5c, v2c, v4c, currentCaseMirrired);
+                addTriangle(v2c, v1c, v0c, currentCaseMirrired, 0);
+                addTriangle(v4c, v0c, v3c, currentCaseMirrired, 1);
+                addTriangle(v4c, v2c, v0c, currentCaseMirrired, 2);
+                addTriangle(v5c, v2c, v4c, currentCaseMirrired, 3);
 
                 command.first = baseVertex;
                 command.count = vetrexCount;
@@ -1042,10 +1042,10 @@ engine::MarchingCubes::MarchingCubes() {
 
         {
 
-            addTriangle(v0, v1, v2, currentCase);
-            addTriangle(v3, v4, v5, currentCase);
-            addTriangle(v6, v7, v8, currentCase);
-            addTriangle(v9, v10, v11, currentCase);
+            addTriangle(v0, v1, v2, currentCase, 0);
+            addTriangle(v3, v4, v5, currentCase, 1);
+            addTriangle(v6, v7, v8, currentCase, 2);
+            addTriangle(v9, v10, v11, currentCase, 3);
 
             DrawArraysIndirectCommand command;
             command.first = baseVertex;
@@ -1077,10 +1077,10 @@ engine::MarchingCubes::MarchingCubes() {
             addTriangle(v5, v4, v3, currentCase);
             addTriangle(v8, v7, v6, currentCase);
             addTriangle(v11, v10, v9, currentCase);*/
-            addTriangle(v0, v1, v2, currentCase);
-            addTriangle(v3, v4, v5, currentCase);
-            addTriangle(v6, v7, v8, currentCase);
-            addTriangle(v9, v10, v11, currentCase);
+            addTriangle(v0, v1, v2, currentCase, 0);
+            addTriangle(v3, v4, v5, currentCase, 1);
+            addTriangle(v6, v7, v8, currentCase, 2);
+            addTriangle(v9, v10, v11, currentCase, 3);
 
             command.first = baseVertex;
             command.count = vetrexCount;
@@ -1129,10 +1129,10 @@ engine::MarchingCubes::MarchingCubes() {
             glm::vec3 v4c = roundVector(rotateYaw[i] * glm::vec4(v4, 1.0f));
             glm::vec3 v5c = roundVector(rotateYaw[i] * glm::vec4(v5, 1.0f));
 
-            addTriangle(v0c, v1c, v2c, currentCase);
-            addTriangle(v2c, v1c, v3c, currentCase);
-            addTriangle(v2c, v3c, v4c, currentCase);
-            addTriangle(v4c, v3c, v5c, currentCase);
+            addTriangle(v0c, v1c, v2c, currentCase, 0);
+            addTriangle(v2c, v1c, v3c, currentCase, 1);
+            addTriangle(v2c, v3c, v4c, currentCase, 2);
+            addTriangle(v4c, v3c, v5c, currentCase, 3);
 
             DrawArraysIndirectCommand command;
             command.first = baseVertex;
@@ -1146,10 +1146,10 @@ engine::MarchingCubes::MarchingCubes() {
             currentCase = currentCase.rotateRight();
 
             // зеркальный случай
-            addTriangle(v2c, v1c, v0c, currentCaseMirrired);
-            addTriangle(v3c, v1c, v2c, currentCaseMirrired);
-            addTriangle(v4c, v3c, v2c, currentCaseMirrired);
-            addTriangle(v5c, v3c, v4c, currentCaseMirrired);
+            addTriangle(v2c, v1c, v0c, currentCaseMirrired, 0);
+            addTriangle(v3c, v1c, v2c, currentCaseMirrired, 1);
+            addTriangle(v4c, v3c, v2c, currentCaseMirrired, 2);
+            addTriangle(v5c, v3c, v4c, currentCaseMirrired, 3);
 
             command.first = baseVertex;
             command.count = vetrexCount;
@@ -1204,10 +1204,10 @@ engine::MarchingCubes::MarchingCubes() {
                 glm::vec3 v4c = roundVector(rotateYaw[i] * glm::vec4(v4, 1.0f));
                 glm::vec3 v5c = roundVector(rotateYaw[i] * glm::vec4(v5, 1.0f));
 
-                addTriangle(v0c, v1c, v2c, currentCase);
-                addTriangle(v3c, v4c, v1c, currentCase);
-                addTriangle(v1c, v4c, v2c, currentCase);
-                addTriangle(v4c, v5c, v2c, currentCase);
+                addTriangle(v0c, v1c, v2c, currentCase, 0);
+                addTriangle(v3c, v4c, v1c, currentCase, 1);
+                addTriangle(v1c, v4c, v2c, currentCase, 2);
+                addTriangle(v4c, v5c, v2c, currentCase, 3);
 
                 DrawArraysIndirectCommand command;
                 command.first = baseVertex;
@@ -1225,10 +1225,10 @@ engine::MarchingCubes::MarchingCubes() {
                 addTriangle(v4c, v0c, v3c, currentCaseMirrired, v4tex, v0tex, v3tex);
                 addTriangle(v4c, v2c, v0c, currentCaseMirrired, v4tex, v2tex, v0tex);
                 addTriangle(v5c, v2c, v4c, currentCaseMirrired, v5tex, v2tex, v4tex);*/
-                addTriangle(v2c, v1c, v0c, currentCaseMirrired);
-                addTriangle(v1c, v4c, v3c, currentCaseMirrired);
-                addTriangle(v2c, v4c, v1c, currentCaseMirrired);
-                addTriangle(v2c, v5c, v4c, currentCaseMirrired);
+                addTriangle(v2c, v1c, v0c, currentCaseMirrired, 0);
+                addTriangle(v1c, v4c, v3c, currentCaseMirrired, 1);
+                addTriangle(v2c, v4c, v1c, currentCaseMirrired, 2);
+                addTriangle(v2c, v5c, v4c, currentCaseMirrired, 3);
 
                 command.first = baseVertex;
                 command.count = vetrexCount;
@@ -1293,11 +1293,11 @@ engine::MarchingCubes::MarchingCubes() {
                 glm::vec3 v7c = roundVector(rotateYaw[i] * glm::vec4(v7, 1.0f));
                 glm::vec3 v8c = roundVector(rotateYaw[i] * glm::vec4(v8, 1.0f));
 
-                addTriangle(v0c, v1c, v2c, currentCase);
-                addTriangle(v2c, v1c, v3c, currentCase);
-                addTriangle(v2c, v3c, v4c, currentCase);
-                addTriangle(v4c, v3c, v5c, currentCase);
-                addTriangle(v6c, v7c, v8c, currentCase);
+                addTriangle(v0c, v1c, v2c, currentCase, 0);
+                addTriangle(v2c, v1c, v3c, currentCase, 1);
+                addTriangle(v2c, v3c, v4c, currentCase, 2);
+                addTriangle(v4c, v3c, v5c, currentCase, 3);
+                addTriangle(v6c, v7c, v8c, currentCase, 4);
 
                 DrawArraysIndirectCommand command;
                 command.first = baseVertex;
@@ -1368,11 +1368,11 @@ engine::MarchingCubes::MarchingCubes() {
                 glm::vec3 v5c = roundVector(rotateYaw[i] * glm::vec4(v5, 1.0f));
                 glm::vec3 v6c = roundVector(rotateYaw[i] * glm::vec4(v6, 1.0f));
 
-                addTriangle(v2c, v1c, v0c, currentCase);
-                addTriangle(v3c, v2c, v0c, currentCase);
-                addTriangle(v2c, v4c, v1c, currentCase);
-                addTriangle(v2c, v6c, v4c, currentCase);
-                addTriangle(v2c, v5c, v6c, currentCase);
+                addTriangle(v2c, v1c, v0c, currentCase, 0);
+                addTriangle(v3c, v2c, v0c, currentCase, 1);
+                addTriangle(v2c, v4c, v1c, currentCase, 2);
+                addTriangle(v2c, v6c, v4c, currentCase, 3);
+                addTriangle(v2c, v5c, v6c, currentCase, 4);
 
                 DrawArraysIndirectCommand command;
                 command.first = baseVertex;
@@ -1442,11 +1442,11 @@ engine::MarchingCubes::MarchingCubes() {
                 glm::vec3 v5c = roundVector(rotateYaw[i] * glm::vec4(v5, 1.0f));
                 glm::vec3 v6c = roundVector(rotateYaw[i] * glm::vec4(v6, 1.0f));
 
-                addTriangle(v0c, v1c, v2c, currentCase);
-                addTriangle(v0c, v2c, v3c, currentCase);
-                addTriangle(v1c, v4c, v2c, currentCase);
-                addTriangle(v4c, v6c, v2c, currentCase);
-                addTriangle(v6c, v5c, v2c, currentCase);
+                addTriangle(v0c, v1c, v2c, currentCase, 0);
+                addTriangle(v0c, v2c, v3c, currentCase, 1);
+                addTriangle(v1c, v4c, v2c, currentCase, 2);
+                addTriangle(v4c, v6c, v2c, currentCase, 3);
+                addTriangle(v6c, v5c, v2c, currentCase, 4);
 
                 DrawArraysIndirectCommand command;
                 command.first = baseVertex;
@@ -1515,10 +1515,10 @@ engine::MarchingCubes::MarchingCubes() {
                 glm::vec3 v4c = roundVector(rotateYaw[i] * glm::vec4(v4, 1.0f));
                 glm::vec3 v5c = roundVector(rotateYaw[i] * glm::vec4(v5, 1.0f));
 
-                addTriangle(v0c, v2c, v1c, currentCase);
-                addTriangle(v0c, v3c, v2c, currentCase);
-                addTriangle(v0c, v4c, v3c, currentCase);
-                addTriangle(v0c, v5c, v4c, currentCase);
+                addTriangle(v0c, v2c, v1c, currentCase, 0);
+                addTriangle(v0c, v3c, v2c, currentCase, 1);
+                addTriangle(v0c, v4c, v3c, currentCase, 2);
+                addTriangle(v0c, v5c, v4c, currentCase, 3);
 
                 DrawArraysIndirectCommand command;
                 command.first = baseVertex;
@@ -1621,7 +1621,7 @@ inline glm::vec3 engine::MarchingCubes::getNormal(const glm::vec3 &a, const glm:
     return glm::normalize(glm::cross(ab, ac));
 }
 
-inline void engine::MarchingCubes::addTriangle(const glm::vec3 &v0, const glm::vec3 &v1, const glm::vec3 &v2, MarchingCubesCase& currentCase) {
+inline void engine::MarchingCubes::addTriangle(const glm::vec3 &v0, const glm::vec3 &v1, const glm::vec3 &v2, MarchingCubesCase& currentCase, GLuint triangleId) {
     constexpr float offsetsStrengh[8] = { -0.375, -0.25, -0.125, 0.0, 0.125, 0.25, 0.375, 0.5 };
     constexpr float cornerOffset = 0.5f;
     // X_LEFT = 0, X_RIGHT = 1, Y_UP = 2, Y_DOWN = 3, Z_FRONT = 4, Z_BACK = 5;
@@ -1659,9 +1659,9 @@ inline void engine::MarchingCubes::addTriangle(const glm::vec3 &v0, const glm::v
         v2Positions[i] = v2vertexSized;
     }
 
-    m_verticesData.push_back(VoxelVertexData(v0Positions, (unsigned int)v0data.id));
-    m_verticesData.push_back(VoxelVertexData(v1Positions, (unsigned int)v1data.id));
-    m_verticesData.push_back(VoxelVertexData(v2Positions, (unsigned int)v2data.id));
+    m_verticesData.push_back(VoxelVertexData(v0Positions, (unsigned int)v0data.id, triangleId));
+    m_verticesData.push_back(VoxelVertexData(v1Positions, (unsigned int)v1data.id, triangleId));
+    m_verticesData.push_back(VoxelVertexData(v2Positions, (unsigned int)v2data.id, triangleId));
 }
 
 void engine::MarchingCubes::draw(int drawCount) {

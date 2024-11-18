@@ -2,6 +2,7 @@
 
 GLuint engine::ShaderStorageManager::g_instancingMatricesSSBO;
 GLuint engine::ShaderStorageManager::g_transformMatricesSSBO;
+GLuint engine::ShaderStorageManager::g_computeOutputSSBO;
 
 bool engine::ShaderStorageManager::init() {
     glCreateBuffers(1, &g_instancingMatricesSSBO);
@@ -13,6 +14,12 @@ bool engine::ShaderStorageManager::init() {
     constexpr GLuint byteSizeTransforms = sizeof(glm::mat4) * engine_properties::SCENE_MAX_RENDER_COMPONENTS;
     glNamedBufferData(g_transformMatricesSSBO, byteSizeTransforms, NULL, GL_DYNAMIC_DRAW);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, engine_properties::SSBO_TRANSFORM_MATRICES_BLOCK_ID, g_transformMatricesSSBO);
+
+    glCreateBuffers(1, &g_computeOutputSSBO);
+    constexpr unsigned int BYTE_SIZE_64_MB = 64 * 1024 * 1024;
+    constexpr GLuint byteSizeCompute = BYTE_SIZE_64_MB;
+    glNamedBufferData(g_computeOutputSSBO, byteSizeCompute, NULL, GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, engine_properties::SSBO_COMPUTE_OUTPUT_BUFFER_BLOCK_ID, g_computeOutputSSBO);
 
     int errors = 0;
     GLenum errorCode;
@@ -40,6 +47,7 @@ bool engine::ShaderStorageManager::init() {
 void engine::ShaderStorageManager::freeResources() {
     glDeleteBuffers(1, &g_instancingMatricesSSBO);
     glDeleteBuffers(1, &g_transformMatricesSSBO);
+    glDeleteBuffers(1, &g_computeOutputSSBO);
 }
 
 void engine::ShaderStorageManager::pushInstancingTransformIds(const int* buffer, GLsizei count) {

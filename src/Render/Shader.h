@@ -8,6 +8,7 @@
 namespace engine {
     class Shader : public utilites::INonCopyable {
     public:
+        Shader(const GLchar* computePath);
         Shader(const GLchar* vertexPath, const GLchar* fragmentPath);
 
         virtual ~Shader();
@@ -15,6 +16,7 @@ namespace engine {
         void use();
         void setBool(const std::string& name, bool value);
         void setInt(const std::string& name, int value);
+        void setUInt(const std::string& name, unsigned int value);
         void setBindlessSampler(const std::string& name, GLuint64 handler);
         void setFloat(const std::string& name, float value);
         void setVec2(const std::string& name, glm::vec2 value);
@@ -32,7 +34,8 @@ namespace engine {
         enum class ShaderType{
             VERTEX = GL_VERTEX_SHADER,
             FRAGMENT = GL_FRAGMENT_SHADER,
-            GEOMETRY = GL_GEOMETRY_SHADER
+            GEOMETRY = GL_GEOMETRY_SHADER,
+            COMPUTE = GL_COMPUTE_SHADER
         };
 
         std::string readFromFile(const GLchar* path);

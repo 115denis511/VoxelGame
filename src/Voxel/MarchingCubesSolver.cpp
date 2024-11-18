@@ -8,6 +8,8 @@ void engine::MarchingCubesSolver::regenerateChunk(MarchingCubes &marchingCubes, 
     constexpr short MARCHING_CUBES_COUNT = 31;
     int cubesCount = 0;
 
+    // Определение количества отрисовок для каждой из фигур марширующих кубов и
+    // упаковка данных фигур для последующей загрузки в буфер SSBO
     for (short z = 0; z < MARCHING_CUBES_COUNT; z++) {
         for (short y = 0; y < MARCHING_CUBES_COUNT; y++) {
             for (short x = 0; x < MARCHING_CUBES_COUNT; x++) {
@@ -26,7 +28,7 @@ void engine::MarchingCubesSolver::regenerateChunk(MarchingCubes &marchingCubes, 
                 if (caseId == 0 || caseId == 255) continue;
 
                 auto verticesIds = marchingCubes.getVertecesIds(caseId);
-                // vId - Id вершины в марширующем кубе, соответствующий индексу в массиве voxels[8]
+                // vId - индекс вершины в массиве voxels[]
                 int offsets[6] = { 0, 0, 0, 0, 0, 0 };
                 for (int i = 0; i < 6; i++) {
                     int vId = verticesIds.ids[i];
@@ -45,6 +47,7 @@ void engine::MarchingCubesSolver::regenerateChunk(MarchingCubes &marchingCubes, 
         }
     }
 
+    // Сборка коммандного буфера
     std::vector<DrawArraysIndirectCommand> commandBuffer;
     std::vector<glm::ivec2> dataBuffer;
     dataBuffer.reserve(cubesCount);
@@ -58,6 +61,23 @@ void engine::MarchingCubesSolver::regenerateChunk(MarchingCubes &marchingCubes, 
         baseIndex += m_caseData[i].size();
         commandBuffer.push_back(command);
     }
+
+    // Определение стартового индекса в коммандном буфере для рабочих групп в вычислительном шейдере,
+    // который будет предварительно высчитывать данные вершин треугольников фигур
+    std::vector<GLuint> workgroupInitialCommands;
+    unsigned int instance = 0;
+    for (unsigned int i = 0; i < commandBuffer.size(); i++) {
+        unsigned int commandMaxInstance = commandBuffer[i].baseInstance + commandBuffer[i].instanceCount;
+        while (instance < commandMaxInstance) {
+            workgroupInitialCommands.push_back(i);
+            constexpr unsigned int WORKGROUP_SIZE = 31;
+            instance += WORKGROUP_SIZE;
+        }
+    }
+    chunk.setComputeWorkGroups(workgroupInitialCommands.size());
+    chunk.setLastCommandId(commandBuffer.size() - 1);
+    GLuint computeSSBO = chunk.getComputeSSBO();
+    glNamedBufferSubData(computeSSBO, 0, workgroupInitialCommands.size() * sizeof(GLuint), &workgroupInitialCommands[0]);
 
     GLuint commandBufferObject = chunk.getCommandBuffer(), ssboBuffer = chunk.getSSBO();
     chunk.setDrawCount(commandBuffer.size());

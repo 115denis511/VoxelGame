@@ -20,6 +20,9 @@ namespace engine_properties {
     constexpr GLuint    SSBO_TRANSFORM_MATRICES_BLOCK_ID = 1;
     constexpr GLuint    SSBO_MARCHING_CUBES_CHUNK_DATA_BLOCK_ID = 2;
     constexpr GLuint    SSBO_VOXEL_VERTECES_DATA_IDS_BLOCK_ID = 3;
+    constexpr GLuint    SSBO_COMPUTE_INPUT_BUFFER_BLOCK_ID = 4;
+    constexpr GLuint    SSBO_COMPUTE_OUTPUT_BUFFER_BLOCK_ID = 5;
+    constexpr GLuint    SSBO_VOXEL_COMPUTE_COMMAND_BUFFER_BLOCK_ID = 6;
 
     // Textures
     constexpr GLuint TEXTURE_ARRAY_W64_H64_SIZE = 1024;

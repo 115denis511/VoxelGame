@@ -17,6 +17,7 @@ namespace engine {
     private:
         static GLuint g_instancingMatricesSSBO;
         static GLuint g_transformMatricesSSBO;
+        static GLuint g_computeOutputSSBO;
     };
 }
 

@@ -1,38 +1,31 @@
 #include "Render.h"
 
-engine::Shader*                 engine::Render::g_shaderFinal;
-engine::Shader*                 engine::Render::g_shaderMix_RGB_A;
-engine::Shader*                 engine::Render::g_shaderFill_RGB;
-engine::Shader*                 engine::Render::g_shaderMarchingCubes;
-engine::GBuffer*                engine::Render::g_gBuffer;
-engine::MeshRef                 engine::Render::g_primitiveFullScreenRect;
-engine::ProjectionPerspective   engine::Render::g_projectionPerspective;
-std::vector<engine::Model*>     engine::Render::g_modelsToInstancedDraw;
+engine::Render* engine::Render::g_instance;
 
-engine::Model*          engine::Render::test_model;
-
-bool engine::Render::init() {
+engine::Render::Render(bool& hasError) {
     glm::ivec2 viewport = WindowGLFW::getViewport();
     glViewport(0, 0, viewport.x, viewport.y);
     glClearColor(0.f, 0.f, 0.f, 1.0f);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
 
-    g_shaderFinal = new Shader("Shader/test3d.vert", "Shader/simple.frag");
-    g_shaderMix_RGB_A = new Shader("Shader/fillViewport_InvertY.vert", "Shader/mix_RGB_A.frag");
-    g_shaderFill_RGB = new Shader("Shader/fillViewport_InvertY.vert", "Shader/fill_RGB.frag");
-    g_shaderMarchingCubes = new Shader("Shader/marchingCubes.vert", "Shader/marchingCubes.frag"); 
+    m_shaderFinal = new Shader("Shader/test3d.vert", "Shader/simple.frag");
+    m_shaderMix_RGB_A = new Shader("Shader/fillViewport_InvertY.vert", "Shader/mix_RGB_A.frag");
+    m_shaderFill_RGB = new Shader("Shader/fillViewport_InvertY.vert", "Shader/fill_RGB.frag");
+    m_shaderMarchingCubes = new Shader("Shader/marchingCubes.vert", "Shader/marchingCubes.frag"); 
+    m_shaderMarchingCubesPrecomp = new Shader("Shader/marchingCubesPrecomp.vert", "Shader/marchingCubes.frag");
+    m_shaderComputeMarchingCubes = new Shader("Shader/computeTest.comp");
 
-    g_gBuffer = new GBuffer(viewport);
+    m_gBuffer = new GBuffer(viewport);
 
-    g_primitiveFullScreenRect = MeshManager::getPrimitiveRect(-1.f, 1.f, 1.f, -1.f)->getMeshRef();
+    m_primitiveFullScreenRect = MeshManager::getPrimitiveRect(-1.f, 1.f, 1.f, -1.f)->getMeshRef();
 
-    g_projectionPerspective = ProjectionPerspective(viewport, 
+    m_projectionPerspective = ProjectionPerspective(viewport, 
                                                     45.f,
                                                     0.1f, 
                                                     1000.f);
 
-    AssetManager::init(g_shaderMix_RGB_A, g_shaderFill_RGB);
+    AssetManager::init(m_shaderMix_RGB_A, m_shaderFill_RGB);
     ShaderStorageManager::init();
 
     // test
@@ -41,7 +34,7 @@ bool engine::Render::init() {
 
     Camera camera;
     camera.updateLookAt();
-    uniform_structs::DrawVars vars(g_projectionPerspective.getMatrix() * camera.getLookAt());
+    uniform_structs::DrawVars vars(m_projectionPerspective.getMatrix() * camera.getLookAt());
     UniformManager::setDrawVars(vars);
     glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(5.f, 0.f, 0.f));
     model = glm::rotate(model, glm::radians(45.f), glm::vec3(0.f, -1.f, 0.f));
@@ -50,9 +43,13 @@ bool engine::Render::init() {
     TextureArrayRef texture = TextureManager::addMixedTexture_RGB_A("container.jpg", "container.jpg", glm::vec4(0.f));
     TextureManager::addTexture("rock.png");
     TextureManager::updateMipmapsAndMakeResident();
-    g_shaderFinal->use();
-    g_shaderFinal->setBindlessSampler("bindless", texture.getHandler());
-    g_shaderFinal->setMat4("model", model);
+    m_shaderFinal->use();
+    m_shaderFinal->setBindlessSampler("bindless", texture.getHandler());
+    m_shaderFinal->setMat4("model", model);
+
+    m_shaderComputeMarchingCubes->use();
+    m_shaderComputeMarchingCubes->setUInt("lastCommandId", 0);
+    glDispatchCompute(1, 1, 1);
 
     /*unsigned int n = std::thread::hardware_concurrency();
     std::cout << n << " concurrent threads are supported.\n";*/
@@ -76,19 +73,33 @@ bool engine::Render::init() {
 
     //test end
 
-    if (Log::isHaveFatalError()) return false;
-    return true;
+    if (Log::isHaveFatalError()) hasError = false;
+    hasError = true;
+
 }
 
-void engine::Render::freeResources() {
-    delete g_shaderFinal;
-    delete g_shaderMix_RGB_A;
-    delete g_shaderFill_RGB;
+engine::Render::~Render() {
+    delete m_shaderFinal;
+    delete m_shaderMix_RGB_A;
+    delete m_shaderFill_RGB;
+    delete m_shaderMarchingCubes;
+    delete m_shaderComputeMarchingCubes;
 
-    delete g_gBuffer;
+    delete m_gBuffer;
 
     AssetManager::freeResources();
     ShaderStorageManager::freeResources();
+}
+
+bool engine::Render::init() {
+    bool hasError;
+    g_instance = new Render(hasError);
+    return hasError;
+
+}
+
+void engine::Render::freeResources() {
+    delete g_instance;
 }
 
 void engine::Render::draw(CameraVars cameraVars, SceneResources& sceneResources, BVHTreeEntities& worldBVH) {
@@ -96,7 +107,7 @@ void engine::Render::draw(CameraVars cameraVars, SceneResources& sceneResources,
         updateViewports();
     }
 
-    uniform_structs::DrawVars vars(g_projectionPerspective.getMatrix() * cameraVars.lookAt, g_projectionPerspective.getMatrix(), cameraVars.lookAt);
+    uniform_structs::DrawVars vars(m_projectionPerspective.getMatrix() * cameraVars.lookAt, m_projectionPerspective.getMatrix(), cameraVars.lookAt);
     UniformManager::setDrawVars(vars);
 
     //g_resources->m_gBuffer->bind();
@@ -108,9 +119,10 @@ void engine::Render::draw(CameraVars cameraVars, SceneResources& sceneResources,
     //MeshManager::getPrimitiveCube(1.f)->draw();
     //MeshManager::getPrimitiveSphere(1.f, 32, 32)->draw();
 
-    Frustum frustum(cameraVars, g_projectionPerspective);
+    Frustum frustum(cameraVars, m_projectionPerspective);
 
-    MarchingCubesManager::getInstance()->draw(*g_shaderMarchingCubes, frustum);
+    //MarchingCubesManager::getInstance()->draw(*m_shaderMarchingCubes, frustum);
+    MarchingCubesManager::getInstance()->draw(*m_shaderComputeMarchingCubes, *m_shaderMarchingCubesPrecomp, frustum);
     accamulateInstancingBuffers(sceneResources, worldBVH, frustum);
     drawInstanced();
      
@@ -138,9 +150,9 @@ void engine::Render::updateViewports() {
     
     glViewport(0, 0, viewport.x, viewport.y);
 
-    g_gBuffer->updateViewport(viewport);
+    m_gBuffer->updateViewport(viewport);
 
-    g_projectionPerspective.update(viewport);
+    m_projectionPerspective.update(viewport);
 
     WindowGLFW::g_isRenderMustUpdateViewport = false;
 }
@@ -162,13 +174,13 @@ void engine::Render::accamulateInstancingBuffers(SceneResources& sceneResources,
 }
 
 void engine::Render::drawInstanced() {
-    g_shaderFinal->use();
-    for (size_t i = 0; i < g_modelsToInstancedDraw.size(); i++) {
-        g_modelsToInstancedDraw[i]->drawInstanced();
+    m_shaderFinal->use();
+    for (size_t i = 0; i < m_modelsToInstancedDraw.size(); i++) {
+        m_modelsToInstancedDraw[i]->drawInstanced();
     }
-    g_modelsToInstancedDraw.clear();
+    m_modelsToInstancedDraw.clear();
 }
 
 void engine::Render::addToInstancedDrawList(Model* model) {
-    g_modelsToInstancedDraw.push_back(model);
+    m_modelsToInstancedDraw.push_back(model);
 }

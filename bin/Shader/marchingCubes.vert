@@ -21,6 +21,7 @@ layout(std430, binding = 2) readonly buffer ChunkData
 struct VertexData {
     vec4 positions[8];
     uint vertexVoxelId;
+    uint triangleId;
 };
 layout(std430, binding = 3) readonly buffer Verteces
 {

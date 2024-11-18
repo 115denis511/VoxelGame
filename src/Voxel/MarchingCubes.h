@@ -29,7 +29,7 @@ namespace engine {
 
         glm::vec3 roundVector(glm::vec4 vec);
         inline glm::vec3 getNormal(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c);
-        inline void addTriangle(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2, MarchingCubesCase& currentCase);
+        inline void addTriangle(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2, MarchingCubesCase& currentCase, GLuint triangleId);
 
     };
 }

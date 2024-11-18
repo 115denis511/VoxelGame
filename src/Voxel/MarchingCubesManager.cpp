@@ -82,11 +82,56 @@ void engine::MarchingCubesManager::draw(Shader& shader, Frustum frustum) {
                 AABB aabb(glm::vec3(worldPos), glm::vec3(worldPos.x + CHUNCK_DIMENSION_SIZE, worldPos.y + CHUNCK_DIMENSION_SIZE, worldPos.z + CHUNCK_DIMENSION_SIZE));
                 if (!aabb.isInFrustum(frustum)) continue;
 
+                // Сейчас в шейдере каждая вершина вычисляет позиции ВСЕХ вершин треугольника, текстурные координаты и TBN.
+                // Тоесть первая вершина треугольника вычисляет все нужные данные для треугольника, но следующие 2 вершины 
+                // повторяют этот процесс заного без изменения результата. Следовательно происходит в 3 раза больше вычислений, чем могло бы быть.
+                // Можно попробовать перенести вычисление позиций, текстур и нормалей в вычислительный шейдер
+                // Для этого можно создать SSBO для хранения результата равного размеру кол-ва вокселей ДВУХ чанков
+                // умноженое на размер структуры (позиция + TBN + текстурные координаты).
+                // Перед рисованием чанка нужно запустить вычислительный шейдер, чтобы получить данные для рисования.
+                // Так как вычислительные шейдеры могуть работать паралельно с рисованием, то можно начать вычислять данные
+                // для следующего чанка во время рисования предыдущего. Для этого и нужен двойной размер SSBO.
+
                 chunk.bindCommandBuffer();
                 chunk.bindSSBO();
                 shader.setVec3("chunkPosition", worldPos);
                 int drawCount = chunk.getDrawCount();
                 //glMemoryBarrier(GL_ALL_BARRIER_BITS);
+                m_marchingCubes.draw(drawCount);
+            }
+        }
+    }
+}
+
+void engine::MarchingCubesManager::draw(Shader &computeShader, Shader &shader, Frustum frustum) {
+    m_textures.use();
+
+    const unsigned int gridWidth = m_grid.getUsedChunkDistance();
+
+    for (size_t z = 0; z < gridWidth; z++){
+        for (size_t x = 0; x < gridWidth; x++){
+            for (size_t y = 0; y < ChunkGrid::CHUNK_MAX_Y_SIZE; y++){
+                VoxelChunk& chunk = m_chunks[m_grid.getChunkId(x, y, z)];
+                glm::ivec2 worldChunkPos = m_converter.localChunkToWorldChunkPosition(x, z, m_currentOriginChunk.x, m_currentOriginChunk.y);
+                unsigned int height = y * CHUNCK_DIMENSION_SIZE;
+
+                if (chunk.getDrawCount() == 0) continue;
+                glm::vec3 worldPos(worldChunkPos.x * CHUNCK_DIMENSION_SIZE, height, worldChunkPos.y * CHUNCK_DIMENSION_SIZE);
+                AABB aabb(glm::vec3(worldPos), glm::vec3(worldPos.x + CHUNCK_DIMENSION_SIZE, worldPos.y + CHUNCK_DIMENSION_SIZE, worldPos.z + CHUNCK_DIMENSION_SIZE));
+                if (!aabb.isInFrustum(frustum)) continue;
+
+                computeShader.use();
+                computeShader.setVec3("chunkPosition", worldPos);
+                computeShader.setUInt("lastCommandId", chunk.getLastCommandId());
+                chunk.bindCommandBufferAsSSBO();
+                chunk.bindComputeSSBO();
+                chunk.bindSSBO();
+                glDispatchCompute(chunk.getComputeWorkGroups(), 1, 1);
+
+                chunk.bindCommandBuffer();
+                shader.use();
+                int drawCount = chunk.getDrawCount();
+                glMemoryBarrier(GL_ALL_BARRIER_BITS);
                 m_marchingCubes.draw(drawCount);
             }
         }

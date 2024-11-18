@@ -1,5 +1,25 @@
 #include "Shader.h"
 
+engine::Shader::Shader(const GLchar *computePath) {
+    std::string computeCode = readFromFile(computePath);
+
+    GLuint compute = compileShader(computeCode.c_str(), computePath, ShaderType::COMPUTE);
+
+    m_shaderProgram = glCreateProgram();
+    glAttachShader(m_shaderProgram, compute);
+    glLinkProgram(m_shaderProgram);
+
+    GLint success;
+    GLchar infoLog[512];
+    glGetProgramiv(m_shaderProgram, GL_LINK_STATUS, &success);
+    if (!success) {
+        glGetProgramInfoLog(m_shaderProgram, 512, NULL, infoLog);
+        Log::addFatalError("engine::Shader::Shader(const GLchar *computePath) ERROR! Linking failed\n" + std::string(infoLog));
+    }
+
+    glDeleteShader(compute);
+}
+
 engine::Shader::Shader(const GLchar *vertexPath, const GLchar *fragmentPath) {
     std::string vertexCode = readFromFile(vertexPath);
     std::string fragmentCode = readFromFile(fragmentPath);
@@ -38,6 +58,10 @@ void engine::Shader::Shader::setBool(const std::string& name, bool value) {
 
 void engine::Shader::Shader::setInt(const std::string& name, int value) {
     glUniform1i(glGetUniformLocation(m_shaderProgram, name.c_str()), value);
+}
+
+void engine::Shader::setUInt(const std::string &name, unsigned int value) {
+    glUniform1ui(glGetUniformLocation(m_shaderProgram, name.c_str()), value);
 }
 
 void engine::Shader::setBindlessSampler(const std::string &name, GLuint64 handler) {
@@ -120,6 +144,9 @@ GLuint engine::Shader::compileShader(const GLchar *code, const GLchar *path, Sha
             break;
         case ShaderType::GEOMETRY:
             typeStr = "GEOMETRY";
+            break;
+        case ShaderType::COMPUTE:
+            typeStr = "COMPUTE";
             break;
         
         default:

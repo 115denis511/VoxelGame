@@ -9,11 +9,16 @@ engine::VoxelChunk::VoxelChunk() {
     glCreateBuffers(1, &m_ssbo);
     constexpr GLuint byteSize = 31 * 31 * 31 * sizeof(glm::ivec2);
     glNamedBufferData(m_ssbo, byteSize, NULL, GL_DYNAMIC_DRAW);
+
+    glCreateBuffers(1, &m_computeSSBO);
+    constexpr GLuint byteSizeCompute = 31 * 31 * 31 * sizeof(GLuint) / 31;
+    glNamedBufferData(m_computeSSBO, byteSizeCompute, NULL, GL_DYNAMIC_DRAW);
 }
 
 engine::VoxelChunk::~VoxelChunk() {
     glDeleteBuffers(1, &m_commandBuffer);
     glDeleteBuffers(1, &m_ssbo);
+    glDeleteBuffers(1, &m_computeSSBO);
 }
 
 engine::MarchingCubesVoxel engine::VoxelChunk::getVoxel(short x, short y, short z) {
@@ -43,8 +48,16 @@ void engine::VoxelChunk::bindCommandBuffer() {
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_commandBuffer);
 }
 
+void engine::VoxelChunk::bindCommandBufferAsSSBO() {
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, engine_properties::SSBO_VOXEL_COMPUTE_COMMAND_BUFFER_BLOCK_ID, m_commandBuffer);
+}
+
 void engine::VoxelChunk::bindSSBO() {
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, engine_properties::SSBO_MARCHING_CUBES_CHUNK_DATA_BLOCK_ID, m_ssbo);
+}
+
+void engine::VoxelChunk::bindComputeSSBO() {
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, engine_properties::SSBO_COMPUTE_INPUT_BUFFER_BLOCK_ID, m_computeSSBO);
 }
 
 /*

@@ -5,7 +5,7 @@
 
 namespace engine {
     struct VoxelVertexData {
-        VoxelVertexData(glm::vec3 positions[8], GLuint voxelVertexId) {
+        VoxelVertexData(glm::vec3 positions[8], GLuint voxelVertexId, GLuint triangleId) {
             this->positions[0] = glm::vec4(positions[0], 0.f);
             this->positions[1] = glm::vec4(positions[1], 0.f);
             this->positions[2] = glm::vec4(positions[2], 0.f);
@@ -16,12 +16,14 @@ namespace engine {
             this->positions[7] = glm::vec4(positions[7], 0.f);
             
             this->voxelVertexId = voxelVertexId;
+            this->triangleId = triangleId;
         }
 
         glm::vec4 positions[8];
         GLuint voxelVertexId;
         // Заполнители места для соответствия размера структуры в разметке std430 структры VertexData в marchingCubes.vert
-        GLuint placeholder[3];
+        GLuint triangleId;
+        GLuint placeholder[2];
     };
 }
 
