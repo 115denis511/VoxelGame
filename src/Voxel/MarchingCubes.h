@@ -26,6 +26,7 @@ namespace engine {
         MarchingCubesVertecesIds m_caseVertecesIds[256];
         GLuint m_VAO, m_verticesDataSSBO;
         std::vector<VoxelVertexData> m_verticesData;
+        std::vector<VoxelTriangleData> m_trianglesData;
 
         glm::vec3 roundVector(glm::vec4 vec);
         inline glm::vec3 getNormal(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c);

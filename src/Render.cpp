@@ -14,6 +14,7 @@ engine::Render::Render(bool& hasError) {
     m_shaderFill_RGB = new Shader("Shader/fillViewport_InvertY.vert", "Shader/fill_RGB.frag");
     m_shaderMarchingCubes = new Shader("Shader/marchingCubes.vert", "Shader/marchingCubes.frag"); 
     m_shaderMarchingCubesPrecomp = new Shader("Shader/marchingCubesPrecomp.vert", "Shader/marchingCubes.frag");
+    m_shaderMarchingCubesNoComp = new Shader("Shader/marchingCubesNoComp.vert", "Shader/marchingCubes.frag");
     m_shaderComputeMarchingCubes = new Shader("Shader/computeTest.comp");
 
     m_gBuffer = new GBuffer(viewport);
@@ -84,6 +85,7 @@ engine::Render::~Render() {
     delete m_shaderFill_RGB;
     delete m_shaderMarchingCubes;
     delete m_shaderComputeMarchingCubes;
+    delete m_shaderMarchingCubesNoComp;
 
     delete m_gBuffer;
 
@@ -122,7 +124,8 @@ void engine::Render::draw(CameraVars cameraVars, SceneResources& sceneResources,
     Frustum frustum(cameraVars, m_projectionPerspective);
 
     //MarchingCubesManager::getInstance()->draw(*m_shaderMarchingCubes, frustum);
-    MarchingCubesManager::getInstance()->draw(*m_shaderComputeMarchingCubes, *m_shaderMarchingCubesPrecomp, frustum);
+    //MarchingCubesManager::getInstance()->draw(*m_shaderComputeMarchingCubes, *m_shaderMarchingCubesPrecomp, frustum);
+    MarchingCubesManager::getInstance()->draw(*m_shaderMarchingCubesNoComp, frustum);
     accamulateInstancingBuffers(sceneResources, worldBVH, frustum);
     drawInstanced();
      

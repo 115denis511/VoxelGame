@@ -48,6 +48,7 @@ namespace engine {
         Shader*                  m_shaderFill_RGB;
         Shader*                  m_shaderMarchingCubes;
         Shader*                  m_shaderMarchingCubesPrecomp;
+        Shader*                  m_shaderMarchingCubesNoComp;
         Shader*                  m_shaderComputeMarchingCubes;
         GBuffer*                 m_gBuffer;
         MeshRef                  m_primitiveFullScreenRect;

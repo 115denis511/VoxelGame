@@ -1572,9 +1572,15 @@ engine::MarchingCubes::MarchingCubes() {
     }
     std::cout << "Missed: " << missedCount << "\n";*/
 
-    glCreateBuffers(1, &m_verticesDataSSBO);
+    /*glCreateBuffers(1, &m_verticesDataSSBO);
     GLuint byteSize = sizeof(VoxelVertexData) * m_verticesData.size();
     glNamedBufferData(m_verticesDataSSBO, byteSize, &m_verticesData[0], GL_STATIC_DRAW);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, engine_properties::SSBO_VOXEL_VERTECES_DATA_IDS_BLOCK_ID, m_verticesDataSSBO);*/
+
+    //std::cout << sizeof(VoxelTriangleData) * m_trianglesData.size() << "\n";
+    glCreateBuffers(1, &m_verticesDataSSBO);
+    GLuint byteSize = sizeof(VoxelTriangleData) * m_trianglesData.size();
+    glNamedBufferData(m_verticesDataSSBO, byteSize, &m_trianglesData[0], GL_STATIC_DRAW);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, engine_properties::SSBO_VOXEL_VERTECES_DATA_IDS_BLOCK_ID, m_verticesDataSSBO);
 
     glGenVertexArrays(1, &m_VAO);
@@ -1662,6 +1668,72 @@ inline void engine::MarchingCubes::addTriangle(const glm::vec3 &v0, const glm::v
     m_verticesData.push_back(VoxelVertexData(v0Positions, (unsigned int)v0data.id, triangleId));
     m_verticesData.push_back(VoxelVertexData(v1Positions, (unsigned int)v1data.id, triangleId));
     m_verticesData.push_back(VoxelVertexData(v2Positions, (unsigned int)v2data.id, triangleId));
+
+    VoxelTriangleData triangleData;
+    for (int vX = 0; vX < 8; vX++) {
+        glm::vec4 v0vertexSized(v0.x + cornerOffset + offsetsStrengh[vX] * directionMul[v0data.direction].x, 
+                                v0.y + cornerOffset + offsetsStrengh[vX] * directionMul[v0data.direction].y, 
+                                v0.z + cornerOffset + offsetsStrengh[vX] * directionMul[v0data.direction].z, 0.f);
+
+        for (int vY = 0; vY < 8; vY++) {
+            glm::vec4 v1vertexSized(v1.x + cornerOffset + offsetsStrengh[vY] * directionMul[v1data.direction].x, 
+                                    v1.y + cornerOffset + offsetsStrengh[vY] * directionMul[v1data.direction].y, 
+                                    v1.z + cornerOffset + offsetsStrengh[vY] * directionMul[v1data.direction].z, 0.f);
+
+            for (int vZ = 0; vZ < 8; vZ++) {
+                glm::vec4 v2vertexSized(v2.x + cornerOffset + offsetsStrengh[vZ] * directionMul[v2data.direction].x, 
+                                        v2.y + cornerOffset + offsetsStrengh[vZ] * directionMul[v2data.direction].y, 
+                                        v2.z + cornerOffset + offsetsStrengh[vZ] * directionMul[v2data.direction].z, 0.f);
+                
+                glm::vec3 edge_A = v1vertexSized - v0vertexSized;
+                glm::vec3 edge_B = v2vertexSized - v0vertexSized;
+                glm::vec3 normal = glm::normalize(glm::cross(edge_A, edge_B));
+
+                // get from https://stackoverflow.com/questions/8705201/troubles-with-marching-cubes-and-texture-coordinates
+                glm::vec3 normAbs = glm::vec3(std::abs(normal.x), std::abs(normal.y), std::abs(normal.z));
+                glm::vec2 uvs[3];
+                if (normAbs.x >= normAbs.z && normAbs.x >= normAbs.y) { // x plane
+                    uvs[0] = glm::vec2(v0vertexSized.z, v0vertexSized.y);
+                    uvs[1] = glm::vec2(v1vertexSized.z, v1vertexSized.y);
+                    uvs[2] = glm::vec2(v2vertexSized.z, v2vertexSized.y);
+                }
+                else if (normAbs.z >= normAbs.x && normAbs.z >= normAbs.y) { // z plane
+                    uvs[0] = glm::vec2(v0vertexSized.x, v0vertexSized.y);
+                    uvs[1] = glm::vec2(v1vertexSized.x, v1vertexSized.y);
+                    uvs[2] = glm::vec2(v2vertexSized.x, v2vertexSized.y);
+                }
+                else if (normAbs.y >= normAbs.x && normAbs.y >= normAbs.z) { // y plane
+                    uvs[0] = glm::vec2(v0vertexSized.x, v0vertexSized.z);
+                    uvs[1] = glm::vec2(v1vertexSized.x, v1vertexSized.z);
+                    uvs[2] = glm::vec2(v2vertexSized.x, v2vertexSized.z);
+                }
+
+                glm::vec2 deltaUV_A = glm::vec2(uvs[1].x - uvs[0].x, uvs[1].y - uvs[0].y);
+                glm::vec2 deltaUV_B = glm::vec2(uvs[2].x - uvs[0].x, uvs[2].y - uvs[0].y);
+                float f = 1.0f / (deltaUV_A.x * deltaUV_B.y - deltaUV_B.x * deltaUV_A.y);
+
+                glm::vec3 tangent = glm::vec3(
+                    f * (deltaUV_B.y * edge_A.x - deltaUV_A.y * edge_B.x),
+                    f * (deltaUV_B.y * edge_A.y - deltaUV_A.y * edge_B.y),
+                    f * (deltaUV_B.y * edge_A.z - deltaUV_A.y * edge_B.z)  
+                );
+                tangent = glm::normalize(tangent);
+
+                glm::vec3 bitangent = glm::cross(normal, tangent);
+
+
+                int index = vZ * (8 * 8) + vY * 8 + vX;
+                triangleData.pos_TBN_tex[index] = VoxelTriangleVariant(
+                    v0vertexSized, v1vertexSized, v2vertexSized,
+                    tangent, bitangent, normal,
+                    uvs[0], uvs[1], uvs[2]
+                );
+            }
+        }
+    }
+    triangleData.figureIds = glm::uvec4((unsigned int)v0data.id, (unsigned int)v1data.id, (unsigned int)v2data.id, 0);
+
+    m_trianglesData.emplace_back(triangleData);
 }
 
 void engine::MarchingCubes::draw(int drawCount) {
