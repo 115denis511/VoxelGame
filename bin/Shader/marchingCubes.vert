@@ -18,15 +18,19 @@ layout(std430, binding = 2) readonly buffer ChunkData
     uvec2 packedData[];
 };
 
-struct VertexData {
-    vec4 positions[8];
-    uint vertexVoxelId;
-    uint triangleId;
+struct TriangleVariant {
+    vec4 pos_TBN_tex[6];
+};
+struct TriangleData {
+    TriangleVariant variants[512];
+    uvec4 vertexVoxelIds;
 };
 layout(std430, binding = 3) readonly buffer Verteces
 {
-    VertexData vertexData[];
+    TriangleData triangleData[];
 };
+
+uniform vec3 chunkPosition;
 
 struct UnpackedData {
     uint x;
@@ -36,11 +40,7 @@ struct UnpackedData {
     uint textureIds[6];
 };
 
-uniform vec3 chunkPosition;
 const vec3 triangleVertexTextureWeights[3] = { vec3(1.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0), vec3(0.0, 0.0, 1.0)};
-const int triangleShiftA[3] = { 0, -1, -2 };
-const int triangleShiftB[3] = { 1,  0, -1 };
-const int triangleShiftC[3] = { 2,  1,  0 };
 
 UnpackedData unpackData(uvec2 data);
 
@@ -48,80 +48,41 @@ void main()
 {
     int currentInstance = gl_BaseInstance + gl_InstanceID;
     UnpackedData data = unpackData(packedData[currentInstance]);
-    int vertexTriangleId = gl_VertexID % 3;
 
-    // POSITIONS
-    vec3 triangleVertices[3];
+    int localTriangleVertexId = gl_VertexID % 3;
+    int globalTriangleBaseVertexId = (gl_VertexID - localTriangleVertexId);
+    int globalTriangleId = (globalTriangleBaseVertexId - gl_BaseVertex) / 3;
 
-    uint vertexId = gl_VertexID + triangleShiftA[vertexTriangleId];
-    uint offsetStrength = data.offsets[vertexData[vertexId].vertexVoxelId];
-    triangleVertices[0] = vertexData[vertexId].positions[offsetStrength].xyz;
+    uint vertexOffsetX = data.offsets[triangleData[globalTriangleId].vertexVoxelIds[0]];
+    uint vertexOffsetY = data.offsets[triangleData[globalTriangleId].vertexVoxelIds[1]];
+    uint vertexOffsetZ = data.offsets[triangleData[globalTriangleId].vertexVoxelIds[2]];
 
-    vertexId = gl_VertexID + triangleShiftB[vertexTriangleId];
-    offsetStrength = data.offsets[vertexData[vertexId].vertexVoxelId];
-    triangleVertices[1] = vertexData[vertexId].positions[offsetStrength].xyz;
+    // 8 * 8 = 64
+    uint variantId = vertexOffsetZ * 64 + vertexOffsetY * 8 + vertexOffsetX;
 
-    vertexId = gl_VertexID + triangleShiftC[vertexTriangleId];
-    offsetStrength = data.offsets[vertexData[vertexId].vertexVoxelId];
-    triangleVertices[2] = vertexData[vertexId].positions[offsetStrength].xyz;
+    vec4 localPosition = vec4(
+        triangleData[globalTriangleId].variants[variantId].pos_TBN_tex[localTriangleVertexId].x + chunkPosition.x + data.x,
+        triangleData[globalTriangleId].variants[variantId].pos_TBN_tex[localTriangleVertexId].y + chunkPosition.y + data.y,
+        triangleData[globalTriangleId].variants[variantId].pos_TBN_tex[localTriangleVertexId].z + chunkPosition.z + data.z, 1.0);
+    gl_Position = projectionView * localPosition;
 
-    vec4 localPos = vec4(triangleVertices[vertexTriangleId].x + chunkPosition.x + data.x, 
-                         triangleVertices[vertexTriangleId].y + chunkPosition.y + data.y, 
-                         triangleVertices[vertexTriangleId].z + chunkPosition.z + data.z, 1.0);
+    TBN = mat3(
+        triangleData[globalTriangleId].variants[variantId].pos_TBN_tex[3].xyz,
+        triangleData[globalTriangleId].variants[variantId].pos_TBN_tex[4].xyz,
+        triangleData[globalTriangleId].variants[variantId].pos_TBN_tex[5].xyz
+    );
 
-    gl_Position = projectionView * localPos;
-
-    // NORMAL
-    vec3 edge_A = triangleVertices[1] - triangleVertices[0];
-    vec3 edge_B = triangleVertices[2] - triangleVertices[0];
-    vec3 normal = normalize(cross(edge_A, edge_B));
-
-    // TEXTURE COORDS
-    // get from https://stackoverflow.com/questions/8705201/troubles-with-marching-cubes-and-texture-coordinates
-    vec3 normAbs = vec3(abs(normal.x), abs(normal.y), abs(normal.z));
-    vec2 uvs[3];
-    if (normAbs.x >= normAbs.z && normAbs.x >= normAbs.y) { // x plane
-        uvs[0] = vec2(triangleVertices[0].z, triangleVertices[0].y);
-        uvs[1] = vec2(triangleVertices[1].z, triangleVertices[1].y);
-        uvs[2] = vec2(triangleVertices[2].z, triangleVertices[2].y);
-    }
-    else if (normAbs.z >= normAbs.x && normAbs.z >= normAbs.y) { // z plane
-        uvs[0] = vec2(triangleVertices[0].x, triangleVertices[0].y);
-        uvs[1] = vec2(triangleVertices[1].x, triangleVertices[1].y);
-        uvs[2] = vec2(triangleVertices[2].x, triangleVertices[2].y);
-    }
-    else if (normAbs.y >= normAbs.x && normAbs.y >= normAbs.z) { // y plane
-        uvs[0] = vec2(triangleVertices[0].x, triangleVertices[0].z);
-        uvs[1] = vec2(triangleVertices[1].x, triangleVertices[1].z);
-        uvs[2] = vec2(triangleVertices[2].x, triangleVertices[2].z);
-    }
-
-    texCoord = uvs[vertexTriangleId];
-    vertexTextureWeights = triangleVertexTextureWeights[vertexTriangleId];
+    uint texId = localTriangleVertexId * 2;
+    texCoord = vec2(
+        triangleData[globalTriangleId].variants[variantId].pos_TBN_tex[texId].w,
+        triangleData[globalTriangleId].variants[variantId].pos_TBN_tex[texId + 1].w
+    );
+    vertexTextureWeights = triangleVertexTextureWeights[localTriangleVertexId];
     marchingCubeTextureIds = data.textureIds;
 
-    triangleVertexVoxelIds.x = vertexData[gl_VertexID - 2].vertexVoxelId;
-    triangleVertexVoxelIds.y = vertexData[gl_VertexID - 1].vertexVoxelId;
-    triangleVertexVoxelIds.z = vertexData[gl_VertexID].vertexVoxelId;
-
-    // TANGENT, BITANGENT, TBN
-    vec2 deltaUV_A = vec2(uvs[1].x - uvs[0].x, uvs[1].y - uvs[0].y);
-    vec2 deltaUV_B = vec2(uvs[2].x - uvs[0].x, uvs[2].y - uvs[0].y);
-    float f = 1.0f / (deltaUV_A.x * deltaUV_B.y - deltaUV_B.x * deltaUV_A.y);
-
-    vec3 tangent = vec3(
-        f * (deltaUV_B.y * edge_A.x - deltaUV_A.y * edge_B.x),
-        f * (deltaUV_B.y * edge_A.y - deltaUV_A.y * edge_B.y),
-        f * (deltaUV_B.y * edge_A.z - deltaUV_A.y * edge_B.z)  
-    );
-    tangent = normalize(tangent);
-
-    vec3 bitangent = cross(normal, tangent);
-
-    TBN = mat3(tangent,
-               bitangent,
-               normal
-    ); 
+    triangleVertexVoxelIds.x = triangleData[globalTriangleId].vertexVoxelIds[0];
+    triangleVertexVoxelIds.y = triangleData[globalTriangleId].vertexVoxelIds[1];
+    triangleVertexVoxelIds.z = triangleData[globalTriangleId].vertexVoxelIds[2];
 }
 
 UnpackedData unpackData(uvec2 data)

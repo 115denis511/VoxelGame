@@ -93,41 +93,6 @@ void engine::MarchingCubesManager::draw(Shader& shader, Frustum frustum) {
     }
 }
 
-void engine::MarchingCubesManager::draw(Shader &computeShader, Shader &shader, Frustum frustum) {
-    m_textures.use();
-
-    const unsigned int gridWidth = m_grid.getUsedChunkDistance();
-
-    for (size_t z = 0; z < gridWidth; z++){
-        for (size_t x = 0; x < gridWidth; x++){
-            for (size_t y = 0; y < ChunkGrid::CHUNK_MAX_Y_SIZE; y++){
-                VoxelChunk& chunk = m_chunks[m_grid.getChunkId(x, y, z)];
-                glm::ivec2 worldChunkPos = m_converter.localChunkToWorldChunkPosition(x, z, m_currentOriginChunk.x, m_currentOriginChunk.y);
-                unsigned int height = y * CHUNCK_DIMENSION_SIZE;
-
-                if (chunk.getDrawCount() == 0) continue;
-                glm::vec3 worldPos(worldChunkPos.x * CHUNCK_DIMENSION_SIZE, height, worldChunkPos.y * CHUNCK_DIMENSION_SIZE);
-                AABB aabb(glm::vec3(worldPos), glm::vec3(worldPos.x + CHUNCK_DIMENSION_SIZE, worldPos.y + CHUNCK_DIMENSION_SIZE, worldPos.z + CHUNCK_DIMENSION_SIZE));
-                if (!aabb.isInFrustum(frustum)) continue;
-
-                computeShader.use();
-                computeShader.setVec3("chunkPosition", worldPos);
-                computeShader.setUInt("lastCommandId", chunk.getLastCommandId());
-                chunk.bindCommandBufferAsSSBO();
-                chunk.bindComputeSSBO();
-                chunk.bindSSBO();
-                glDispatchCompute(chunk.getComputeWorkGroups(), 1, 1);
-
-                chunk.bindCommandBuffer();
-                shader.use();
-                int drawCount = chunk.getDrawCount();
-                glMemoryBarrier(GL_ALL_BARRIER_BITS);
-                m_marchingCubes.draw(drawCount);
-            }
-        }
-    }
-}
-
 bool engine::MarchingCubesManager::isChunkInbounds(int x, int y, int z) {
     unsigned int gridWidth = m_grid.getUsedChunkDistance();
     int maxX = m_currentOriginChunk.x + gridWidth;

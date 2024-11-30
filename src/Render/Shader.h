@@ -16,7 +16,7 @@ namespace engine {
         void use();
         void setBool(const std::string& name, bool value);
         void setInt(const std::string& name, int value);
-        void setUInt(const std::string& name, unsigned int value);
+        void setUnsignedInt(const std::string& name, unsigned int value);
         void setBindlessSampler(const std::string& name, GLuint64 handler);
         void setFloat(const std::string& name, float value);
         void setVec2(const std::string& name, glm::vec2 value);

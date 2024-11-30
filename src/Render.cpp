@@ -12,10 +12,7 @@ engine::Render::Render(bool& hasError) {
     m_shaderFinal = new Shader("Shader/test3d.vert", "Shader/simple.frag");
     m_shaderMix_RGB_A = new Shader("Shader/fillViewport_InvertY.vert", "Shader/mix_RGB_A.frag");
     m_shaderFill_RGB = new Shader("Shader/fillViewport_InvertY.vert", "Shader/fill_RGB.frag");
-    m_shaderMarchingCubes = new Shader("Shader/marchingCubes.vert", "Shader/marchingCubes.frag"); 
-    m_shaderMarchingCubesPrecomp = new Shader("Shader/marchingCubesPrecomp.vert", "Shader/marchingCubes.frag");
-    m_shaderMarchingCubesNoComp = new Shader("Shader/marchingCubesNoComp.vert", "Shader/marchingCubes.frag");
-    m_shaderComputeMarchingCubes = new Shader("Shader/computeTest.comp");
+    m_shaderMarchingCubes = new Shader("Shader/marchingCubes.vert", "Shader/marchingCubes.frag");
 
     m_gBuffer = new GBuffer(viewport);
 
@@ -47,10 +44,6 @@ engine::Render::Render(bool& hasError) {
     m_shaderFinal->use();
     m_shaderFinal->setBindlessSampler("bindless", texture.getHandler());
     m_shaderFinal->setMat4("model", model);
-
-    m_shaderComputeMarchingCubes->use();
-    m_shaderComputeMarchingCubes->setUInt("lastCommandId", 0);
-    glDispatchCompute(1, 1, 1);
 
     /*unsigned int n = std::thread::hardware_concurrency();
     std::cout << n << " concurrent threads are supported.\n";*/
@@ -84,8 +77,6 @@ engine::Render::~Render() {
     delete m_shaderMix_RGB_A;
     delete m_shaderFill_RGB;
     delete m_shaderMarchingCubes;
-    delete m_shaderComputeMarchingCubes;
-    delete m_shaderMarchingCubesNoComp;
 
     delete m_gBuffer;
 
@@ -123,9 +114,7 @@ void engine::Render::draw(CameraVars cameraVars, SceneResources& sceneResources,
 
     Frustum frustum(cameraVars, m_projectionPerspective);
 
-    //MarchingCubesManager::getInstance()->draw(*m_shaderMarchingCubes, frustum);
-    //MarchingCubesManager::getInstance()->draw(*m_shaderComputeMarchingCubes, *m_shaderMarchingCubesPrecomp, frustum);
-    MarchingCubesManager::getInstance()->draw(*m_shaderMarchingCubesNoComp, frustum);
+    MarchingCubesManager::getInstance()->draw(*m_shaderMarchingCubes, frustum);
     accamulateInstancingBuffers(sceneResources, worldBVH, frustum);
     drawInstanced();
      

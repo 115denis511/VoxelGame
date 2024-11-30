@@ -62,23 +62,6 @@ void engine::MarchingCubesSolver::regenerateChunk(MarchingCubes &marchingCubes, 
         commandBuffer.push_back(command);
     }
 
-    // Определение стартового индекса в коммандном буфере для рабочих групп в вычислительном шейдере,
-    // который будет предварительно высчитывать данные вершин треугольников фигур
-    std::vector<GLuint> workgroupInitialCommands;
-    unsigned int instance = 0;
-    for (unsigned int i = 0; i < commandBuffer.size(); i++) {
-        unsigned int commandMaxInstance = commandBuffer[i].baseInstance + commandBuffer[i].instanceCount;
-        while (instance < commandMaxInstance) {
-            workgroupInitialCommands.push_back(i);
-            constexpr unsigned int WORKGROUP_SIZE = 31;
-            instance += WORKGROUP_SIZE;
-        }
-    }
-    chunk.setComputeWorkGroups(workgroupInitialCommands.size());
-    chunk.setLastCommandId(commandBuffer.size() - 1);
-    GLuint computeSSBO = chunk.getComputeSSBO();
-    glNamedBufferSubData(computeSSBO, 0, workgroupInitialCommands.size() * sizeof(GLuint), &workgroupInitialCommands[0]);
-
     GLuint commandBufferObject = chunk.getCommandBuffer(), ssboBuffer = chunk.getSSBO();
     chunk.setDrawCount(commandBuffer.size());
     int commandBufferSize = commandBuffer.size() * sizeof(DrawArraysIndirectCommand);

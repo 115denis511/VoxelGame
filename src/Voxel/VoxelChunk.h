@@ -5,7 +5,7 @@
 #include "../Render/DrawIndirectCommand.h"
 #include "../Utilites/MultidimensionalArrays.h"
 #include "../engine_properties.h"
-#include "VoxelVertexData.h"
+#include "VoxelTriangleData.h"
 
 namespace engine {
     struct MarchingCubesVoxel {
@@ -22,21 +22,14 @@ namespace engine {
         bool isVoxelSolid(short x, short y, short z);
         void setVoxel(short x, short y, short z, uint8_t id, uint8_t size = 3);
         void setDrawCount(int drawCount) { m_drawCount = drawCount; };
-        void setComputeWorkGroups(int workGroups) { m_computeWorkGroups = workGroups; };
-        void setLastCommandId(int commandId) { m_lastCommandId = commandId; };
         void setInUpdateQueueFlag(bool flag) { m_isInUpdateQueue = flag; };
         void setInUseFlag(bool flag) { m_isInUse = flag; };
         void clear();
         void bindCommandBuffer();
-        void bindCommandBufferAsSSBO();
         void bindSSBO();
-        void bindComputeSSBO();
         const GLuint getCommandBuffer() { return m_commandBuffer; };
         const GLuint getSSBO() { return m_ssbo; };
-        const GLuint getComputeSSBO() { return m_computeSSBO; };
         const int getDrawCount() { return m_drawCount; };
-        const int getComputeWorkGroups() { return m_computeWorkGroups; };
-        const int getLastCommandId() { return m_lastCommandId; };
         void clearDrawCount() { m_drawCount = 0; };
         bool isInUpdateQueue() { return m_isInUpdateQueue; };
         bool isInUse() { return m_isInUse; };
@@ -45,8 +38,8 @@ namespace engine {
         static constexpr size_t VOXEL_CHUNK_SIZE = 32;
         static constexpr float VOXEL_SIZE = 1.f;
         utilites::Array3D<MarchingCubesVoxel, VOXEL_CHUNK_SIZE, VOXEL_CHUNK_SIZE, VOXEL_CHUNK_SIZE> m_voxels;
-        GLuint m_commandBuffer, m_ssbo, m_computeSSBO;
-        int m_drawCount{ 0 }, m_computeWorkGroups{ 0 }, m_lastCommandId{ 0 };
+        GLuint m_commandBuffer, m_ssbo;
+        int m_drawCount{ 0 };
         bool m_isInUpdateQueue{ false };
         bool m_isInUse{ false };
     };

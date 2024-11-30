@@ -60,7 +60,7 @@ void engine::Shader::Shader::setInt(const std::string& name, int value) {
     glUniform1i(glGetUniformLocation(m_shaderProgram, name.c_str()), value);
 }
 
-void engine::Shader::setUInt(const std::string &name, unsigned int value) {
+void engine::Shader::setUnsignedInt(const std::string &name, unsigned int value) {
     glUniform1ui(glGetUniformLocation(m_shaderProgram, name.c_str()), value);
 }
 

@@ -60,7 +60,6 @@ namespace engine {
         static bool init();
         static void freeResources();
         void draw(Shader& shader, Frustum frustum);
-        void draw(Shader& computeShader, Shader& shader, Frustum frustum);
         void updateChunks(size_t maxCount = 8);
         bool setVoxelTexture(int layer, unsigned char *rawImage, int width, int height, int nrComponents);
         bool setVoxelTexture(int layer, std::string path);
