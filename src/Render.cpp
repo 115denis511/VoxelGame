@@ -114,7 +114,7 @@ void engine::Render::draw(CameraVars cameraVars, SceneResources& sceneResources,
 
     Frustum frustum(cameraVars, m_projectionPerspective);
 
-    MarchingCubesManager::getInstance()->draw(*m_shaderMarchingCubes, frustum);
+    MarchingCubesManager::getInstance()->draw(*m_shaderMarchingCubes, cameraVars, frustum);
     accamulateInstancingBuffers(sceneResources, worldBVH, frustum);
     drawInstanced();
      

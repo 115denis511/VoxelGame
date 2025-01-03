@@ -16,6 +16,9 @@
 #include <stack>
 #include <map>
 #include <unordered_map>
+#include <array>
+#include <tuple>
+#include <utility>
 #include <functional>
 #include <algorithm>
 #include <thread>

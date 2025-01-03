@@ -1,42 +1,53 @@
 #include "ChunkGrid.h"
 
-engine::ChunkGrid::ChunkGrid() {
-    for (int i = 0; i < CHUNK_MAX_X_Z_SIZE; i++) {
-        for (int j = 0; j < CHUNK_MAX_X_Z_SIZE; j++) {
+engine::ChunkGrid::ChunkGrid(VoxelChunk (&chunks)[ChunkGridBounds::CHUNK_COUNT]) 
+    : m_chunks(chunks) 
+{
+    for (int i = 0; i < ChunkGridBounds::CHUNK_MAX_X_Z_SIZE; i++) {
+        for (int j = 0; j < ChunkGridBounds::CHUNK_MAX_X_Z_SIZE; j++) {
             m_grid[i][j] = GridYSlice();
         }
     }
 }
 
 int engine::ChunkGrid::getChunkId(int x, int y, int z) {
-    assert(x >= 0 && x < CHUNK_MAX_X_Z_SIZE && z >= 0 && z < CHUNK_MAX_X_Z_SIZE && y >= 0 && y < CHUNK_MAX_Y_SIZE);
+    assert(
+        x >= 0 && x < ChunkGridBounds::CHUNK_MAX_X_Z_SIZE && 
+        z >= 0 && z < ChunkGridBounds::CHUNK_MAX_X_Z_SIZE && 
+        y >= 0 && y < ChunkGridBounds::CHUNK_MAX_Y_SIZE
+    );
+
     return m_grid[x][z].chunk[y];
+}
+
+engine::VoxelChunk &engine::ChunkGrid::getChunk(int x, int y, int z) {
+    return m_chunks[getChunkId(x, y, z)];
 }
 
 void engine::ChunkGrid::setChunk(int x, int y, int z, int id) {
     m_grid[x][z].chunk[y] = id;
 }
 
-void engine::ChunkGrid::resizeToBigger(int distance, std::vector<glm::ivec2> &chunksToCreate) {
-    assert(distance > (int)m_usedChunkDistance);
+void engine::ChunkGrid::resizeToBigger(int distance, ChunkGridBounds& gridBounds, std::vector<glm::ivec2> &chunksToCreate) {
+    assert(distance > (int)gridBounds.usedChunkGridWidth);
     unsigned int uDistance = (unsigned int)distance;
 
     // Если старая сетка была пуста, то вся расширенная сетка отправляется в очередь для генерации
-    if (m_usedChunkDistance == 0) {
+    if (gridBounds.usedChunkGridWidth == 0) {
         for (size_t i = 0; i < uDistance; i++) {
             for (size_t j = 0; j < uDistance; j++) {
                 chunksToCreate.push_back(glm::ivec2(i, j));
             }
         }
-        m_usedChunkDistance = uDistance;
+        gridBounds.usedChunkGridWidth = uDistance;
         return;
     }
 
     // Перемещение имеющихся чанков в центр расширенной сетки
-    unsigned int halfDiffirence = ((unsigned int)distance - m_usedChunkDistance) / 2;
+    unsigned int halfDiffirence = ((unsigned int)distance - gridBounds.usedChunkGridWidth) / 2;
     // счётчики должны быть INT потому что могут быть отрицательные значения!
-    for (int x = m_usedChunkDistance - 1; x >= 0; x--) {
-        for (int z = m_usedChunkDistance - 1; z >= 0; z--) {
+    for (int x = gridBounds.usedChunkGridWidth - 1; x >= 0; x--) {
+        for (int z = gridBounds.usedChunkGridWidth - 1; z >= 0; z--) {
             m_grid[x + halfDiffirence][z + halfDiffirence] = m_grid[x][z];
             m_grid[x][z] = GridYSlice();
         }
@@ -49,23 +60,23 @@ void engine::ChunkGrid::resizeToBigger(int distance, std::vector<glm::ivec2> &ch
             }
         }
     }
-    m_usedChunkDistance = (unsigned int)distance;
+    gridBounds.usedChunkGridWidth = (unsigned int)distance;
 }
 
-void engine::ChunkGrid::resizeToSmaller(int distance, std::vector<int> &chunksToDelete) {
-    assert(distance < (int)m_usedChunkDistance);
+void engine::ChunkGrid::resizeToSmaller(int distance, ChunkGridBounds& gridBounds, std::vector<int> &chunksToDelete) {
+    assert(distance < (int)gridBounds.usedChunkGridWidth);
 
     // Если размер именённой сетки будет равен нулю, то отправляем все чанки на удаление
     if (distance <= 0) {
-        for (size_t x = 0; x < m_usedChunkDistance; x++) {
-            for (size_t z = 0; z < m_usedChunkDistance; z++) {
-                for (size_t y = 0; y < CHUNK_MAX_Y_SIZE; y++) {
+        for (size_t x = 0; x < gridBounds.usedChunkGridWidth; x++) {
+            for (size_t z = 0; z < gridBounds.usedChunkGridWidth; z++) {
+                for (size_t y = 0; y < ChunkGridBounds::CHUNK_MAX_Y_SIZE; y++) {
                     assert(m_grid[x][z].chunk[y] != -1);
                     chunksToDelete.push_back(m_grid[x][z].chunk[y]);
                 }
             }
         }
-        m_usedChunkDistance = (unsigned int)distance;
+        gridBounds.usedChunkGridWidth = (unsigned int)distance;
         return;
     }
 
@@ -74,15 +85,15 @@ void engine::ChunkGrid::resizeToSmaller(int distance, std::vector<int> &chunksTo
     // Суть в том, что итерируя по чанкам вокруг фигуры, зная её размеры, можно вычислить
     // позиции чанков в противоположных краях фигуры. Таким образом можно обойти сразу 4 
     // края чанка за одну итерацию цикла, главное ограничить итерацию непересекающимися фигурами.
-    unsigned int halfDiffirence = (m_usedChunkDistance - distance) / 2;
-    for (size_t i = 0; i < m_usedChunkDistance - halfDiffirence; i++) {
+    unsigned int halfDiffirence = (gridBounds.usedChunkGridWidth - distance) / 2;
+    for (size_t i = 0; i < gridBounds.usedChunkGridWidth - halfDiffirence; i++) {
         for (size_t j = 0; j < halfDiffirence; j++) {
-            for (size_t y = 0; y < CHUNK_MAX_Y_SIZE; y++) {
+            for (size_t y = 0; y < ChunkGridBounds::CHUNK_MAX_Y_SIZE; y++) {
                 chunksToDelete.push_back(m_grid[i][j].chunk[y]);
                 m_grid[i][j].chunk[y] = -1;
 
-                unsigned int iMirror = m_usedChunkDistance - 1 - i;
-                unsigned int jMirror = m_usedChunkDistance - 1 - j;
+                unsigned int iMirror = gridBounds.usedChunkGridWidth - 1 - i;
+                unsigned int jMirror = gridBounds.usedChunkGridWidth - 1 - j;
                 chunksToDelete.push_back(m_grid[iMirror][jMirror].chunk[y]);
                 m_grid[iMirror][jMirror].chunk[y] = -1;
 
@@ -103,5 +114,15 @@ void engine::ChunkGrid::resizeToSmaller(int distance, std::vector<int> &chunksTo
             m_grid[oldX][oldZ] = GridYSlice();
         }
     }
-    m_usedChunkDistance = distance;
+    gridBounds.usedChunkGridWidth = distance;
+}
+
+bool engine::ChunkGrid::isPositionHasSolidVoxel(const glm::vec3 &position, const ChunkGridBounds& gridBounds) {
+    glm::ivec3 chunkPos = VoxelPositionConverter::worldPositionToChunkPosition(position, gridBounds.CHUNCK_DIMENSION_SIZE);
+    if (!gridBounds.isChunkInbounds(chunkPos.x, chunkPos.y, chunkPos.z)) return false;
+    glm::ivec2 localXZ = VoxelPositionConverter::worldChunkToLocalChunkPosition(chunkPos.x, chunkPos.z, gridBounds.currentOriginChunk.x, gridBounds.currentOriginChunk.y);
+    glm::ivec3 localVoxel = VoxelPositionConverter::worldPositionToLocalVoxelPosition(position, gridBounds.CHUNCK_DIMENSION_SIZE);
+    VoxelChunk& chunk = getChunk(localXZ.x, chunkPos.y, localXZ.y);
+    bool result = chunk.isVoxelSolid(localVoxel.x, localVoxel.y, localVoxel.z);
+    return result;
 }

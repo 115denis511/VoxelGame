@@ -73,7 +73,8 @@ void SceneTest::update(engine::Camera& camera, engine::SceneResources &resources
                     }
                 }
                 else {
-                    std::cout << "Break voxel at " << hit.x << " " << hit.y << " " << hit.z << "\n";
+                    glm::ivec3 local = engine::VoxelPositionConverter::worldPositionToLocalVoxelPosition(hit, 31);
+                    std::cout << "Break voxel at " << hit.x << " " << hit.y << " " << hit.z << " | Local: " << local.x << " " << local.y << " " << local.z << "\n";
                     marching->setVoxel(hit, 255); 
                 }
             }

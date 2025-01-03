@@ -17,6 +17,7 @@ namespace engine {
         bool isInFrustum(const Frustum& frustum, const Transform &transform);
         bool isInFrustum(const Frustum& frustum);
         bool isOnOrForwardPlane(const Plane& plane, const glm::vec3& position) const;
+        bool rayIntersects(const glm::vec3& origin, const glm::vec3& direction, float& resultRayDistance) const;
         const glm::vec3& getMin() const { return m_min; }
         const glm::vec3& getMax() const { return m_max; }
         float getArea() const { return m_area; }

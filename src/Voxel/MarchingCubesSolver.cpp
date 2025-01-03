@@ -62,6 +62,13 @@ void engine::MarchingCubesSolver::regenerateChunk(MarchingCubes &marchingCubes, 
         commandBuffer.push_back(command);
     }
 
+    if (commandBuffer.size() == 0) {
+        chunk.updateVisibilityStatesForEmptyChunk();
+    }
+    else {
+        chunk.updateVisibilityStates();
+    }
+
     GLuint commandBufferObject = chunk.getCommandBuffer(), ssboBuffer = chunk.getSSBO();
     chunk.setDrawCount(commandBuffer.size());
     int commandBufferSize = commandBuffer.size() * sizeof(DrawArraysIndirectCommand);

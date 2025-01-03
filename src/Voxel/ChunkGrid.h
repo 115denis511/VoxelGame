@@ -2,29 +2,29 @@
 #define __VOXEL__CHUNK_GRID_H__
 
 #include "../stdafx.h"
+#include "ChunkGridBounds.h"
 #include "VoxelChunk.h"
+#include "VoxelPositionConverter.h"
 
 namespace engine {
     class ChunkGrid {
     public:
-        ChunkGrid();
-
-        static constexpr int CHUNK_MAX_X_Z_SIZE = 24;
-        static constexpr int CHUNK_MAX_Y_SIZE = 8;
+        ChunkGrid(VoxelChunk (&chunks)[ChunkGridBounds::CHUNK_COUNT]);
 
         int getChunkId(int x,  int y, int z);
-        unsigned int getUsedChunkDistance() { return m_usedChunkDistance; }
+        VoxelChunk& getChunk(int x, int y, int z);
         void setChunk(int x, int y, int z, int id);
-        void resizeToBigger(int distance, std::vector<glm::ivec2>& chunksToCreate);
-        void resizeToSmaller(int distance, std::vector<int>& chunksToDelete);
+        void resizeToBigger(int distance, ChunkGridBounds& gridBounds, std::vector<glm::ivec2>& chunksToCreate);
+        void resizeToSmaller(int distance, ChunkGridBounds& gridBounds, std::vector<int>& chunksToDelete);
+        bool isPositionHasSolidVoxel(const glm::vec3& position, const ChunkGridBounds& gridBounds);
 
     private:
         struct GridYSlice {
-            int chunk[CHUNK_MAX_Y_SIZE]{ -1, -1, -1, -1, -1, -1, -1, -1 };  
+            int chunk[ChunkGridBounds::CHUNK_MAX_Y_SIZE]{ -1, -1, -1, -1, -1, -1, -1, -1 };  
         };
 
-        GridYSlice m_grid[CHUNK_MAX_X_Z_SIZE][CHUNK_MAX_X_Z_SIZE];
-        unsigned int m_usedChunkDistance{ 0 };
+        GridYSlice m_grid[ChunkGridBounds::CHUNK_MAX_X_Z_SIZE][ChunkGridBounds::CHUNK_MAX_X_Z_SIZE];
+        VoxelChunk* m_chunks;
 
     };
 }

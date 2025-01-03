@@ -74,6 +74,42 @@ bool engine::AABB::isOnOrForwardPlane(const Plane &plane, const glm::vec3& posit
     return -r <= plane.signedDistanceToPlane(position);
 }
 
+bool engine::AABB::rayIntersects(const glm::vec3 &origin, const glm::vec3 &direction, float &resultRayDistance) const {
+    // взято отсюда:
+    // https://gamedev.stackexchange.com/questions/18436/most-efficient-aabb-vs-ray-collision-algorithms
+
+    glm::vec3 dirfrac;
+    dirfrac.x = (direction.x == 0.0f) ? FLT_MIN : 1.0f / direction.x;
+    dirfrac.y = (direction.y == 0.0f) ? FLT_MIN : 1.0f / direction.y;
+    dirfrac.z = (direction.z == 0.0f) ? FLT_MIN : 1.0f / direction.z;
+    //glm::vec3 dirfrac = 1.0f / direction;
+    
+    glm::vec3 lb = m_position - m_extents;
+    glm::vec3 rt = m_position + m_extents;
+    float t1 = (lb.x - origin.x) * dirfrac.x;
+    float t2 = (rt.x - origin.x) * dirfrac.x;
+    float t3 = (lb.y - origin.y) * dirfrac.y;
+    float t4 = (rt.y - origin.y) * dirfrac.y;
+    float t5 = (lb.z - origin.z) * dirfrac.z;
+    float t6 = (rt.z - origin.z) * dirfrac.z;
+
+    float tmin = std::max(std::max(std::min(t1, t2), std::min(t3, t4)), std::min(t5, t6));
+    float tmax = std::min(std::min(std::max(t1, t2), std::max(t3, t4)), std::max(t5, t6));
+
+    if (tmax < 0) {
+        resultRayDistance = tmax;
+        return false;
+    }
+
+    if (tmin > tmax) {
+        resultRayDistance = tmax;
+        return false;
+    }
+
+    resultRayDistance = tmin;
+    return true;
+}
+
 engine::AABB engine::AABB::merge(const AABB &other) const noexcept {
     return AABB(glm::vec3(std::min(m_min.x, other.getMin().x), std::min(m_min.y, other.getMin().y), std::min(m_min.z, other.getMin().z)),
                 glm::vec3(std::max(m_min.x, other.getMax().x), std::max(m_min.y, other.getMax().y), std::max(m_min.z, other.getMax().z)));
