@@ -41,15 +41,15 @@ void engine::ChunkGridVisibility::checkVisibility(
         if (isVisible(currentChunk.x, currentChunk.y, currentChunk.z, type)) { continue; }
         setVisibilityStateVisible(currentChunk, type);
 
-        findNeighbours(
+        auto neighbours = findNeighbours(
             currentChunk, gridBounds, 
             currentChunk.y >= cameraChunkLocal.y, currentChunk.y <= cameraChunkLocal.y,
             currentChunk.z >= cameraChunkLocal.z, currentChunk.z <= cameraChunkLocal.z,
             currentChunk.x >= cameraChunkLocal.x, currentChunk.x <= cameraChunkLocal.x
         );
-        for (int i = 0; i < m_neighboursCount; i++) {
-            glm::ivec3 neighbourChunk = m_neighbours[i].first;
-            ChunkVisibilityState::Side cameTo = m_neighbours[i].second;
+        for (int i = 0; neighbours[i].second != ChunkVisibilityState::Side::NONE; i++) {
+            glm::ivec3 neighbourChunk = neighbours[i].first;
+            ChunkVisibilityState::Side cameTo = neighbours[i].second;
 
             if (isVisible(neighbourChunk.x, neighbourChunk.y, neighbourChunk.z, type)) { continue; }
 
@@ -120,11 +120,9 @@ glm::ivec3 engine::ChunkGridVisibility::findClosestVisibleChunkForCameraOutsideB
     return iPosition;
 }
 
-void engine::ChunkGridVisibility::findNeighbours(
+std::array<std::pair<glm::ivec3, engine::ChunkVisibilityState::Side>, 7> engine::ChunkGridVisibility::findNeighbours(
     const glm::ivec3 &position, const ChunkGridBounds &gridBounds, bool allowGoUp, bool allowGoDown, bool allowGoFront, bool allowGoBack, bool allowGoRight, bool allowGoLeft
 ) {
-    m_neighboursCount = 0;
-
     int usedChunkGridWidth = (int)gridBounds.usedChunkGridWidth;
 
     bool isPositiveXInbounds = (position.x + 1 < usedChunkGridWidth) && allowGoRight;
@@ -134,78 +132,49 @@ void engine::ChunkGridVisibility::findNeighbours(
     bool isPositiveZInbounds = (position.z + 1 < usedChunkGridWidth) && allowGoFront;
     bool isNegativeZInbounds = (position.z - 1 >= 0) && allowGoBack;
 
-    if (isPositiveYInbounds) {
-        unsigned int y = position.y + 1;
-        m_neighbours[m_neighboursCount] = std::make_pair(glm::ivec3(position.x, y, position.z), ChunkVisibilityState::Side::TOP_FACE);
-        m_neighboursCount++;
+    std::array<std::pair<glm::ivec3, ChunkVisibilityState::Side>, 7> neighbours;
+    int cursor = 0;
 
-        if (isPositiveXInbounds) { 
-            unsigned int x = position.x + 1;
-            m_neighbours[m_neighboursCount] = std::make_pair(glm::ivec3(x, y, position.z), ChunkVisibilityState::Side::TOP_RIGHT_EDGE);
-            m_neighboursCount++;
-
-            if (isPositiveZInbounds) { m_neighbours[m_neighboursCount] = std::make_pair(glm::ivec3(x, y, position.z + 1), ChunkVisibilityState::Side::RIGHT_TOP_FRONT_CORNER); m_neighboursCount++; }
-            if (isNegativeZInbounds) { m_neighbours[m_neighboursCount] = std::make_pair(glm::ivec3(x, y, position.z - 1), ChunkVisibilityState::Side::RIGHT_TOP_BACK_CORNER); m_neighboursCount++; }    
-        }
-        if (isNegativeXInbounds) {
-            unsigned int x = position.x - 1;
-            m_neighbours[m_neighboursCount] = std::make_pair(glm::ivec3(x, y, position.z), ChunkVisibilityState::Side::TOP_LEFT_EDGE);
-            m_neighboursCount++;
-
-            if (isPositiveZInbounds) { m_neighbours[m_neighboursCount] = std::make_pair(glm::ivec3(x, y, position.z + 1), ChunkVisibilityState::Side::LEFT_TOP_FRONT_CORNER); m_neighboursCount++; }
-            if (isNegativeZInbounds) { m_neighbours[m_neighboursCount] = std::make_pair(glm::ivec3(x, y, position.z - 1), ChunkVisibilityState::Side::LEFT_TOP_BACK_CORNER); m_neighboursCount++; }
-        }
-        if (isPositiveZInbounds) { m_neighbours[m_neighboursCount] = std::make_pair(glm::ivec3(position.x, y, position.z + 1), ChunkVisibilityState::Side::TOP_FRONT_EDGE); m_neighboursCount++; }
-        if (isNegativeZInbounds) { m_neighbours[m_neighboursCount] = std::make_pair(glm::ivec3(position.x, y, position.z - 1), ChunkVisibilityState::Side::TOP_BACK_EDGE); m_neighboursCount++; }
-    }
-    if (isNegativeYInbounds) {
-        unsigned int y = position.y - 1;
-        m_neighbours[m_neighboursCount] = std::make_pair(glm::ivec3(position.x, y, position.z), ChunkVisibilityState::Side::BOTTOM_FACE);
-        m_neighboursCount++;
-
-        if (isPositiveXInbounds) {
-            unsigned int x = position.x + 1;
-            m_neighbours[m_neighboursCount] = std::make_pair(glm::ivec3(x, y, position.z), ChunkVisibilityState::Side::BOTTOM_RIGHT_EDGE);
-            m_neighboursCount++;
-
-            if (isPositiveZInbounds) { m_neighbours[m_neighboursCount] = std::make_pair(glm::ivec3(x, y, position.z + 1), ChunkVisibilityState::Side::RIGHT_BOTTOM_FRONT_CORNER); m_neighboursCount++; }
-            if (isNegativeZInbounds) { m_neighbours[m_neighboursCount] = std::make_pair(glm::ivec3(x, y, position.z - 1), ChunkVisibilityState::Side::RIGHT_BOTTOM_BACK_CORNER); m_neighboursCount++; }
-        }
-        if (isNegativeXInbounds) {
-            unsigned int x = position.x - 1;
-            m_neighbours[m_neighboursCount] = std::make_pair(glm::ivec3(x, y, position.z), ChunkVisibilityState::Side::BOTTOM_LEFT_EDGE);
-            m_neighboursCount++;
-
-            if (isPositiveZInbounds) { m_neighbours[m_neighboursCount] = std::make_pair(glm::ivec3(x, y, position.z + 1), ChunkVisibilityState::Side::LEFT_BOTTOM_FRONT_CORNER); m_neighboursCount++; }
-            if (isNegativeZInbounds) { m_neighbours[m_neighboursCount] = std::make_pair(glm::ivec3(x, y, position.z - 1), ChunkVisibilityState::Side::LEFT_BOTTOM_BACK_CORNER); m_neighboursCount++; }
-        }
-        if (isPositiveZInbounds) { m_neighbours[m_neighboursCount] = std::make_pair(glm::ivec3(position.x, y, position.z + 1), ChunkVisibilityState::Side::BOTTOM_FRONT_EDGE); m_neighboursCount++; }
-        if (isNegativeZInbounds) { m_neighbours[m_neighboursCount] = std::make_pair(glm::ivec3(position.x, y, position.z - 1), ChunkVisibilityState::Side::BOTTOM_BACK_EDGE); m_neighboursCount++; }
-    }
     if (isPositiveXInbounds) {
         unsigned int x = position.x + 1;
-        m_neighbours[m_neighboursCount] = std::make_pair(glm::ivec3(x, position.y, position.z), ChunkVisibilityState::Side::RIGHT_FACE);
-        m_neighboursCount++;
-
-        if (isPositiveZInbounds) { m_neighbours[m_neighboursCount] = std::make_pair(glm::ivec3(x, position.y, position.z + 1), ChunkVisibilityState::Side::RIGHT_FRONT_EDGE); m_neighboursCount++; }
-        if (isNegativeZInbounds) { m_neighbours[m_neighboursCount] = std::make_pair(glm::ivec3(x, position.y, position.z - 1), ChunkVisibilityState::Side::RIGHT_BACK_EDGE); m_neighboursCount++; }
+        neighbours[cursor] = std::make_pair(glm::ivec3(x, position.y, position.z), ChunkVisibilityState::Side::RIGHT_FACE);
+        cursor++;
     }
     if (isNegativeXInbounds) {
         unsigned int x = position.x - 1;
-        m_neighbours[m_neighboursCount] = std::make_pair(glm::ivec3(x, position.y, position.z), ChunkVisibilityState::Side::LEFT_FACE);
-        m_neighboursCount++;
-
-        if (isPositiveZInbounds) { m_neighbours[m_neighboursCount] = std::make_pair(glm::ivec3(x, position.y, position.z + 1), ChunkVisibilityState::Side::LEFT_FRONT_EDGE); m_neighboursCount++; }
-        if (isNegativeZInbounds) { m_neighbours[m_neighboursCount] = std::make_pair(glm::ivec3(x, position.y, position.z - 1), ChunkVisibilityState::Side::LEFT_BACK_EDGE); m_neighboursCount++; }
+        neighbours[cursor] = std::make_pair(glm::ivec3(x, position.y, position.z), ChunkVisibilityState::Side::LEFT_FACE);
+        cursor++;
     }
-    if (isPositiveZInbounds) { m_neighbours[m_neighboursCount] = std::make_pair(glm::ivec3(position.x, position.y, position.z + 1), ChunkVisibilityState::Side::FRONT_FACE); m_neighboursCount++; }
-    if (isNegativeZInbounds) { m_neighbours[m_neighboursCount] = std::make_pair(glm::ivec3(position.x, position.y, position.z - 1), ChunkVisibilityState::Side::BACK_FACE); m_neighboursCount++; }
+    if (isPositiveYInbounds) {
+        unsigned int y = position.y + 1;
+        neighbours[cursor] = std::make_pair(glm::ivec3(position.x, y, position.z), ChunkVisibilityState::Side::TOP_FACE);
+        cursor++;
+    }
+    if (isNegativeYInbounds) {
+        unsigned int y = position.y - 1;
+        neighbours[cursor] = std::make_pair(glm::ivec3(position.x, y, position.z), ChunkVisibilityState::Side::BOTTOM_FACE);
+        cursor++;
+    }
+    if (isPositiveZInbounds) {
+        unsigned int z = position.z + 1;
+        neighbours[cursor] = std::make_pair(glm::ivec3(position.x, position.y, z), ChunkVisibilityState::Side::FRONT_FACE);
+        cursor++;
+    }
+    if (isNegativeZInbounds) {
+        unsigned int z = position.z - 1;
+        neighbours[cursor] = std::make_pair(glm::ivec3(position.x, position.y, z), ChunkVisibilityState::Side::BACK_FACE);
+        cursor++;
+    }
+
+    neighbours[cursor].second = ChunkVisibilityState::Side::NONE;
+
+    return neighbours;
 }
 
 engine::ChunkVisibilityState::Side engine::ChunkGridVisibility::getMirroredVisibilitySide(ChunkVisibilityState::Side side) {
     constexpr std::array<ChunkVisibilityState::Side, 27> mirroredSides = [](){
         std::array<ChunkVisibilityState::Side, 27> mirroredSides;
-        for (int i = 0; i < 27; i++) {
+        for (int i = 0; i < 7; i++) {
             ChunkVisibilityState::Side side = static_cast<ChunkVisibilityState::Side>(i);
             ChunkVisibilityState::Side mirroredSide;
             switch (side) {
@@ -215,26 +184,6 @@ engine::ChunkVisibilityState::Side engine::ChunkGridVisibility::getMirroredVisib
                 case ChunkVisibilityState::Side::BOTTOM_FACE: mirroredSide = ChunkVisibilityState::Side::TOP_FACE; break;
                 case ChunkVisibilityState::Side::FRONT_FACE: mirroredSide = ChunkVisibilityState::Side::BACK_FACE; break;
                 case ChunkVisibilityState::Side::BACK_FACE: mirroredSide = ChunkVisibilityState::Side::FRONT_FACE; break;
-                case ChunkVisibilityState::Side::LEFT_BOTTOM_BACK_CORNER: mirroredSide = ChunkVisibilityState::Side::RIGHT_TOP_FRONT_CORNER; break;
-                case ChunkVisibilityState::Side::RIGHT_BOTTOM_BACK_CORNER: mirroredSide = ChunkVisibilityState::Side::LEFT_TOP_FRONT_CORNER; break;
-                case ChunkVisibilityState::Side::LEFT_BOTTOM_FRONT_CORNER: mirroredSide = ChunkVisibilityState::Side::RIGHT_TOP_BACK_CORNER; break;
-                case ChunkVisibilityState::Side::RIGHT_BOTTOM_FRONT_CORNER: mirroredSide = ChunkVisibilityState::Side::LEFT_TOP_BACK_CORNER; break;
-                case ChunkVisibilityState::Side::LEFT_TOP_BACK_CORNER: mirroredSide = ChunkVisibilityState::Side::RIGHT_BOTTOM_FRONT_CORNER; break;
-                case ChunkVisibilityState::Side::RIGHT_TOP_BACK_CORNER: mirroredSide = ChunkVisibilityState::Side::LEFT_BOTTOM_FRONT_CORNER; break;
-                case ChunkVisibilityState::Side::LEFT_TOP_FRONT_CORNER: mirroredSide = ChunkVisibilityState::Side::RIGHT_BOTTOM_BACK_CORNER; break;
-                case ChunkVisibilityState::Side::RIGHT_TOP_FRONT_CORNER: mirroredSide = ChunkVisibilityState::Side::LEFT_BOTTOM_BACK_CORNER; break;
-                case ChunkVisibilityState::Side::TOP_FRONT_EDGE: mirroredSide = ChunkVisibilityState::Side::BOTTOM_BACK_EDGE; break;
-                case ChunkVisibilityState::Side::TOP_BACK_EDGE: mirroredSide = ChunkVisibilityState::Side::BOTTOM_FRONT_EDGE; break;
-                case ChunkVisibilityState::Side::TOP_LEFT_EDGE: mirroredSide = ChunkVisibilityState::Side::BOTTOM_RIGHT_EDGE; break;
-                case ChunkVisibilityState::Side::TOP_RIGHT_EDGE: mirroredSide = ChunkVisibilityState::Side::BOTTOM_LEFT_EDGE; break;
-                case ChunkVisibilityState::Side::BOTTOM_FRONT_EDGE: mirroredSide = ChunkVisibilityState::Side::TOP_BACK_EDGE; break;
-                case ChunkVisibilityState::Side::BOTTOM_BACK_EDGE: mirroredSide = ChunkVisibilityState::Side::TOP_FRONT_EDGE; break;
-                case ChunkVisibilityState::Side::BOTTOM_LEFT_EDGE: mirroredSide = ChunkVisibilityState::Side::TOP_RIGHT_EDGE; break;
-                case ChunkVisibilityState::Side::BOTTOM_RIGHT_EDGE: mirroredSide = ChunkVisibilityState::Side::TOP_LEFT_EDGE; break;
-                case ChunkVisibilityState::Side::LEFT_FRONT_EDGE: mirroredSide = ChunkVisibilityState::Side::RIGHT_BACK_EDGE; break;
-                case ChunkVisibilityState::Side::RIGHT_FRONT_EDGE: mirroredSide = ChunkVisibilityState::Side::LEFT_BACK_EDGE; break;
-                case ChunkVisibilityState::Side::LEFT_BACK_EDGE: mirroredSide = ChunkVisibilityState::Side::RIGHT_FRONT_EDGE; break;
-                case ChunkVisibilityState::Side::RIGHT_BACK_EDGE: mirroredSide = ChunkVisibilityState::Side::LEFT_FRONT_EDGE; break;
                 case ChunkVisibilityState::Side::NONE: mirroredSide = ChunkVisibilityState::Side::NONE; break;
             }
             mirroredSides[i] = mirroredSide;

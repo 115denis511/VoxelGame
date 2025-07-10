@@ -141,7 +141,7 @@ int engine::VoxelChunk::floodFill(
         
         if (current.z == (int)VOXEL_CHUNK_SIZE - 1) { currentPositionState.set(ChunkVisibilityState::Side::FRONT_FACE); edgeApproachCounter++; }
         else if (current.z == 0)                    { currentPositionState.set(ChunkVisibilityState::Side::BACK_FACE); edgeApproachCounter++; }
-        currentPositionState.findVisibleCornersAndEdges();
+
         visabilityState.merge(currentPositionState);
 
 
