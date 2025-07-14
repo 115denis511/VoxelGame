@@ -23,7 +23,13 @@ void engine::MarchingCubesManager::freeResources() {
 void engine::MarchingCubesManager::updateChunks(size_t maxCount) {
     for (size_t i = 0; i < maxCount && !m_toUpdateQueue.empty(); i++) {
         VoxelChunk& chunk = popFromUpdateQueue();
-        if (!chunk.isInUse()) continue;
+        if (!chunk.isInUse()) { continue; }
+
+        if (chunk.isMustClearOnUpdate()) { 
+            chunk.clear(); 
+            chunk.setMustClearOnUpdateFlag(false);
+        }
+
         m_solver.regenerateChunk(m_marchingCubes, chunk);
     }
 }
@@ -235,9 +241,6 @@ void engine::MarchingCubesManager::resizeChunkGrid(unsigned int size) {
         for (int id : chunksToDelete) {
             m_freeChunkIndices.push(id);
             m_chunks[id].setInUseFlag(false);
-            // чистим количество рисований, чтобы когда чанк станет снова используемым, но не перегенерированным,
-            // при отрисовке он не будет рендерить старый необновленный чанк
-            m_chunks[id].clearDrawCount();
         }
     }
     else {
@@ -253,10 +256,26 @@ void engine::MarchingCubesManager::resizeChunkGrid(unsigned int size) {
                 chunk.setInUseFlag(true);
                 m_grid.setChunk(pos.x, y, pos.y, id);
 
+                // TODO: Переместить код генерации мира в updateChunks.
+                // Затем убрать очистку чанка отсюда(убрать следующую строку и раскоментировать последующую).
                 chunk.clear();
+                //chunk.setMustClearOnUpdateFlag(true);
+
+                // Временная "прозрачность" видимости чанка.
+                // Пока чанк находится в очереди на перегенерацию, оставшиеся старые состояния видимости
+                // могут блокировать видимость через пустой чанк.
+                chunk.updateVisibilityStatesForEmptyChunk();
+
+                // ХАК: Чистим количество рисований, чтобы чанк ожидающий перегенерации
+                // при отрисовке он не рендерил старый необновленный чанк.
+                // Таким оьразом обходится надобность чистить чанк сейчас, так как очистка
+                // переносится в метод обновления чанка, который может работать в отдельном потоке.
+                m_chunks[id].clearDrawCount();
+
                 m_toUpdateQueue.push(id);
                 chunk.setInUpdateQueueFlag(true);
 
+                // Временный код генерации мира
                 if (y == 0) {
                     for (size_t x = 0; x < 32; x++) {
                         for (size_t z = 0; z < 32; z++){

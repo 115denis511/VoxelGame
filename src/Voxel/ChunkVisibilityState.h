@@ -19,7 +19,7 @@ namespace engine {
         void clear() { m_visibilityState = 0b1 << static_cast<uint32_t>(Side::NONE); }
         bool isVisible(Side side) const { return (m_visibilityState & (sideBit(side))) != 0; }
         bool isVisible(uint32_t side) const { return (m_visibilityState & (0b1 << side)) != 0; }
-        constexpr uint32_t getSidesCount() const { return 6U; }
+        static constexpr uint32_t getSidesCount() { return 6U; }
         static constexpr uint32_t sideBit(Side side) { return 0b1 << static_cast<uint32_t>(side); }
 
     private:  

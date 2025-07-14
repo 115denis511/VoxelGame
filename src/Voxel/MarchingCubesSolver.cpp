@@ -62,10 +62,7 @@ void engine::MarchingCubesSolver::regenerateChunk(MarchingCubes &marchingCubes, 
         commandBuffer.push_back(command);
     }
 
-    if (commandBuffer.size() == 0) {
-        chunk.updateVisibilityStatesForEmptyChunk();
-    }
-    else {
+    if (commandBuffer.size() != 0) {
         chunk.updateVisibilityStates();
     }
 

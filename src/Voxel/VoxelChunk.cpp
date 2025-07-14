@@ -98,6 +98,13 @@ void engine::VoxelChunk::updateVisibilityStates() {
     }
 }
 
+void engine::VoxelChunk::updateVisibilityStatesForEmptyChunk() {
+    constexpr uint32_t SIDES_AND_NONE = ChunkVisibilityState::getSidesCount() + 1;
+    for (size_t i = 0; i < SIDES_AND_NONE; i++) { 
+        m_visibilityStates[i].setAllVisible(); 
+    }
+}
+
 int engine::VoxelChunk::floodFill(
     short x, short y, short z, VisibilityCheckState (&state)[VOXEL_CHUNK_SIZE][VOXEL_CHUNK_SIZE][VOXEL_CHUNK_SIZE], ChunkVisibilityState& visabilityState
 ) {
@@ -185,9 +192,10 @@ void engine::VoxelChunk::floodFillScanNext(
 }
 
 void engine::VoxelChunk::saveVisibilityStates(ChunkVisibilityState& visibilityStates) {
-    for (uint32_t i = 0; i < visibilityStates.getSidesCount(); i++) {
+    constexpr uint32_t sidesCount = ChunkVisibilityState::getSidesCount();
+    for (uint32_t i = 0; i < sidesCount; i++) {
         if (visibilityStates.isVisible(i)) {
-            for (uint32_t j = 0; j < visibilityStates.getSidesCount(); j++) {
+            for (uint32_t j = 0; j < sidesCount; j++) {
                 if (visibilityStates.isVisible(j)) {
                     m_visibilityStates[i].set(j);
                     m_visibilityStates[j].set(i);
@@ -199,7 +207,8 @@ void engine::VoxelChunk::saveVisibilityStates(ChunkVisibilityState& visibilitySt
 }
 
 void engine::VoxelChunk::clearVisibilityStates() {
-    for (size_t i = 0; i < 27; i++) { 
+    constexpr uint32_t SIDES_AND_NONE = ChunkVisibilityState::getSidesCount() + 1;
+    for (size_t i = 0; i < SIDES_AND_NONE; i++) { 
         m_visibilityStates[i].clear();  
     }
 }

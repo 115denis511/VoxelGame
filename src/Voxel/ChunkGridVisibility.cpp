@@ -25,13 +25,17 @@ void engine::ChunkGridVisibility::checkVisibility(
     glm::ivec3 cameraChunkLocal = VoxelPositionConverter::worldChunkToLocalChunkPosition(cameraChunk, gridBounds.currentOriginChunk);
 
     if (gridBounds.usedChunkGridWidth == 0) return;
-    if (!gridBounds.isChunkInbounds(cameraChunk.x, cameraChunk.y, cameraChunk.z)) {
-        cameraChunkLocal = findClosestVisibleChunkForCameraOutsideBounds(
-            cameraPosition, cameraDirection, frustum, gridBounds
-        );
-    }
 
-    m_stack.push(std::make_pair(cameraChunkLocal, ChunkVisibilityState::Side::NONE));
+    if (gridBounds.isChunkInbounds(cameraChunk.x, cameraChunk.y, cameraChunk.z)) {
+        m_stack.push(std::make_pair(cameraChunkLocal, ChunkVisibilityState::Side::NONE));
+    } 
+    else {
+        queueBorderChunks(cameraPosition, frustum, gridBounds);
+        /*m_stack.push(std::make_pair(
+            raycastBorderChunk(cameraPosition, cameraDirection, frustum, gridBounds), 
+            ChunkVisibilityState::Side::NONE
+        ));*/
+    }
 
     while (!m_stack.empty()) {
         glm::ivec3 currentChunk = m_stack.top().first;
@@ -87,7 +91,7 @@ bool engine::ChunkGridVisibility::isChunkInFrustum(const glm::ivec3 &chunkPositi
     else return false;
 }
 
-glm::ivec3 engine::ChunkGridVisibility::findClosestVisibleChunkForCameraOutsideBounds(
+glm::ivec3 engine::ChunkGridVisibility::raycastBorderChunk(
     const glm::vec3 &cameraPosition, const glm::vec3& cameraDirection, const Frustum &frustum, const ChunkGridBounds &gridBounds
 ) {
     float halfWidth = (gridBounds.usedChunkGridWidth * gridBounds.CHUNCK_DIMENSION_SIZE) / 2;
@@ -118,6 +122,44 @@ glm::ivec3 engine::ChunkGridVisibility::findClosestVisibleChunkForCameraOutsideB
     else if (iPosition.z >= (int)gridBounds.usedChunkGridWidth) { iPosition.z = (int)gridBounds.usedChunkGridWidth - 1; }
 
     return iPosition;
+}
+
+void engine::ChunkGridVisibility::queueBorderChunks(const glm::vec3 &cameraPosition, const Frustum &frustum, const ChunkGridBounds &gridBounds) {
+    unsigned int borderX = 0;
+    if (cameraPosition.x > gridBounds.currentCenterChunk.x * gridBounds.CHUNCK_DIMENSION_SIZE) borderX = gridBounds.usedChunkGridWidth - 1;
+
+    for (unsigned int y = 0; y < gridBounds.CHUNK_MAX_Y_SIZE; y++) {
+        for (unsigned int z = 0; z < gridBounds.usedChunkGridWidth; z++) {
+            glm::ivec3 chunkPosition = glm::ivec3(borderX, y, z);
+            if (isChunkInFrustum(chunkPosition, frustum, gridBounds)) { 
+                m_stack.emplace(std::make_pair(chunkPosition, ChunkVisibilityState::Side::NONE));
+            }
+        }
+    }
+
+    unsigned int borderY = 0;
+    if (cameraPosition.y > 0) borderY = gridBounds.CHUNK_MAX_Y_SIZE - 1;
+
+    for (unsigned int x = 0; x < gridBounds.usedChunkGridWidth; x++) {
+        for (unsigned int z = 0; z < gridBounds.usedChunkGridWidth; z++) {
+            glm::ivec3 chunkPosition = glm::ivec3(x, borderY, z);
+            if (isChunkInFrustum(chunkPosition, frustum, gridBounds)) { 
+                m_stack.emplace(std::make_pair(chunkPosition, ChunkVisibilityState::Side::NONE));
+            }
+        }
+    }
+
+    unsigned int borderZ = 0;
+    if (cameraPosition.z > gridBounds.currentCenterChunk.y * gridBounds.CHUNCK_DIMENSION_SIZE) borderZ = gridBounds.usedChunkGridWidth - 1;
+
+    for (unsigned int y = 0; y < gridBounds.CHUNK_MAX_Y_SIZE; y++) {
+        for (unsigned int x = 0; x < gridBounds.usedChunkGridWidth; x++) {
+            glm::ivec3 chunkPosition = glm::ivec3(x, y, borderZ);
+            if (isChunkInFrustum(chunkPosition, frustum, gridBounds)) { 
+                m_stack.emplace(std::make_pair(chunkPosition, ChunkVisibilityState::Side::NONE));
+            }
+        }
+    }
 }
 
 std::array<std::pair<glm::ivec3, engine::ChunkVisibilityState::Side>, 7> engine::ChunkGridVisibility::findNeighbours(

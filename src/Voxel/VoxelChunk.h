@@ -18,10 +18,6 @@ namespace engine {
     public:
         VoxelChunk();
         ~VoxelChunk();
-        
-        enum class VisibilityPlane : uint32_t { 
-            LEFT = 0, RIGHT = 1, TOP = 2, BOTTOM = 3, BACK = 4, FRONT = 5
-        };
 
         MarchingCubesVoxel getVoxel(short x, short y, short z);
         bool isVoxelSolid(short x, short y, short z);
@@ -29,6 +25,7 @@ namespace engine {
         void setDrawCount(int drawCount) { m_drawCount = drawCount; };
         void setInUpdateQueueFlag(bool flag) { m_isInUpdateQueue = flag; };
         void setInUseFlag(bool flag) { m_isInUse = flag; };
+        void setMustClearOnUpdateFlag(bool flag) { m_mustClearOnUpdate = flag; };
         void clear();
         void bindCommandBuffer();
         void bindSSBO();
@@ -38,8 +35,9 @@ namespace engine {
         void clearDrawCount() { m_drawCount = 0; };
         bool isInUpdateQueue() { return m_isInUpdateQueue; };
         bool isInUse() { return m_isInUse; };
+        bool isMustClearOnUpdate() { return m_mustClearOnUpdate; };
         void updateVisibilityStates();
-        void updateVisibilityStatesForEmptyChunk() { for (size_t i = 0; i < 27; i++) { m_visibilityStates[i].setAllVisible(); } };
+        void updateVisibilityStatesForEmptyChunk();
         bool isVisibleThrough(ChunkVisibilityState::Side from, ChunkVisibilityState::Side to) { return m_visibilityStates[static_cast<int>(from)].isVisible(to); };
 
     private:
@@ -52,7 +50,8 @@ namespace engine {
         int m_drawCount{ 0 };
         bool m_isInUpdateQueue{ false };
         bool m_isInUse{ false };
-        ChunkVisibilityState m_visibilityStates[27];
+        bool m_mustClearOnUpdate{ false };
+        ChunkVisibilityState m_visibilityStates[ChunkVisibilityState::getSidesCount() + 1];
 
         bool isPositionInsideChunk(short x, short y, short z) { 
             return x >= 0 && x < (short)VOXEL_CHUNK_SIZE && 

@@ -39,24 +39,39 @@ namespace engine {
         /// @return True если чанк находится в пирамиде отсечения или соприкасается с ней. False в ином случае.
         bool isChunkInFrustum(const glm::ivec3& chunkPosition, const Frustum& frustum, const ChunkGridBounds &gridBounds);
         
-        glm::ivec3 findClosestVisibleChunkForCameraOutsideBounds(
+        /// @brief Функция поиска ближайшего к лучу чанка на границах воксельного поля. Данная функция используется для дебага.
+        /// @param cameraPosition Позиция камеры.
+        /// @param cameraDirection Направление камеры.
+        /// @param frustum Объект пирамиды отсечения.
+        /// @param gridBounds Объект класса определения границ текущего воксельного поля.
+        /// @return Позиция чанка в локальной системе координат чанков. Если луч не пересекается с сеткой чанков
+        ///         будет возвращено значение (0,0,0).
+        glm::ivec3 raycastBorderChunk(
             const glm::vec3 &cameraPosition, const glm::vec3& cameraDirection, const Frustum& frustum, const ChunkGridBounds &gridBounds
         );
+        
+        /// @brief Функция добавления всех чанков на границах воксельного поля в очередь проверки видимости.
+        ///        В очередь добавляюся только чанки с ближайших к камере границ.
+        ///        Данная функция используется если камера находится за границами воксельного поля.
+        /// @param cameraPosition Позиция камеры.
+        /// @param frustum Объект пирамиды отсечения.
+        /// @param gridBounds Объект класса определения границ текущего воксельного поля.
+        void queueBorderChunks(const glm::vec3& cameraPosition, const Frustum& frustum, const ChunkGridBounds &gridBounds);
 
         /// @brief Функция поиска соседних чанков и определения направлений к ним.
         /// @param position Позиция чанка, для которого происходит поиск соседей.
         /// @param gridBounds Объект класса определения границ текущего воксельного поля.
-        /// @param allowGo Флаги, разрещающие или запрещающие поиск в определённых направлениях.
+        /// @param allowGo Флаги, разрешающие или запрещающие поиск в определённых направлениях.
         /// @return Массив до 6 соседних чанков в виде пар позиций и направлений к ним. Если направление 
-        ///         элемента массива указано как NONE, то этот и все последующие элементы не содержат данных.
+        ///         элемента массива указано как NONE, то этот и все последующие элементы массива не содержат данных.
         std::array<std::pair<glm::ivec3, ChunkVisibilityState::Side>, 7> findNeighbours(
             const glm::ivec3& position, const ChunkGridBounds& gridBounds, 
             bool allowGoUp, bool allowGoDown, bool allowGoFront, bool allowGoBack, bool allowGoRight, bool allowGoLeft
         );
 
-        /// @brief Хелпер получения противоположного значения стороны.
-        /// @param side Сторона чанка.
-        /// @return Противоположная сторона чанка (LEFT <-> RIGHT, TOP <-> BOTTOM, FRONT <-> BACK).
+        /// @brief Хелпер получения противоположного направления.
+        /// @param side Направление.
+        /// @return Противоположное направление (LEFT <-> RIGHT, TOP <-> BOTTOM, FRONT <-> BACK).
         ChunkVisibilityState::Side getMirroredVisibilitySide(ChunkVisibilityState::Side side);
 
     };
