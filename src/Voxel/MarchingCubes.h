@@ -14,6 +14,8 @@ namespace engine {
         friend MarchingCubesManager;
     public:
         ~MarchingCubes();
+
+        static constexpr std::array<float, 8> OFFSETS_STRENGTH = { -0.45, -0.375, -0.25, -0.125, 0.0, 0.125, 0.25, 0.375 }; //{ -0.375, -0.25, -0.125, 0.0, 0.125, 0.25, 0.375, 0.5 };
         
         MarchingCubesVertecesIds getVertecesIds(uint8_t id) { return m_caseVertecesIds[id]; }
         DrawArraysIndirectCommand getCommandTemplate(uint8_t id) { return m_caseDrawCommand[id]; }

@@ -34,6 +34,12 @@ namespace engine {
         void setRenderChunkRadius(int radius);
         int getRenderChunkRadius() const { return (int)m_renderChunkRadius; }
         void resizeChunkGrid(unsigned int size);
+        static constexpr std::array<float, 8> getVoxelOffsets() { return MarchingCubes::OFFSETS_STRENGTH; };
+        static constexpr std::array<float, 8> getRaycastHitOffset() {
+            std::array<float, 8> offsets = getVoxelOffsets();
+            for (float& off : offsets) off += 0.5;
+            return offsets;
+        }
 
     private:
         MarchingCubesManager();

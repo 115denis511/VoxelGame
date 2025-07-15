@@ -1622,9 +1622,8 @@ inline glm::vec3 engine::MarchingCubes::getNormal(const glm::vec3 &a, const glm:
 }
 
 inline void engine::MarchingCubes::addTriangle(const glm::vec3 &v0, const glm::vec3 &v1, const glm::vec3 &v2, MarchingCubesCase& currentCase) {
-    constexpr float offsetsStrengh[8] = { -0.375, -0.25, -0.125, 0.0, 0.125, 0.25, 0.375, 0.5 };
-    constexpr float cornerOffset = 0.5f;
     // X_LEFT = 0, X_RIGHT = 1, Y_UP = 2, Y_DOWN = 3, Z_FRONT = 4, Z_BACK = 5;
+    constexpr float cornerOffset = 0.5f;
     constexpr glm::vec3 directionMul[6] = { glm::vec3(-1.0, 0.0, 0.0), 
                                             glm::vec3(1.0, 0.0, 0.0), 
                                             glm::vec3(0.0, 1.0, 0.0), 
@@ -1639,19 +1638,19 @@ inline void engine::MarchingCubes::addTriangle(const glm::vec3 &v0, const glm::v
 
     VoxelTriangleData triangleData;
     for (int vX = 0; vX < 8; vX++) {
-        glm::vec4 v0vertexSized(v0.x + cornerOffset + offsetsStrengh[vX] * directionMul[v0data.direction].x, 
-                                v0.y + cornerOffset + offsetsStrengh[vX] * directionMul[v0data.direction].y, 
-                                v0.z + cornerOffset + offsetsStrengh[vX] * directionMul[v0data.direction].z, 0.f);
+        glm::vec4 v0vertexSized(v0.x + cornerOffset + OFFSETS_STRENGTH[vX] * directionMul[v0data.direction].x, 
+                                v0.y + cornerOffset + OFFSETS_STRENGTH[vX] * directionMul[v0data.direction].y, 
+                                v0.z + cornerOffset + OFFSETS_STRENGTH[vX] * directionMul[v0data.direction].z, 0.f);
 
         for (int vY = 0; vY < 8; vY++) {
-            glm::vec4 v1vertexSized(v1.x + cornerOffset + offsetsStrengh[vY] * directionMul[v1data.direction].x, 
-                                    v1.y + cornerOffset + offsetsStrengh[vY] * directionMul[v1data.direction].y, 
-                                    v1.z + cornerOffset + offsetsStrengh[vY] * directionMul[v1data.direction].z, 0.f);
+            glm::vec4 v1vertexSized(v1.x + cornerOffset + OFFSETS_STRENGTH[vY] * directionMul[v1data.direction].x, 
+                                    v1.y + cornerOffset + OFFSETS_STRENGTH[vY] * directionMul[v1data.direction].y, 
+                                    v1.z + cornerOffset + OFFSETS_STRENGTH[vY] * directionMul[v1data.direction].z, 0.f);
 
             for (int vZ = 0; vZ < 8; vZ++) {
-                glm::vec4 v2vertexSized(v2.x + cornerOffset + offsetsStrengh[vZ] * directionMul[v2data.direction].x, 
-                                        v2.y + cornerOffset + offsetsStrengh[vZ] * directionMul[v2data.direction].y, 
-                                        v2.z + cornerOffset + offsetsStrengh[vZ] * directionMul[v2data.direction].z, 0.f);
+                glm::vec4 v2vertexSized(v2.x + cornerOffset + OFFSETS_STRENGTH[vZ] * directionMul[v2data.direction].x, 
+                                        v2.y + cornerOffset + OFFSETS_STRENGTH[vZ] * directionMul[v2data.direction].y, 
+                                        v2.z + cornerOffset + OFFSETS_STRENGTH[vZ] * directionMul[v2data.direction].z, 0.f);
                 
                 glm::vec3 edge_A = v1vertexSized - v0vertexSized;
                 glm::vec3 edge_B = v2vertexSized - v0vertexSized;

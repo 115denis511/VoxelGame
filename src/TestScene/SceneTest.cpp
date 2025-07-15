@@ -51,8 +51,9 @@ void SceneTest::update(engine::Camera& camera, engine::SceneResources &resources
         }
 
         if (engine::Controls::isKeyPressed(GLFW_KEY_SPACE)) {
-            constexpr float offset[8] = { 0.0f, 0.125f, 0.25f, 0.375f, 0.5f, 0.625f, 0.75f, 0.875f };
+            constexpr std::array<float, 8> offset = engine::MarchingCubesManager::getRaycastHitOffset();
             glm::vec3 cameraPos = camera.getPosition(), cameraTarget = camera.getFront();
+            
             glm::ivec3 hit, face;
             if (marching->raycastVoxel(cameraPos, cameraTarget, 100.f, hit, face)) {
                 auto size = marching->getVoxel(hit).size;
