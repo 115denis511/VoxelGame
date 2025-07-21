@@ -13,10 +13,13 @@ namespace engine {
         static void pushInstancingTransformIds(const int* buffer, GLsizei count);
         static glm::mat4* getMappedTransformsSSBO();
         static void unmapTransformsSSBO();
+        static void setChunkBufferRef(const std::array<GLuint, 254 * 14>& refs, GLsizei count);
+        static void resetBindings();
 
     private:
         static GLuint g_instancingMatricesSSBO;
         static GLuint g_transformMatricesSSBO;
+        static GLuint g_chunkBufferRefSSBO;
     };
 }
 

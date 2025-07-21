@@ -2,6 +2,7 @@
 
 GLuint engine::ShaderStorageManager::g_instancingMatricesSSBO;
 GLuint engine::ShaderStorageManager::g_transformMatricesSSBO;
+GLuint engine::ShaderStorageManager::g_chunkBufferRefSSBO;
 
 bool engine::ShaderStorageManager::init() {
     glCreateBuffers(1, &g_instancingMatricesSSBO);
@@ -13,6 +14,11 @@ bool engine::ShaderStorageManager::init() {
     constexpr GLuint byteSizeTransforms = sizeof(glm::mat4) * engine_properties::SCENE_MAX_RENDER_COMPONENTS;
     glNamedBufferData(g_transformMatricesSSBO, byteSizeTransforms, NULL, GL_DYNAMIC_DRAW);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, engine_properties::SSBO_TRANSFORM_MATRICES_BLOCK_ID, g_transformMatricesSSBO);
+
+    glCreateBuffers(1, &g_chunkBufferRefSSBO);
+    constexpr GLuint byteSizeChunkRefs = sizeof(GLuint) * 254 * 14;
+    glNamedBufferData(g_chunkBufferRefSSBO, byteSizeChunkRefs, NULL, GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, engine_properties::SSBO_CHUNK_BUFFER_REF_ID, g_chunkBufferRefSSBO);
 
     int errors = 0;
     GLenum errorCode;
@@ -40,6 +46,7 @@ bool engine::ShaderStorageManager::init() {
 void engine::ShaderStorageManager::freeResources() {
     glDeleteBuffers(1, &g_instancingMatricesSSBO);
     glDeleteBuffers(1, &g_transformMatricesSSBO);
+    glDeleteBuffers(1, &g_chunkBufferRefSSBO);
 }
 
 void engine::ShaderStorageManager::pushInstancingTransformIds(const int* buffer, GLsizei count) {
@@ -53,4 +60,13 @@ glm::mat4 *engine::ShaderStorageManager::getMappedTransformsSSBO() {
 
 void engine::ShaderStorageManager::unmapTransformsSSBO() {
     glUnmapNamedBuffer(g_transformMatricesSSBO);
+}
+
+void engine::ShaderStorageManager::setChunkBufferRef(const std::array<GLuint, 254 * 14> &refs, GLsizei count) {
+    glNamedBufferSubData(g_chunkBufferRefSSBO, 0, sizeof(GLuint) * count, &refs);
+}
+
+void engine::ShaderStorageManager::resetBindings() {
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, engine_properties::SSBO_INSTANCING_MATRICES_BLOCK_ID, g_instancingMatricesSSBO);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, engine_properties::SSBO_TRANSFORM_MATRICES_BLOCK_ID, g_transformMatricesSSBO);
 }

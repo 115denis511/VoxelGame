@@ -13,10 +13,25 @@ layout(std140, binding = 0) uniform DrawVars
     mat4 view;
 };
 
-layout(std430, binding = 2) readonly buffer ChunkData 
+layout(std140, binding = 2) uniform ChunkPositions
 {
-    uvec2 packedData[];
+    vec4 chunkPositions[14];
 };
+
+layout(std430, binding = 0) readonly buffer ChunkData_0 { uvec2 packedData_0[]; };
+layout(std430, binding = 1) readonly buffer ChunkData_1 { uvec2 packedData_1[]; };
+layout(std430, binding = 2) readonly buffer ChunkData_2 { uvec2 packedData_2[]; };
+layout(std430, binding = 3) readonly buffer ChunkData_3 { uvec2 packedData_3[]; };
+layout(std430, binding = 4) readonly buffer ChunkData_4 { uvec2 packedData_4[]; };
+layout(std430, binding = 5) readonly buffer ChunkData_5 { uvec2 packedData_5[]; };
+layout(std430, binding = 6) readonly buffer ChunkData_6 { uvec2 packedData_6[]; };
+layout(std430, binding = 7) readonly buffer ChunkData_7 { uvec2 packedData_7[]; };
+layout(std430, binding = 8) readonly buffer ChunkData_8 { uvec2 packedData_8[]; };
+layout(std430, binding = 9) readonly buffer ChunkData_9 { uvec2 packedData_9[]; };
+layout(std430, binding = 10) readonly buffer ChunkData_10 { uvec2 packedData_10[]; };
+layout(std430, binding = 11) readonly buffer ChunkData_11 { uvec2 packedData_11[]; };
+layout(std430, binding = 12) readonly buffer ChunkData_12 { uvec2 packedData_12[]; };
+layout(std430, binding = 13) readonly buffer ChunkData_13 { uvec2 packedData_13[]; };
 
 struct TriangleVariant {
     vec4 pos_TBN_tex[6];
@@ -25,12 +40,15 @@ struct TriangleData {
     TriangleVariant variants[512];
     uvec4 vertexVoxelIds;
 };
-layout(std430, binding = 3) readonly buffer Verteces
+layout(std430, binding = 14) readonly buffer Verteces
 {
     TriangleData triangleData[];
 };
 
-uniform vec3 chunkPosition;
+layout(std430, binding = 15) readonly buffer ChunkRefs
+{
+    int chunkRefs[];
+};
 
 struct UnpackedData {
     uint x;
@@ -47,7 +65,52 @@ UnpackedData unpackData(uvec2 data);
 void main()
 {
     int currentInstance = gl_BaseInstance + gl_InstanceID;
-    UnpackedData data = unpackData(packedData[currentInstance]);
+    uint chunkBatchId = chunkRefs[gl_DrawID];
+    UnpackedData data;
+    switch (chunkBatchId) {
+        case 0:
+            data = unpackData(packedData_0[currentInstance]);
+            break;
+        case 1:
+            data = unpackData(packedData_1[currentInstance]);
+            break;
+        case 2:
+            data = unpackData(packedData_2[currentInstance]);
+            break;
+        case 3:
+            data = unpackData(packedData_3[currentInstance]);
+            break;
+        case 4:
+            data = unpackData(packedData_4[currentInstance]);
+            break;
+        case 5:
+            data = unpackData(packedData_5[currentInstance]);
+            break;
+        case 6:
+            data = unpackData(packedData_6[currentInstance]);
+            break;
+        case 7:
+            data = unpackData(packedData_7[currentInstance]);
+            break;
+        case 8:
+            data = unpackData(packedData_8[currentInstance]);
+            break;
+        case 9:
+            data = unpackData(packedData_9[currentInstance]);
+            break;
+        case 10:
+            data = unpackData(packedData_10[currentInstance]);
+            break;
+        case 11:
+            data = unpackData(packedData_11[currentInstance]);
+            break;
+        case 12:
+            data = unpackData(packedData_12[currentInstance]);
+            break;
+        case 13:
+            data = unpackData(packedData_13[currentInstance]);
+            break;
+    }
 
     int localTriangleVertexId = gl_VertexID % 3;
     int globalTriangleBaseVertexId = (gl_VertexID - localTriangleVertexId);
@@ -59,6 +122,7 @@ void main()
 
     // 8 * 8 = 64
     uint variantId = vertexOffsetZ * 64 + vertexOffsetY * 8 + vertexOffsetX;
+    vec3 chunkPosition = chunkPositions[chunkBatchId].xyz;
 
     vec4 localPosition = vec4(
         triangleData[globalTriangleId].variants[variantId].pos_TBN_tex[localTriangleVertexId].x + chunkPosition.x + data.x,

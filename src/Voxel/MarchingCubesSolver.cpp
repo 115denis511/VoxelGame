@@ -48,7 +48,7 @@ void engine::MarchingCubesSolver::regenerateChunk(MarchingCubes &marchingCubes, 
     }
 
     // Сборка коммандного буфера
-    std::vector<DrawArraysIndirectCommand> commandBuffer;
+    chunk.clearDrawCommands();
     std::vector<glm::ivec2> dataBuffer;
     dataBuffer.reserve(cubesCount);
     int baseIndex = 0;
@@ -59,17 +59,17 @@ void engine::MarchingCubesSolver::regenerateChunk(MarchingCubes &marchingCubes, 
         command.instanceCount = m_caseData[i].size();
         command.baseInstance = baseIndex;
         baseIndex += m_caseData[i].size();
-        commandBuffer.push_back(command);
+        chunk.addDrawCommand(command);
     }
 
-    if (commandBuffer.size() != 0) {
+    if (chunk.getDrawCommandsCount() != 0) {
         chunk.updateVisibilityStates();
     }
+    else {
+        chunk.updateVisibilityStatesForEmptyChunk();
+    }
 
-    GLuint commandBufferObject = chunk.getCommandBuffer(), ssboBuffer = chunk.getSSBO();
-    chunk.setDrawCount(commandBuffer.size());
-    int commandBufferSize = commandBuffer.size() * sizeof(DrawArraysIndirectCommand);
-    glNamedBufferSubData(commandBufferObject, 0, commandBufferSize, &commandBuffer[0]);
+    GLuint ssboBuffer = chunk.getSSBO();
     int ssboSize = dataBuffer.size() * sizeof(glm::ivec2);
     glNamedBufferSubData(ssboBuffer, 0, ssboSize, &dataBuffer[0]);
 

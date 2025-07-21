@@ -1,18 +1,12 @@
 #include "VoxelChunk.h"
 
 engine::VoxelChunk::VoxelChunk() {
-    glGenBuffers(1, &m_commandBuffer);
-    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_commandBuffer);
-    glBufferData(GL_DRAW_INDIRECT_BUFFER, (254 * sizeof(DrawArraysIndirectCommand)), NULL, GL_DYNAMIC_DRAW);  
-    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
-
     glCreateBuffers(1, &m_ssbo);
     constexpr GLuint byteSize = 31 * 31 * 31 * sizeof(glm::ivec2);
     glNamedBufferData(m_ssbo, byteSize, NULL, GL_DYNAMIC_DRAW);
 }
 
 engine::VoxelChunk::~VoxelChunk() {
-    glDeleteBuffers(1, &m_commandBuffer);
     glDeleteBuffers(1, &m_ssbo);
 }
 
@@ -40,12 +34,14 @@ void engine::VoxelChunk::clear() {
     }
 }
 
-void engine::VoxelChunk::bindCommandBuffer() {
-    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_commandBuffer);
+void engine::VoxelChunk::bindSSBO(GLuint index) {
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, index, m_ssbo);
 }
 
-void engine::VoxelChunk::bindSSBO() {
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, engine_properties::SSBO_MARCHING_CUBES_CHUNK_DATA_BLOCK_ID, m_ssbo);
+void engine::VoxelChunk::addDrawCommand(const engine::DrawArraysIndirectCommand &command) {
+    assert(m_drawCount < static_cast<int>(m_drawCommands.size()) && "ASSERT ERROR! - Adding more commands in chunk buffer than it can store!");
+    m_drawCommands[m_drawCount] = command;
+    m_drawCount++;
 }
 
 void engine::VoxelChunk::updateVisibilityStates() {

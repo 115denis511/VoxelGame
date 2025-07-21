@@ -1,6 +1,7 @@
 #ifndef __ENGINE_PROPERTIES_H__
 #define __ENGINE_PROPERTIES_H__
 
+#include "stdafx.h"
 #include "Render/UniformStructs.h"
 
 namespace engine_properties {
@@ -14,13 +15,16 @@ namespace engine_properties {
     constexpr GLsizeiptr UNIFORM_BUFFER_DRAW_VARS_SIZE = sizeof(engine::uniform_structs::DrawVars);
     constexpr GLuint     UNIFORM_BUFFER_TEXTURE_PACK_BLOCK_ID = 1;
     constexpr GLsizeiptr UNIFORM_BUFFER_TEXTURE_PACK_SIZE = sizeof(engine::uniform_structs::TexturePack);
-
+    constexpr GLuint     UNIFORM_BUFFER_CHUNK_POSITIONS_ID = 2;
+    constexpr GLsizeiptr UNIFORM_BUFFER_CHUNK_POSITIONS_SIZE = sizeof(glm::vec4) * 14;
+    
     // SSBO
     constexpr GLuint    SSBO_INSTANCING_MATRICES_BLOCK_ID = 0;
     constexpr GLuint    SSBO_TRANSFORM_MATRICES_BLOCK_ID = 1;
     constexpr GLuint    SSBO_MARCHING_CUBES_CHUNK_DATA_BLOCK_ID = 2;
-    constexpr GLuint    SSBO_VOXEL_VERTECES_DATA_IDS_BLOCK_ID = 3;
-
+    constexpr GLuint    SSBO_VOXEL_VERTECES_DATA_IDS_BLOCK_ID = 14;
+    constexpr GLuint    SSBO_CHUNK_BUFFER_REF_ID = 15;
+    
     // Textures
     constexpr GLuint TEXTURE_ARRAY_W64_H64_SIZE = 1024;
     constexpr GLuint TEXTURE_ARRAY_W512_H512_SIZE = 128;

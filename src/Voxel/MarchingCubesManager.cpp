@@ -2,7 +2,12 @@
 
 engine::MarchingCubesManager* engine::MarchingCubesManager::g_instance{ nullptr };
 
-engine::MarchingCubesManager *engine::MarchingCubesManager::getInstance() {
+engine::MarchingCubesManager::~MarchingCubesManager() {
+    glDeleteBuffers(1, &m_commandBuffer);
+}
+
+engine::MarchingCubesManager *engine::MarchingCubesManager::getInstance()
+{
     return g_instance;
 }
 
@@ -62,6 +67,16 @@ engine::MarchingCubesManager::MarchingCubesManager() {
     for (size_t i = 0; i < std::size(m_chunks); i++) {
         m_freeChunkIndices.push(i);
     }
+
+    glCreateBuffers(1, &m_commandBuffer);
+    constexpr GLuint byteSize = sizeof(engine::DrawArraysIndirectCommand) * 254 * 15;
+    glNamedBufferData(m_commandBuffer, byteSize, NULL, GL_DYNAMIC_DRAW);
+
+    // 2147483647
+    // Этого хватит для одного общего буффера для вокселей чанков
+    //GLint size;
+    //glGetIntegerv(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, &size);
+    //std::cout << "GL_MAX_SHADER_STORAGE_BLOCK_SIZE is " << size << " bytes.\n";
 }
 
 void engine::MarchingCubesManager::draw(Shader& shader, const CameraVars& cameraVars, Frustum frustum) {
@@ -79,31 +94,56 @@ void engine::MarchingCubesManager::draw(Shader& shader, const CameraVars& camera
 
     unsigned int gridWidth = m_gridBounds.usedChunkGridWidth;
 
+    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_commandBuffer);
+    GLuint bufferIndex = 0;
+    GLsizei drawCount = 0;
     for (size_t z = 0; z < gridWidth; z++){
         for (size_t x = 0; x < gridWidth; x++){
             for (size_t y = 0; y < m_gridBounds.CHUNK_MAX_Y_SIZE; y++){
                 VoxelChunk& chunk = m_grid.getChunk(x, y, z);
-                glm::ivec2 worldChunkPos = m_converter.localChunkToWorldChunkPosition(x, z, m_gridBounds.currentOriginChunk.x, m_gridBounds.currentOriginChunk.y);
-                unsigned int height = y * m_gridBounds.CHUNCK_DIMENSION_SIZE;
 
-                if (chunk.getDrawCount() == 0) continue;
-                glm::vec3 worldPos(
-                    worldChunkPos.x * m_gridBounds.CHUNCK_DIMENSION_SIZE, 
-                    height, 
-                    worldChunkPos.y * m_gridBounds.CHUNCK_DIMENSION_SIZE
-                );
-
+                if (chunk.getDrawCommandsCount() == 0) continue;
                 if (!m_gridVisibility.isVisible(x, y, z, ChunkGridVisibility::VisabilityType::CAMERA)) continue;
 
-                chunk.bindCommandBuffer();
-                chunk.bindSSBO();
-                shader.setVec3("chunkPosition", worldPos);
-                int drawCount = chunk.getDrawCount();
-                //glMemoryBarrier(GL_ALL_BARRIER_BITS);
-                m_marchingCubes.draw(drawCount);
+                glm::ivec2 worldChunkPos = m_converter.localChunkToWorldChunkPosition(x, z, m_gridBounds.currentOriginChunk.x, m_gridBounds.currentOriginChunk.y);
+                unsigned int height = y * m_gridBounds.CHUNCK_DIMENSION_SIZE;
+                m_drawChunkPositions[bufferIndex] = glm::vec4(
+                    worldChunkPos.x * m_gridBounds.CHUNCK_DIMENSION_SIZE, 
+                    height, 
+                    worldChunkPos.y * m_gridBounds.CHUNCK_DIMENSION_SIZE,
+                    0
+                );
+
+                auto& chunkDrawCommands = chunk.getDrawCommands();
+                GLsizei chunkDrawCount = chunk.getDrawCommandsCount();
+                for (int i = 0; i < chunkDrawCount; i++) {
+                    m_drawCommands[drawCount + i] = chunkDrawCommands[i];
+                    m_drawBufferRefs[drawCount + i] = bufferIndex;
+                }
+                chunk.bindSSBO(bufferIndex);
+                bufferIndex++;
+                drawCount += chunkDrawCount;
+
+                if (bufferIndex >= engine_properties::SSBO_VOXEL_VERTECES_DATA_IDS_BLOCK_ID) {
+                    drawAccumulatedBatches(drawCount);
+
+                    bufferIndex = 0;
+                    drawCount = 0;
+                }
             }
         }
     }
+    drawAccumulatedBatches(drawCount);
+}
+
+void engine::MarchingCubesManager::drawAccumulatedBatches(GLsizei drawCount) {
+    int commandBufferSize = drawCount * sizeof(DrawArraysIndirectCommand);
+    glNamedBufferSubData(m_commandBuffer, 0, commandBufferSize, &m_drawCommands[0]);
+
+    ShaderStorageManager::setChunkBufferRef(m_drawBufferRefs, drawCount);
+    UniformManager::setChunkPositions(m_drawChunkPositions);
+
+    m_marchingCubes.draw(drawCount);
 }
 
 void engine::MarchingCubesManager::pushToUpdateQueue(size_t index) {
@@ -270,7 +310,7 @@ void engine::MarchingCubesManager::resizeChunkGrid(unsigned int size) {
                 // при отрисовке он не рендерил старый необновленный чанк.
                 // Таким образом обходится надобность чистить чанк сейчас, так как очистка
                 // переносится в метод обновления чанка, который может работать в отдельном потоке.
-                m_chunks[id].clearDrawCount();
+                m_chunks[id].clearDrawCommands();
 
                 m_toUpdateQueue.push(id);
                 chunk.setInUpdateQueueFlag(true);

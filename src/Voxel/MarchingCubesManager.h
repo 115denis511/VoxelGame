@@ -3,6 +3,8 @@
 
 #include "../stdafx.h"
 #include "../Render/Shader.h"
+#include "../Render/ShaderStorageManager.h"
+#include "../Render/UniformManager.h"
 #include "../Collisions/AABB.h"
 #include "../Collisions/Frustum.h"
 #include "../Scene/Camera.h"
@@ -25,6 +27,8 @@ namespace engine {
         friend Render;
 
     public:
+        ~MarchingCubesManager();
+
         static MarchingCubesManager* getInstance();
 
         bool isPositionHasSolidVoxel(const glm::vec3& position);
@@ -58,10 +62,15 @@ namespace engine {
         std::stack<size_t> m_toUpdateQueue;
         std::vector<glm::ivec2> m_toGenerateQueue;
         VoxelTextures m_textures;
+        GLuint m_commandBuffer;
+        std::array<DrawArraysIndirectCommand, 254 * 14> m_drawCommands;
+        std::array<GLuint, 254 * 14> m_drawBufferRefs;
+        std::array<glm::vec4, 14> m_drawChunkPositions;
 
         static bool init();
         static void freeResources();
         void draw(Shader& shader, const CameraVars& cameraVars, Frustum frustum);
+        void drawAccumulatedBatches(GLsizei drawCount);
         void updateChunks(size_t maxCount = 8);
         bool setVoxelTexture(int layer, unsigned char *rawImage, int width, int height, int nrComponents);
         bool setVoxelTexture(int layer, std::string path);

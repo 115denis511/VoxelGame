@@ -116,6 +116,7 @@ void engine::Render::draw(CameraVars cameraVars, SceneResources& sceneResources,
 
     MarchingCubesManager::getInstance()->draw(*m_shaderMarchingCubes, cameraVars, frustum);
     accamulateInstancingBuffers(sceneResources, worldBVH, frustum);
+    ShaderStorageManager::resetBindings();
     drawInstanced();
      
 

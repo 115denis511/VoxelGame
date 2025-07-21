@@ -22,17 +22,16 @@ namespace engine {
         MarchingCubesVoxel getVoxel(short x, short y, short z);
         bool isVoxelSolid(short x, short y, short z);
         void setVoxel(short x, short y, short z, uint8_t id, uint8_t size = 3);
-        void setDrawCount(int drawCount) { m_drawCount = drawCount; };
         void setInUpdateQueueFlag(bool flag) { m_isInUpdateQueue = flag; };
         void setInUseFlag(bool flag) { m_isInUse = flag; };
         void setMustClearOnUpdateFlag(bool flag) { m_mustClearOnUpdate = flag; };
         void clear();
-        void bindCommandBuffer();
-        void bindSSBO();
-        const GLuint getCommandBuffer() { return m_commandBuffer; };
+        void bindSSBO(GLuint index);
         const GLuint getSSBO() { return m_ssbo; };
-        const int getDrawCount() { return m_drawCount; };
-        void clearDrawCount() { m_drawCount = 0; };
+        void addDrawCommand(const DrawArraysIndirectCommand& command);
+        const std::array<DrawArraysIndirectCommand, 254>& getDrawCommands() { return m_drawCommands; }
+        const int getDrawCommandsCount() { return m_drawCount; };
+        void clearDrawCommands() { m_drawCount = 0; };
         bool isInUpdateQueue() { return m_isInUpdateQueue; };
         bool isInUse() { return m_isInUse; };
         bool isMustClearOnUpdate() { return m_mustClearOnUpdate; };
@@ -46,7 +45,8 @@ namespace engine {
         static constexpr size_t VOXEL_CHUNK_SIZE = 32;
         static constexpr float VOXEL_SIZE = 1.f;
         utilites::Array3D<MarchingCubesVoxel, VOXEL_CHUNK_SIZE, VOXEL_CHUNK_SIZE, VOXEL_CHUNK_SIZE> m_voxels;
-        GLuint m_commandBuffer, m_ssbo;
+        GLuint m_ssbo;
+        std::array<DrawArraysIndirectCommand, 254> m_drawCommands;
         int m_drawCount{ 0 };
         bool m_isInUpdateQueue{ false };
         bool m_isInUse{ false };
