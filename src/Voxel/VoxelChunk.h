@@ -14,10 +14,17 @@ namespace engine {
         uint8_t size = 3;
     };
 
+    class MarchingCubesManager;
+
     class VoxelChunk { 
+        friend MarchingCubesManager;
     public:
         VoxelChunk();
         ~VoxelChunk();
+        
+        static constexpr size_t VOXEL_CHUNK_SIZE = 32;
+        static constexpr float VOXEL_SIZE = 1.f;
+        static constexpr GLsizeiptr VOXEL_CHUNK_BYTE_SIZE = 31 * 31 * 31 * sizeof(glm::ivec2);
 
         MarchingCubesVoxel getVoxel(short x, short y, short z);
         bool isVoxelSolid(short x, short y, short z);
@@ -28,6 +35,7 @@ namespace engine {
         void clear();
         void bindSSBO(GLuint index);
         const GLuint getSSBO() { return m_ssbo; };
+        const GLuint getIdInSSBO() { return m_idInSSBO; };
         void addDrawCommand(const DrawArraysIndirectCommand& command);
         const std::array<DrawArraysIndirectCommand, 254>& getDrawCommands() { return m_drawCommands; }
         const int getDrawCommandsCount() { return m_drawCount; };
@@ -42,17 +50,21 @@ namespace engine {
     private:
         enum class VisibilityCheckState : uint8_t { NOT_CHECKED = 0, CHECKED };
 
-        static constexpr size_t VOXEL_CHUNK_SIZE = 32;
-        static constexpr float VOXEL_SIZE = 1.f;
         utilites::Array3D<MarchingCubesVoxel, VOXEL_CHUNK_SIZE, VOXEL_CHUNK_SIZE, VOXEL_CHUNK_SIZE> m_voxels;
-        GLuint m_ssbo;
         std::array<DrawArraysIndirectCommand, 254> m_drawCommands;
         int m_drawCount{ 0 };
         bool m_isInUpdateQueue{ false };
         bool m_isInUse{ false };
         bool m_mustClearOnUpdate{ false };
         ChunkVisibilityState m_visibilityStates[ChunkVisibilityState::getSidesCount() + 1];
+        union {
+            GLuint m_ssbo;
+            GLuint m_idInSSBO;
+        };
 
+        void initSSBO();
+        void freeSSBO();
+        void setIdInSSBO(GLuint start) { m_idInSSBO = start; }
         bool isPositionInsideChunk(short x, short y, short z) { 
             return x >= 0 && x < (short)VOXEL_CHUNK_SIZE && 
                    y >= 0 && y < (short)VOXEL_CHUNK_SIZE && 

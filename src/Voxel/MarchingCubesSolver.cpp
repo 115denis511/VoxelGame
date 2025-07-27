@@ -4,7 +4,7 @@ engine::MarchingCubesSolver::MarchingCubesSolver() {
 
 }
 
-void engine::MarchingCubesSolver::regenerateChunk(MarchingCubes &marchingCubes, VoxelChunk &chunk) {
+void engine::MarchingCubesSolver::regenerateChunk(MarchingCubes &marchingCubes, VoxelChunk &chunk, ShaderStorageBuffer<glm::ivec2>& globalChunkSSBO) {
     constexpr short MARCHING_CUBES_COUNT = 31;
     int cubesCount = 0;
 
@@ -69,9 +69,40 @@ void engine::MarchingCubesSolver::regenerateChunk(MarchingCubes &marchingCubes, 
         chunk.updateVisibilityStatesForEmptyChunk();
     }
 
-    GLuint ssboBuffer = chunk.getSSBO();
-    int ssboSize = dataBuffer.size() * sizeof(glm::ivec2);
-    glNamedBufferSubData(ssboBuffer, 0, ssboSize, &dataBuffer[0]);
+    if (globalChunkSSBO.isInited()) {
+        constexpr GLsizei dataPerChunk = 31 * 31 * 31 * sizeof(glm::ivec2);
+        GLsizei dataOffset = dataPerChunk * chunk.getIdInSSBO();
+        globalChunkSSBO.pushData(&dataBuffer[0], dataBuffer.size(), dataOffset);
+        
+        int errors = 0;
+        GLenum errorCode;
+        while ((errorCode = glGetError()) != GL_NO_ERROR) {
+            errors++;
+            std::string error;
+            switch (errorCode) {
+                case GL_INVALID_ENUM:                  error = "INVALID_ENUM"; break;
+                case GL_INVALID_VALUE:                 error = "INVALID_VALUE"; break;
+                case GL_INVALID_OPERATION:             error = "INVALID_OPERATION"; break;
+                case GL_STACK_OVERFLOW:                error = "STACK_OVERFLOW"; break;
+                case GL_STACK_UNDERFLOW:               error = "STACK_UNDERFLOW"; break;
+                case GL_OUT_OF_MEMORY:                 error = "OUT_OF_MEMORY"; break;
+                case GL_INVALID_FRAMEBUFFER_OPERATION: error = "INVALID_FRAMEBUFFER_OPERATION"; break;
+            }
+            std::cout << "MarchingCubesSolver->globalChunkSSBO.pushData: " << error << std::endl;
+            int dataSize = dataBuffer.size() * sizeof(glm::ivec2);
+            int ssboSize = globalChunkSSBO.getCount() * sizeof(glm::ivec2);
+            int ssboSizeExpect = dataPerChunk * 4608;
+            std::cout 
+                << dataOffset + dataSize <<" ... "
+                << ssboSize <<" ... " 
+                << ssboSizeExpect <<"\n";
+        }
+    }
+    else {
+        GLuint ssboBuffer = chunk.getSSBO();
+        int ssboSize = dataBuffer.size() * sizeof(glm::ivec2);
+        glNamedBufferSubData(ssboBuffer, 0, ssboSize, &dataBuffer[0]);
+    }
 
     int errors = 0;
     GLenum errorCode;

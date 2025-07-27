@@ -1,14 +1,8 @@
 #include "VoxelChunk.h"
 
-engine::VoxelChunk::VoxelChunk() {
-    glCreateBuffers(1, &m_ssbo);
-    constexpr GLuint byteSize = 31 * 31 * 31 * sizeof(glm::ivec2);
-    glNamedBufferData(m_ssbo, byteSize, NULL, GL_DYNAMIC_DRAW);
-}
+engine::VoxelChunk::VoxelChunk() {}
 
-engine::VoxelChunk::~VoxelChunk() {
-    glDeleteBuffers(1, &m_ssbo);
-}
+engine::VoxelChunk::~VoxelChunk() {}
 
 engine::MarchingCubesVoxel engine::VoxelChunk::getVoxel(short x, short y, short z) {
     return m_voxels(x, y, z);
@@ -101,9 +95,18 @@ void engine::VoxelChunk::updateVisibilityStatesForEmptyChunk() {
     }
 }
 
+void engine::VoxelChunk::initSSBO() {
+    glCreateBuffers(1, &m_ssbo);
+    glNamedBufferData(m_ssbo, VOXEL_CHUNK_BYTE_SIZE, NULL, GL_DYNAMIC_DRAW);
+}
+
+void engine::VoxelChunk::freeSSBO() {
+    glDeleteBuffers(1, &m_ssbo);
+}
+
 int engine::VoxelChunk::floodFill(
-    short x, short y, short z, VisibilityCheckState (&state)[VOXEL_CHUNK_SIZE][VOXEL_CHUNK_SIZE][VOXEL_CHUNK_SIZE], ChunkVisibilityState& visabilityState
-) {
+    short x, short y, short z, VisibilityCheckState (&state)[VOXEL_CHUNK_SIZE][VOXEL_CHUNK_SIZE][VOXEL_CHUNK_SIZE], ChunkVisibilityState &visabilityState)
+{
     if (!isVoxelEmptyAndNotChecked(x, y, z, state)) {
         return 0;
     }

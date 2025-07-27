@@ -12,7 +12,6 @@ engine::Render::Render(bool& hasError) {
     m_shaderFinal = new Shader("Shader/test3d.vert", "Shader/simple.frag");
     m_shaderMix_RGB_A = new Shader("Shader/fillViewport_InvertY.vert", "Shader/mix_RGB_A.frag");
     m_shaderFill_RGB = new Shader("Shader/fillViewport_InvertY.vert", "Shader/fill_RGB.frag");
-    m_shaderMarchingCubes = new Shader("Shader/marchingCubes.vert", "Shader/marchingCubes.frag");
 
     m_gBuffer = new GBuffer(viewport);
 
@@ -76,7 +75,6 @@ engine::Render::~Render() {
     delete m_shaderFinal;
     delete m_shaderMix_RGB_A;
     delete m_shaderFill_RGB;
-    delete m_shaderMarchingCubes;
 
     delete m_gBuffer;
 
@@ -114,7 +112,7 @@ void engine::Render::draw(CameraVars cameraVars, SceneResources& sceneResources,
 
     Frustum frustum(cameraVars, m_projectionPerspective);
 
-    MarchingCubesManager::getInstance()->draw(*m_shaderMarchingCubes, cameraVars, frustum);
+    MarchingCubesManager::getInstance()->draw(cameraVars, frustum);
     accamulateInstancingBuffers(sceneResources, worldBVH, frustum);
     ShaderStorageManager::resetBindings();
     drawInstanced();

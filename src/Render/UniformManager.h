@@ -15,7 +15,7 @@ namespace engine {
     public:
         static void setDrawVars(uniform_structs::DrawVars& vars);
         static void setTexturePack(uniform_structs::TexturePack& vars);
-        static void setChunkPositions(const std::array<glm::vec4, 14>& positions);
+        static void setChunkPositions(const std::vector<glm::vec4>& positions);
 
     private:
         UniformManager() {}

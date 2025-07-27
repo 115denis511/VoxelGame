@@ -3,9 +3,10 @@
 
 #include "../stdafx.h"
 #include "../Render/DrawIndirectCommand.h"
+#include "../Render/ShaderStorageBuffer.h"
+#include "../Render/UniformManager.h"
 #include "MarchingCubesCase.h"
 #include "VoxelTriangleData.h"
-#include "../Render/UniformManager.h"
 
 namespace engine {
     class MarchingCubesManager;
@@ -20,13 +21,15 @@ namespace engine {
         MarchingCubesVertecesIds getVertecesIds(uint8_t id) { return m_caseVertecesIds[id]; }
         DrawArraysIndirectCommand getCommandTemplate(uint8_t id) { return m_caseDrawCommand[id]; }
         void draw(int drawCount);
+        void bindSSBO(GLuint blockId) { m_triangleDataSSBO.bind(blockId); }
 
     private:
         MarchingCubes();
 
         DrawArraysIndirectCommand m_caseDrawCommand[256];
         MarchingCubesVertecesIds m_caseVertecesIds[256];
-        GLuint m_VAO, m_triangleDataSSBO;
+        GLuint m_VAO;
+        ShaderStorageBuffer<VoxelTriangleData> m_triangleDataSSBO;
         std::vector<VoxelTriangleData> m_trianglesData;
 
         glm::vec3 roundVector(glm::vec4 vec);

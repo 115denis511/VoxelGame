@@ -1572,10 +1572,8 @@ engine::MarchingCubes::MarchingCubes() {
     }
     std::cout << "Missed: " << missedCount << "\n";*/
 
-    glCreateBuffers(1, &m_triangleDataSSBO);
-    GLuint byteSize = sizeof(VoxelTriangleData) * m_trianglesData.size();
-    glNamedBufferData(m_triangleDataSSBO, byteSize, &m_trianglesData[0], GL_STATIC_DRAW);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, engine_properties::SSBO_VOXEL_VERTECES_DATA_IDS_BLOCK_ID, m_triangleDataSSBO);
+    m_triangleDataSSBO.init(m_trianglesData.size(), BufferUsage::STATIC_DRAW);
+    m_triangleDataSSBO.pushData(&m_trianglesData[0], m_trianglesData.size());
 
     glGenVertexArrays(1, &m_VAO);
 
@@ -1601,7 +1599,6 @@ engine::MarchingCubes::MarchingCubes() {
 
 engine::MarchingCubes::~MarchingCubes() {
     glDeleteVertexArrays(1, &m_VAO);
-    glDeleteBuffers(1, &m_triangleDataSSBO);
 }
 
 glm::vec3 engine::MarchingCubes::roundVector(glm::vec4 vec) {

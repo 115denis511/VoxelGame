@@ -46,7 +46,6 @@ namespace engine {
         Shader*                  m_shaderFinal;
         Shader*                  m_shaderMix_RGB_A;
         Shader*                  m_shaderFill_RGB;
-        Shader*                  m_shaderMarchingCubes;
         GBuffer*                 m_gBuffer;
         MeshRef                  m_primitiveFullScreenRect;
         ProjectionPerspective    m_projectionPerspective;

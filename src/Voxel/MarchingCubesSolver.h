@@ -2,6 +2,7 @@
 #define __VOXEL__MARCHING_CUBES_SOLVER_H__
 
 #include "../stdafx.h"
+#include "../Render/ShaderStorageBuffer.h"
 #include "VoxelChunk.h"
 #include "MarchingCubes.h"
 
@@ -10,7 +11,7 @@ namespace engine {
     public:
         MarchingCubesSolver();
 
-        void regenerateChunk(MarchingCubes& marchingCubes, VoxelChunk& chunk);
+        void regenerateChunk(MarchingCubes& marchingCubes, VoxelChunk& chunk, ShaderStorageBuffer<glm::ivec2>& globalChunkSSBO);
 
     private:
         std::vector<glm::ivec2> m_caseData[256];
