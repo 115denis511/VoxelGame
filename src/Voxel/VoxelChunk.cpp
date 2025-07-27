@@ -28,10 +28,6 @@ void engine::VoxelChunk::clear() {
     }
 }
 
-void engine::VoxelChunk::bindSSBO(GLuint index) {
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, index, m_ssbo);
-}
-
 void engine::VoxelChunk::addDrawCommand(const engine::DrawArraysIndirectCommand &command) {
     assert(m_drawCount < static_cast<int>(m_drawCommands.size()) && "ASSERT ERROR! - Adding more commands in chunk buffer than it can store!");
     m_drawCommands[m_drawCount] = command;
@@ -93,15 +89,6 @@ void engine::VoxelChunk::updateVisibilityStatesForEmptyChunk() {
     for (size_t i = 0; i < SIDES_AND_NONE; i++) { 
         m_visibilityStates[i].setAllVisible(); 
     }
-}
-
-void engine::VoxelChunk::initSSBO() {
-    glCreateBuffers(1, &m_ssbo);
-    glNamedBufferData(m_ssbo, VOXEL_CHUNK_BYTE_SIZE, NULL, GL_DYNAMIC_DRAW);
-}
-
-void engine::VoxelChunk::freeSSBO() {
-    glDeleteBuffers(1, &m_ssbo);
 }
 
 int engine::VoxelChunk::floodFill(

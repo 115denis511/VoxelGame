@@ -6,15 +6,6 @@ engine::MarchingCubesManager::~MarchingCubesManager() {
     glDeleteBuffers(1, &m_commandBuffer);
 
     delete m_shader;
-
-    if (m_usingGlobalChunkSSBO) {
-        
-    }
-    else {
-        for (auto& chunk : m_chunks) {
-            chunk.freeSSBO();
-        }
-    }
 }
 
 engine::MarchingCubesManager *engine::MarchingCubesManager::getInstance()

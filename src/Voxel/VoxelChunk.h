@@ -3,6 +3,7 @@
 
 #include "../stdafx.h"
 #include "../Render/DrawIndirectCommand.h"
+#include "../Render/ShaderStorageBuffer.h"
 #include "../Utilites/MultidimensionalArrays.h"
 #include "../engine_properties.h"
 #include "VoxelTriangleData.h"
@@ -33,8 +34,8 @@ namespace engine {
         void setInUseFlag(bool flag) { m_isInUse = flag; };
         void setMustClearOnUpdateFlag(bool flag) { m_mustClearOnUpdate = flag; };
         void clear();
-        void bindSSBO(GLuint index);
-        const GLuint getSSBO() { return m_ssbo; };
+        void bindSSBO(GLuint blockId) { m_ssbo.bind(blockId); }
+        ShaderStorageBuffer<glm::ivec2>& getSSBO() { return m_ssbo; };
         const GLuint getIdInSSBO() { return m_idInSSBO; };
         void addDrawCommand(const DrawArraysIndirectCommand& command);
         const std::array<DrawArraysIndirectCommand, 254>& getDrawCommands() { return m_drawCommands; }
@@ -58,12 +59,11 @@ namespace engine {
         bool m_mustClearOnUpdate{ false };
         ChunkVisibilityState m_visibilityStates[ChunkVisibilityState::getSidesCount() + 1];
         union {
-            GLuint m_ssbo;
+            ShaderStorageBuffer<glm::ivec2> m_ssbo;
             GLuint m_idInSSBO;
         };
 
-        void initSSBO();
-        void freeSSBO();
+        void initSSBO() { m_ssbo.init(31 * 31 * 31, BufferUsage::DYNAMIC_DRAW); }
         void setIdInSSBO(GLuint start) { m_idInSSBO = start; }
         bool isPositionInsideChunk(short x, short y, short z) { 
             return x >= 0 && x < (short)VOXEL_CHUNK_SIZE && 
