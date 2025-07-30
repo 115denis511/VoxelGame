@@ -17,6 +17,7 @@
 #include "VoxelTextures.h"
 #include "ChunkGridBounds.h"
 #include "ChunkGrid.h"
+#include "ChunkGridUpdater.h"
 #include "ChunkGridVisibility.h"
 
 namespace engine {
@@ -66,9 +67,9 @@ namespace engine {
         ChunkGridVisibility m_gridVisibility;
         VoxelChunk m_chunks[ChunkGridBounds::CHUNK_COUNT];
         ChunkGrid m_grid { m_chunks };
+        ChunkGridUpdater m_gridUpdater{ m_chunks };
         std::stack<size_t> m_freeChunkIndices;
-        std::stack<size_t> m_toUpdateQueue;
-        std::vector<glm::ivec2> m_toGenerateQueue;
+        std::vector<glm::ivec2> m_toGenerateQueue; 
         VoxelTextures m_textures;
         GLuint m_commandBuffer;
         std::vector<DrawArraysIndirectCommand> m_drawCommands;
@@ -92,8 +93,6 @@ namespace engine {
         bool setVoxelTexture(int layer, glm::vec4 color);
         void startTextureEditing();
         void endTextureEditing();
-        void pushToUpdateQueue(size_t index);
-        VoxelChunk& popFromUpdateQueue();
 
     };
 }
