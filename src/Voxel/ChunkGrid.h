@@ -9,11 +9,17 @@
 namespace engine {
     class ChunkGrid {
     public:
-        ChunkGrid(VoxelChunk (&chunks)[ChunkGridBounds::CHUNK_COUNT]);
+        ChunkGrid();
 
+        void initChunksSSBO();
+        void initChunkLocationsInSSBO();
         int getChunkId(int x,  int y, int z);
         VoxelChunk& getChunk(int x, int y, int z);
-        void setChunk(int x, int y, int z, int id);
+        VoxelChunk& getChunk(int id);
+        void setChunk(int x, int y, int z, int id); // DEL
+        VoxelChunk& allocateChunk(int x, int y, int z);
+        void freeChunk(int x, int y, int z);
+        void freeChunk(int id);
         void resizeToBigger(int distance, ChunkGridBounds& gridBounds, std::vector<glm::ivec2>& chunksToCreate);
         void resizeToSmaller(int distance, ChunkGridBounds& gridBounds, std::vector<int>& chunksToDelete);
         bool isPositionHasSolidVoxel(const glm::vec3& position, const ChunkGridBounds& gridBounds);
@@ -24,7 +30,8 @@ namespace engine {
         };
 
         GridYSlice m_grid[ChunkGridBounds::CHUNK_MAX_X_Z_SIZE][ChunkGridBounds::CHUNK_MAX_X_Z_SIZE];
-        VoxelChunk* m_chunks;
+        VoxelChunk m_chunks[ChunkGridBounds::CHUNK_COUNT]; //VoxelChunk* m_chunks;
+        std::stack<size_t> m_freeChunkIndices;
 
     };
 }

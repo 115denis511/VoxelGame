@@ -1,7 +1,7 @@
 #include "ChunkGridChanger.h"
 
-engine::ChunkGridChanger::ChunkGridChanger(VoxelChunk (&chunks)[ChunkGridBounds::CHUNK_COUNT]) 
-    : m_chunks(chunks)
+engine::ChunkGridChanger::ChunkGridChanger(ChunkGrid& grid) 
+    : m_grid(grid)
 {
     
 }
@@ -20,7 +20,7 @@ void engine::ChunkGridChanger::updateChunks(
 }
 
 void engine::ChunkGridChanger::pushToUpdateQueue(size_t index) {
-    VoxelChunk& chunk = m_chunks[index];
+    VoxelChunk& chunk = m_grid.getChunk(index);
     if (!chunk.isInUpdateQueue()) {
         chunk.setInUpdateQueueFlag(true);
         m_toUpdateQueue.push(index);
@@ -28,12 +28,12 @@ void engine::ChunkGridChanger::pushToUpdateQueue(size_t index) {
 }
 
 void engine::ChunkGridChanger::pushToUpdateQueueForced(size_t index) {
-    m_chunks[index].setInUpdateQueueFlag(true);
+    m_grid.getChunk(index).setInUpdateQueueFlag(true);
     m_toUpdateQueue.push(index);
 }
 
 engine::VoxelChunk& engine::ChunkGridChanger::popFromUpdateQueue() {
-    VoxelChunk& chunk = m_chunks[m_toUpdateQueue.top()];
+    VoxelChunk& chunk = m_grid.getChunk(m_toUpdateQueue.top());
     chunk.setInUpdateQueueFlag(false);
     m_toUpdateQueue.pop();
     return chunk;

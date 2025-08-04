@@ -1,12 +1,27 @@
 #include "ChunkGrid.h"
 
-engine::ChunkGrid::ChunkGrid(VoxelChunk (&chunks)[ChunkGridBounds::CHUNK_COUNT]) 
-    : m_chunks(chunks) 
+engine::ChunkGrid::ChunkGrid() 
 {
     for (int i = 0; i < ChunkGridBounds::CHUNK_MAX_X_Z_SIZE; i++) {
         for (int j = 0; j < ChunkGridBounds::CHUNK_MAX_X_Z_SIZE; j++) {
             m_grid[i][j] = GridYSlice();
         }
+    }
+
+    for (size_t i = 0; i < std::size(m_chunks); i++) {
+        m_freeChunkIndices.push(i);
+    }
+}
+
+void engine::ChunkGrid::initChunksSSBO() {
+    for (auto& chunk : m_chunks) {
+        chunk.initSSBO();
+    }
+}
+
+void engine::ChunkGrid::initChunkLocationsInSSBO() {
+    for (int i = 0; i < ChunkGridBounds::CHUNK_COUNT; i++) {
+        m_chunks[i].setIdInSSBO(i);
     }
 }
 
@@ -24,8 +39,35 @@ engine::VoxelChunk &engine::ChunkGrid::getChunk(int x, int y, int z) {
     return m_chunks[getChunkId(x, y, z)];
 }
 
+engine::VoxelChunk &engine::ChunkGrid::getChunk(int id) {
+    return m_chunks[id];
+}
+
 void engine::ChunkGrid::setChunk(int x, int y, int z, int id) {
     m_grid[x][z].chunk[y] = id;
+}
+
+engine::VoxelChunk &engine::ChunkGrid::allocateChunk(int x, int y, int z) {
+    size_t id = m_freeChunkIndices.top();
+    m_freeChunkIndices.pop();
+
+    VoxelChunk& chunk = m_chunks[id];
+    chunk.setInUseFlag(true);
+    m_grid[x][z].chunk[y] = id;
+
+    return chunk;
+}
+
+void engine::ChunkGrid::freeChunk(int x, int y, int z) {
+    int id = getChunkId(x, y, z);
+    freeChunk(id);
+
+    m_grid[x][z].chunk[y] = -1;
+}
+
+void engine::ChunkGrid::freeChunk(int id) {
+    m_freeChunkIndices.push(id);
+    m_chunks[id].setInUseFlag(false);
 }
 
 void engine::ChunkGrid::resizeToBigger(int distance, ChunkGridBounds& gridBounds, std::vector<glm::ivec2> &chunksToCreate) {

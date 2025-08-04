@@ -3,6 +3,7 @@
 
 #include "../stdafx.h"
 #include "../Render/ShaderStorageBuffer.h"
+#include "ChunkGrid.h"
 #include "ChunkGridBounds.h"
 #include "MarchingCubes.h"
 #include "MarchingCubesSolver.h"
@@ -11,7 +12,7 @@
 namespace engine {
     class ChunkGridChanger{
     public:
-        ChunkGridChanger(VoxelChunk (&chunks)[ChunkGridBounds::CHUNK_COUNT]);
+        ChunkGridChanger(ChunkGrid& grid);
 
         //void generateChunks(size_t maxUpdates = 8);
         void updateChunks(
@@ -24,7 +25,7 @@ namespace engine {
         VoxelChunk& popFromUpdateQueue();
 
     private:
-        VoxelChunk* m_chunks;
+        ChunkGrid& m_grid;
         std::stack<size_t> m_toUpdateQueue;
         //std::vector<glm::ivec2> m_toGenerateQueue;
         MarchingCubesSolver m_solver;

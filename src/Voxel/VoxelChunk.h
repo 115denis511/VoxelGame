@@ -15,10 +15,10 @@ namespace engine {
         uint8_t size = 3;
     };
 
-    class MarchingCubesManager;
+    class ChunkGrid;
 
     class VoxelChunk { 
-        friend MarchingCubesManager;
+        friend ChunkGrid;
     public:
         VoxelChunk();
         ~VoxelChunk();
