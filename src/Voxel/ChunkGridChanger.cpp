@@ -1,12 +1,12 @@
-#include "ChunkGridUpdater.h"
+#include "ChunkGridChanger.h"
 
-engine::ChunkGridUpdater::ChunkGridUpdater(VoxelChunk (&chunks)[ChunkGridBounds::CHUNK_COUNT]) 
+engine::ChunkGridChanger::ChunkGridChanger(VoxelChunk (&chunks)[ChunkGridBounds::CHUNK_COUNT]) 
     : m_chunks(chunks)
 {
     
 }
 
-void engine::ChunkGridUpdater::updateChunks(
+void engine::ChunkGridChanger::updateChunks(
     MarchingCubes& marchingCubes,
     ShaderStorageBuffer<glm::ivec2>& globalChunkSSBO,
     size_t maxCount
@@ -19,7 +19,7 @@ void engine::ChunkGridUpdater::updateChunks(
     }
 }
 
-void engine::ChunkGridUpdater::pushToUpdateQueue(size_t index) {
+void engine::ChunkGridChanger::pushToUpdateQueue(size_t index) {
     VoxelChunk& chunk = m_chunks[index];
     if (!chunk.isInUpdateQueue()) {
         chunk.setInUpdateQueueFlag(true);
@@ -27,12 +27,12 @@ void engine::ChunkGridUpdater::pushToUpdateQueue(size_t index) {
     }
 }
 
-void engine::ChunkGridUpdater::pushToUpdateQueueForced(size_t index) {
+void engine::ChunkGridChanger::pushToUpdateQueueForced(size_t index) {
     m_chunks[index].setInUpdateQueueFlag(true);
     m_toUpdateQueue.push(index);
 }
 
-engine::VoxelChunk& engine::ChunkGridUpdater::popFromUpdateQueue() {
+engine::VoxelChunk& engine::ChunkGridChanger::popFromUpdateQueue() {
     VoxelChunk& chunk = m_chunks[m_toUpdateQueue.top()];
     chunk.setInUpdateQueueFlag(false);
     m_toUpdateQueue.pop();

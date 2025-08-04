@@ -1,5 +1,5 @@
-#ifndef __VOXEL__CHUNK_GRID_UPDATER_H__
-#define __VOXEL__CHUNK_GRID_UPDATER_H__
+#ifndef __VOXEL__CHUNK_GRID_CHANGER_H__
+#define __VOXEL__CHUNK_GRID_CHANGER_H__
 
 #include "../stdafx.h"
 #include "../Render/ShaderStorageBuffer.h"
@@ -9,9 +9,9 @@
 #include "VoxelChunk.h"
 
 namespace engine {
-    class ChunkGridUpdater{
+    class ChunkGridChanger{
     public:
-        ChunkGridUpdater(VoxelChunk (&chunks)[ChunkGridBounds::CHUNK_COUNT]);
+        ChunkGridChanger(VoxelChunk (&chunks)[ChunkGridBounds::CHUNK_COUNT]);
 
         //void generateChunks(size_t maxUpdates = 8);
         void updateChunks(
