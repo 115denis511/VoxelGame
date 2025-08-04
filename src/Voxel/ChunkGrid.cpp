@@ -43,10 +43,6 @@ engine::VoxelChunk &engine::ChunkGrid::getChunk(int id) {
     return m_chunks[id];
 }
 
-void engine::ChunkGrid::setChunk(int x, int y, int z, int id) {
-    m_grid[x][z].chunk[y] = id;
-}
-
 engine::VoxelChunk &engine::ChunkGrid::allocateChunk(int x, int y, int z) {
     size_t id = m_freeChunkIndices.top();
     m_freeChunkIndices.pop();

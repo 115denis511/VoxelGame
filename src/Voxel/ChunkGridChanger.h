@@ -8,6 +8,7 @@
 #include "MarchingCubes.h"
 #include "MarchingCubesSolver.h"
 #include "VoxelChunk.h"
+#include "VoxelPositionConverter.h"
 
 namespace engine {
     class ChunkGridChanger{
@@ -20,6 +21,13 @@ namespace engine {
             ShaderStorageBuffer<glm::ivec2>& globalChunkSSBO, 
             size_t maxUpdates = 8
         );
+        void resizeGrid(
+            ChunkGridBounds& gridBounds, 
+            ShaderStorageBuffer<glm::ivec4>& chunkPositionsSSBO,
+            VoxelPositionConverter& converter,
+            bool usingGlobalChunkSSBO,
+            int size
+        );
         void pushToUpdateQueue(size_t index);
         void pushToUpdateQueueForced(size_t index);
         VoxelChunk& popFromUpdateQueue();
@@ -27,7 +35,7 @@ namespace engine {
     private:
         ChunkGrid& m_grid;
         std::stack<size_t> m_toUpdateQueue;
-        //std::vector<glm::ivec2> m_toGenerateQueue;
+        std::vector<glm::ivec2> m_toGenerateQueue;
         MarchingCubesSolver m_solver;
     };
 }

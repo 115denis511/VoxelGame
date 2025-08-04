@@ -16,7 +16,6 @@ namespace engine {
         int getChunkId(int x,  int y, int z);
         VoxelChunk& getChunk(int x, int y, int z);
         VoxelChunk& getChunk(int id);
-        void setChunk(int x, int y, int z, int id); // DEL
         VoxelChunk& allocateChunk(int x, int y, int z);
         void freeChunk(int x, int y, int z);
         void freeChunk(int id);
@@ -30,7 +29,7 @@ namespace engine {
         };
 
         GridYSlice m_grid[ChunkGridBounds::CHUNK_MAX_X_Z_SIZE][ChunkGridBounds::CHUNK_MAX_X_Z_SIZE];
-        VoxelChunk m_chunks[ChunkGridBounds::CHUNK_COUNT]; //VoxelChunk* m_chunks;
+        VoxelChunk m_chunks[ChunkGridBounds::CHUNK_COUNT];
         std::stack<size_t> m_freeChunkIndices;
 
     };

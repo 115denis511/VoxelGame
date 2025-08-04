@@ -335,91 +335,11 @@ void engine::MarchingCubesManager::setRenderChunkRadius(int radius) {
     m_renderChunkRadius = uRadius;
     m_gridBounds.currentOriginChunk = glm::ivec2(m_gridBounds.currentCenterChunk.x - radius, m_gridBounds.currentCenterChunk.y - radius);
 
-    resizeChunkGrid(uRadius * 2);
-}
-
-void engine::MarchingCubesManager::resizeChunkGrid(unsigned int size) {
-    if (size % 2 == 1) size -= 1;
-    if (size > m_gridBounds.CHUNK_MAX_X_Z_SIZE) size = m_gridBounds.CHUNK_MAX_X_Z_SIZE;
-    unsigned int usedChunkDistance = m_gridBounds.usedChunkGridWidth;
-    if (usedChunkDistance == size) return;
-
-    if (size < usedChunkDistance) {
-        std::vector<int> chunksToDelete;
-        m_grid.resizeToSmaller(size, m_gridBounds, chunksToDelete); 
-
-        for (int id : chunksToDelete) {
-            m_grid.freeChunk(id);
-        }
-    }
-    else {
-        m_toGenerateQueue.clear();
-        m_grid.resizeToBigger(size, m_gridBounds, m_toGenerateQueue);
-        
-        glm::ivec4* chunkPositions = nullptr;
-        if (m_usingGlobalChunkSSBO) {
-            chunkPositions = m_chunkPositionsSSBO.map(MapAccess::MAP_WRITE_BIT);
-        }
-
-        for (glm::ivec2& pos : m_toGenerateQueue) {
-            for (int y = 0; y < m_gridBounds.CHUNK_MAX_Y_SIZE; y++) {
-                VoxelChunk& chunk = m_grid.allocateChunk(pos.x, y, pos.y);
-                int id = m_grid.getChunkId(pos.x, y, pos.y);
-
-                if (m_usingGlobalChunkSSBO) { 
-                    glm::ivec2 worldPosition = m_converter.localChunkToWorldChunkPosition(
-                        pos.x, 
-                        pos.y, 
-                        m_gridBounds.currentOriginChunk.x, 
-                        m_gridBounds.currentOriginChunk.y
-                    );
-                    chunkPositions[id] = glm::ivec4(
-                        worldPosition.x * m_gridBounds.CHUNCK_DIMENSION_SIZE, 
-                        y * m_gridBounds.CHUNCK_DIMENSION_SIZE, 
-                        worldPosition.y * m_gridBounds.CHUNCK_DIMENSION_SIZE, 
-                        0
-                    );
-                }
-
-                // TODO: Переместить код генерации мира в updateChunks.
-                // Затем убрать очистку чанка отсюда(убрать следующую строку и раскоментировать последующую).
-                chunk.clear();
-
-                // Временная "прозрачность" видимости чанка.
-                // Пока чанк находится в очереди на перегенерацию, оставшиеся старые состояния видимости
-                // могут блокировать видимость через пустой чанк.
-                chunk.updateVisibilityStatesForEmptyChunk();
-                chunk.clearDrawCommands();
-
-                m_gridChanger.pushToUpdateQueueForced(id);
-
-                // Временный код генерации мира
-                if (y == 0) {
-                    for (size_t x = 0; x < 32; x++) {
-                        for (size_t z = 0; z < 32; z++){
-                            chunk.setVoxel(x,1,z, 0);
-                        }
-                    }
-
-                    if (pos.x <= 0 && std::abs(pos.x) <= std::abs(y)) {
-                        for (size_t y = 0; y < 32; y++) {
-                            for (size_t z = 0; z < 32; z++){
-                                chunk.setVoxel(0,y,z, 1);
-                                chunk.setVoxel(31,y,z, 1);
-                                chunk.setVoxel(z,y,0, 1);
-                                chunk.setVoxel(z,y,31, 1);
-                                chunk.setVoxel(z,0,y, 1);
-                                chunk.setVoxel(z,31,y, 1);
-                            }
-                        }
-                    }
-                }
-
-            }
-        }
-
-        if (m_usingGlobalChunkSSBO) { m_chunkPositionsSSBO.unmap(); }
-        
-        m_toGenerateQueue.clear();
-    }
+    m_gridChanger.resizeGrid(
+        m_gridBounds, 
+        m_chunkPositionsSSBO, 
+        m_converter, 
+        m_usingGlobalChunkSSBO, 
+        uRadius * 2
+    );
 }
