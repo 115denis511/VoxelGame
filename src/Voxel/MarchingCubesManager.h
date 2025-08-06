@@ -65,7 +65,7 @@ namespace engine {
         unsigned int m_renderChunkRadius{ 0 };
         ChunkGridBounds m_gridBounds;
         ChunkGridVisibility m_gridVisibility;
-        ChunkGrid m_grid;
+        ChunkGrid m_grid{ m_gridBounds, m_chunkPositionsSSBO, m_converter };
         ChunkGridChanger m_gridChanger{ m_grid };
         std::vector<glm::ivec2> m_toGenerateQueue; 
         VoxelTextures m_textures;

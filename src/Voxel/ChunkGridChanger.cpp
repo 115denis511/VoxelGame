@@ -33,7 +33,7 @@ void engine::ChunkGridChanger::resizeGrid(
 
     if (size < usedChunkDistance) {
         std::vector<int> chunksToDelete;
-        m_grid.resizeToSmaller(size, gridBounds, chunksToDelete); 
+        m_grid.resizeToSmaller(size, chunksToDelete); 
 
         for (int id : chunksToDelete) {
             m_grid.freeChunk(id);
@@ -41,32 +41,12 @@ void engine::ChunkGridChanger::resizeGrid(
     }
     else {
         m_toGenerateQueue.clear();
-        m_grid.resizeToBigger(size, gridBounds, m_toGenerateQueue);
-        
-        glm::ivec4* chunkPositions = nullptr;
-        if (usingGlobalChunkSSBO) {
-            chunkPositions = chunkPositionsSSBO.map(MapAccess::MAP_WRITE_BIT);
-        }
+        m_grid.resizeToBigger(size, m_toGenerateQueue);
 
         for (glm::ivec2& pos : m_toGenerateQueue) {
             for (int y = 0; y < gridBounds.CHUNK_MAX_Y_SIZE; y++) {
                 VoxelChunk& chunk = m_grid.allocateChunk(pos.x, y, pos.y);
                 int id = m_grid.getChunkId(pos.x, y, pos.y);
-
-                if (usingGlobalChunkSSBO) { 
-                    glm::ivec2 worldPosition = converter.localChunkToWorldChunkPosition(
-                        pos.x, 
-                        pos.y, 
-                        gridBounds.currentOriginChunk.x, 
-                        gridBounds.currentOriginChunk.y
-                    );
-                    chunkPositions[id] = glm::ivec4(
-                        worldPosition.x * gridBounds.CHUNCK_DIMENSION_SIZE, 
-                        y * gridBounds.CHUNCK_DIMENSION_SIZE, 
-                        worldPosition.y * gridBounds.CHUNCK_DIMENSION_SIZE, 
-                        0
-                    );
-                }
 
                 // TODO: Переместить код генерации мира в updateChunks.
                 // Затем убрать очистку чанка отсюда(убрать следующую строку и раскоментировать последующую).
@@ -105,7 +85,7 @@ void engine::ChunkGridChanger::resizeGrid(
             }
         }
 
-        if (usingGlobalChunkSSBO) { chunkPositionsSSBO.unmap(); }
+        if (usingGlobalChunkSSBO) { m_grid.syncGpuChunkPositions(); }
         
         m_toGenerateQueue.clear();
     }

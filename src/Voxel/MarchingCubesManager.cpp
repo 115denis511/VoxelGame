@@ -13,7 +13,7 @@ engine::MarchingCubesManager *engine::MarchingCubesManager::getInstance() {
 }
 
 bool engine::MarchingCubesManager::isPositionHasSolidVoxel(const glm::vec3 &position) {
-    return m_grid.isPositionHasSolidVoxel(position, m_gridBounds);
+    return m_grid.isPositionHasSolidVoxel(position);
 }
 
 bool engine::MarchingCubesManager::init() {

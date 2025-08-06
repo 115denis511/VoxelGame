@@ -20,7 +20,7 @@ bool engine::VoxelRaycast::raycastVoxel(
 
     bool first = true;
     while (bounds.isPositionInbounds(hitPosition)) {
-        if (!first && grid.isPositionHasSolidVoxel(hitPosition, bounds)) return true;
+        if (!first && grid.isPositionHasSolidVoxel(hitPosition)) return true;
         first = false;
 
         if(next.x < next.y) {

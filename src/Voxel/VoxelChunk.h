@@ -59,7 +59,7 @@ namespace engine {
         bool m_mustClearOnUpdate{ false };
         ChunkVisibilityState m_visibilityStates[ChunkVisibilityState::getSidesCount() + 1];
         union {
-            ShaderStorageBuffer<glm::ivec2> m_ssbo;
+            ShaderStorageBuffer<glm::ivec2> m_ssbo; // ВЫЗЫВАЕТСЯ ЛИ ЗДЕСЬ ДЕСТРУКТОР?
             GLuint m_idInSSBO;
         };
 
