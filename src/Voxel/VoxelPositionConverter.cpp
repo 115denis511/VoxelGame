@@ -9,7 +9,8 @@ glm::ivec2 engine::VoxelPositionConverter::worldChunkToLocalChunkPosition(int x,
 }
 
 glm::ivec3 engine::VoxelPositionConverter::worldChunkToLocalChunkPosition(int x, int y, int z, int originX, int originZ) {
-    return glm::ivec3(x - originX, y, z - originZ);
+    glm::ivec3 result = glm::ivec3(x - originX, y, z - originZ);
+    return result;
 }
 
 glm::ivec3 engine::VoxelPositionConverter::worldPositionToChunkPosition(const glm::vec3 &position, int chunkDimensionSize) {

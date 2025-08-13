@@ -15,7 +15,12 @@ namespace engine {
     public:
         ChunkGridChanger(ChunkGrid& grid);
 
-        //void generateChunks(size_t maxUpdates = 8);
+        void generateChunks(
+            ChunkGridBounds& gridBounds, 
+            VoxelPositionConverter& converter,
+            bool usingGlobalChunkSSBO, 
+            size_t maxSlices
+        );
         void updateChunks(
             MarchingCubes& marchingCubes, 
             ShaderStorageBuffer<glm::ivec2>& globalChunkSSBO, 

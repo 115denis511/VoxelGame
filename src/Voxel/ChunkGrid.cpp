@@ -87,8 +87,13 @@ void engine::ChunkGrid::freeChunk(int x, int y, int z) {
 }
 
 void engine::ChunkGrid::freeChunk(int id) {
+    assert(id >= 0 && id < ChunkGridBounds::CHUNK_COUNT && "Try to free incorrect id");
     m_freeChunkIndices.push(id);
     m_chunks[id].setInUseFlag(false);
+}
+
+bool engine::ChunkGrid::isInUse(int x, int y, int z) {
+    return m_grid[x][z].chunk[y] >= 0;
 }
 
 void engine::ChunkGrid::syncGpuChunkPositions() {
@@ -110,7 +115,9 @@ void engine::ChunkGrid::resizeToBigger(int distance, std::vector<glm::ivec2> &ch
     if (m_gridBounds.usedChunkGridWidth == 0) {
         for (size_t i = 0; i < uDistance; i++) {
             for (size_t j = 0; j < uDistance; j++) {
-                chunksToCreate.push_back(glm::ivec2(i, j));
+                glm::ivec2 worldPosition = m_converter.localChunkToWorldChunkPosition(i, j, m_gridBounds.currentOriginChunk.x, m_gridBounds.currentOriginChunk.y);
+                chunksToCreate.push_back(worldPosition);
+                //chunksToCreate.push_back(glm::ivec2(i, j));
             }
         }
         m_gridBounds.usedChunkGridWidth = uDistance;
@@ -130,7 +137,9 @@ void engine::ChunkGrid::resizeToBigger(int distance, std::vector<glm::ivec2> &ch
     for (size_t x = 0; x < (unsigned int)distance; x++) {
         for (size_t z = 0; z < (unsigned int)distance; z++) {
             if (m_grid[x][z].chunk[0] == -1) {
-                chunksToCreate.push_back(glm::ivec2(x, z));
+                glm::ivec2 worldPosition = m_converter.localChunkToWorldChunkPosition(x, z, m_gridBounds.currentOriginChunk.x, m_gridBounds.currentOriginChunk.y);
+                chunksToCreate.push_back(worldPosition);
+                //chunksToCreate.push_back(glm::ivec2(x, z));
             }
         }
     }
@@ -145,8 +154,10 @@ void engine::ChunkGrid::resizeToSmaller(int distance, std::vector<int> &chunksTo
         for (size_t x = 0; x < m_gridBounds.usedChunkGridWidth; x++) {
             for (size_t z = 0; z < m_gridBounds.usedChunkGridWidth; z++) {
                 for (size_t y = 0; y < ChunkGridBounds::CHUNK_MAX_Y_SIZE; y++) {
-                    assert(m_grid[x][z].chunk[y] != -1);
-                    chunksToDelete.push_back(m_grid[x][z].chunk[y]);
+                    if (m_grid[x][z].chunk[y] != -1) {
+                        chunksToDelete.push_back(m_grid[x][z].chunk[y]);
+                        m_grid[x][z].chunk[y] = -1;
+                    }
                 }
             }
         }
@@ -163,19 +174,26 @@ void engine::ChunkGrid::resizeToSmaller(int distance, std::vector<int> &chunksTo
     for (size_t i = 0; i < m_gridBounds.usedChunkGridWidth - halfDiffirence; i++) {
         for (size_t j = 0; j < halfDiffirence; j++) {
             for (size_t y = 0; y < ChunkGridBounds::CHUNK_MAX_Y_SIZE; y++) {
-                chunksToDelete.push_back(m_grid[i][j].chunk[y]);
-                m_grid[i][j].chunk[y] = -1;
+                if (m_grid[i][j].chunk[y] != -1) {
+                    chunksToDelete.push_back(m_grid[i][j].chunk[y]);
+                    m_grid[i][j].chunk[y] = -1;
+                }
 
                 unsigned int iMirror = m_gridBounds.usedChunkGridWidth - 1 - i;
                 unsigned int jMirror = m_gridBounds.usedChunkGridWidth - 1 - j;
-                chunksToDelete.push_back(m_grid[iMirror][jMirror].chunk[y]);
-                m_grid[iMirror][jMirror].chunk[y] = -1;
 
-                chunksToDelete.push_back(m_grid[j][iMirror].chunk[y]);
-                m_grid[j][iMirror].chunk[y] = -1;
-
-                chunksToDelete.push_back(m_grid[jMirror][i].chunk[y]);
-                m_grid[jMirror][i].chunk[y] = -1;
+                if (m_grid[iMirror][jMirror].chunk[y] != -1) {
+                    chunksToDelete.push_back(m_grid[iMirror][jMirror].chunk[y]);
+                    m_grid[iMirror][jMirror].chunk[y] = -1;
+                }
+                if (m_grid[j][iMirror].chunk[y] != -1) {
+                    chunksToDelete.push_back(m_grid[j][iMirror].chunk[y]);
+                    m_grid[j][iMirror].chunk[y] = -1;
+                }
+                if (m_grid[jMirror][i].chunk[y] != -1) {
+                    chunksToDelete.push_back(m_grid[jMirror][i].chunk[y]);
+                    m_grid[jMirror][i].chunk[y] = -1;
+                }
             }
         }
     }

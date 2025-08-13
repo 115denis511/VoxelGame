@@ -6,9 +6,63 @@ engine::ChunkGridChanger::ChunkGridChanger(ChunkGrid& grid)
     
 }
 
+void engine::ChunkGridChanger::generateChunks(
+    ChunkGridBounds& gridBounds, 
+    VoxelPositionConverter& converter,
+    bool usingGlobalChunkSSBO, 
+    size_t maxSlices
+) {
+    while (!m_toGenerateQueue.empty() && maxSlices > 0) {
+        glm::ivec2 pos = m_toGenerateQueue.back();
+        glm::ivec2 localPos = converter.worldChunkToLocalChunkPosition(pos.x, pos.y, gridBounds.currentOriginChunk.x, gridBounds.currentOriginChunk.y);
+        m_toGenerateQueue.pop_back();
+
+        // Функция принимает ГЛОБАЛЬНЫЕ координаты! Задокументировать!
+        if (!gridBounds.isChunkInbounds(pos.x, 0, pos.y)) continue; 
+        if (m_grid.isInUse(localPos.x, 0, localPos.y)) continue;
+
+        for (int y = 0; y < gridBounds.CHUNK_MAX_Y_SIZE; y++) {
+            VoxelChunk& chunk = m_grid.allocateChunk(localPos.x, y, localPos.y);
+            int id = m_grid.getChunkId(localPos.x, y, localPos.y);
+
+            chunk.clear();
+            chunk.updateVisibilityStatesForEmptyChunk();
+            chunk.clearDrawCommands();
+
+            pushToUpdateQueueForced(id);
+
+            // Временный код генерации мира
+            if (y == 0) {
+                for (size_t x = 0; x < 32; x++) {
+                    for (size_t z = 0; z < 32; z++){
+                        chunk.setVoxel(x,1,z, 0);
+                    }
+                }
+
+                if (pos.x <= -1 && std::abs(pos.x) >= std::abs(pos.y)) {
+                    for (size_t y = 0; y < 32; y++) {
+                        for (size_t z = 0; z < 32; z++){
+                            chunk.setVoxel(0,y,z, 1);
+                            chunk.setVoxel(31,y,z, 1);
+                            chunk.setVoxel(z,y,0, 1);
+                            chunk.setVoxel(z,y,31, 1);
+                            chunk.setVoxel(z,0,y, 1);
+                            chunk.setVoxel(z,31,y, 1);
+                        }
+                    }
+                }
+            }
+        }
+
+        maxSlices--;
+    }
+
+    if (usingGlobalChunkSSBO) { m_grid.syncGpuChunkPositions(); }
+}
+
 void engine::ChunkGridChanger::updateChunks(
-    MarchingCubes& marchingCubes,
-    ShaderStorageBuffer<glm::ivec2>& globalChunkSSBO,
+    MarchingCubes &marchingCubes,
+    ShaderStorageBuffer<glm::ivec2> &globalChunkSSBO,
     size_t maxCount
 ) {
     for (size_t i = 0; i < maxCount && !m_toUpdateQueue.empty(); i++) {
@@ -42,52 +96,6 @@ void engine::ChunkGridChanger::resizeGrid(
     else {
         m_toGenerateQueue.clear();
         m_grid.resizeToBigger(size, m_toGenerateQueue);
-
-        for (glm::ivec2& pos : m_toGenerateQueue) {
-            for (int y = 0; y < gridBounds.CHUNK_MAX_Y_SIZE; y++) {
-                VoxelChunk& chunk = m_grid.allocateChunk(pos.x, y, pos.y);
-                int id = m_grid.getChunkId(pos.x, y, pos.y);
-
-                // TODO: Переместить код генерации мира в updateChunks.
-                // Затем убрать очистку чанка отсюда(убрать следующую строку и раскоментировать последующую).
-                chunk.clear();
-
-                // Временная "прозрачность" видимости чанка.
-                // Пока чанк находится в очереди на перегенерацию, оставшиеся старые состояния видимости
-                // могут блокировать видимость через пустой чанк.
-                chunk.updateVisibilityStatesForEmptyChunk();
-                chunk.clearDrawCommands();
-
-                pushToUpdateQueueForced(id);
-
-                // Временный код генерации мира
-                if (y == 0) {
-                    for (size_t x = 0; x < 32; x++) {
-                        for (size_t z = 0; z < 32; z++){
-                            chunk.setVoxel(x,1,z, 0);
-                        }
-                    }
-
-                    if (pos.x <= 0 && std::abs(pos.x) <= std::abs(y)) {
-                        for (size_t y = 0; y < 32; y++) {
-                            for (size_t z = 0; z < 32; z++){
-                                chunk.setVoxel(0,y,z, 1);
-                                chunk.setVoxel(31,y,z, 1);
-                                chunk.setVoxel(z,y,0, 1);
-                                chunk.setVoxel(z,y,31, 1);
-                                chunk.setVoxel(z,0,y, 1);
-                                chunk.setVoxel(z,31,y, 1);
-                            }
-                        }
-                    }
-                }
-
-            }
-        }
-
-        if (usingGlobalChunkSSBO) { m_grid.syncGpuChunkPositions(); }
-        
-        m_toGenerateQueue.clear();
     }
 }
 

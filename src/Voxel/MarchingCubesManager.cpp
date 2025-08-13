@@ -27,6 +27,7 @@ void engine::MarchingCubesManager::freeResources() {
 }
 
 void engine::MarchingCubesManager::updateChunks(size_t maxCount) {
+    m_gridChanger.generateChunks(m_gridBounds, m_converter, m_usingGlobalChunkSSBO, 1);
     m_gridChanger.updateChunks(m_marchingCubes, m_globalChunkSSBO, 8);
 }
 
@@ -127,7 +128,7 @@ void engine::MarchingCubesManager::drawAllInOne(const CameraVars &cameraVars, Fr
             for (size_t y = 0; y < m_gridBounds.CHUNK_MAX_Y_SIZE; y++){
                 VoxelChunk& chunk = m_grid.getChunk(x, y, z);
 
-                if (chunk.getDrawCommandsCount() == 0) continue;
+                if (chunk.getDrawCommandsCount() == 0 || !m_grid.isInUse(x, y, z)) continue;
                 if (!m_gridVisibility.isVisible(x, y, z, ChunkGridVisibility::VisabilityType::CAMERA)) continue;
 
                 auto& chunkDrawCommands = chunk.getDrawCommands();
