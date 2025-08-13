@@ -17,8 +17,16 @@ namespace engine {
         glm::ivec2 currentCenterChunk{ glm::ivec2( 0, 0) };
         unsigned int usedChunkGridWidth{ 0 };
 
-        bool isChunkInbounds(int x, int y, int z) const;
-        bool isPositionInbounds(const glm::vec3& position) const;
+        /// @brief Проверка нахождения мировой позиции чанка в внутри текущих границ сетки чанков.
+        /// @param x,y,z Позиция чанка в мировых координатах.
+        /// @return True если чанк внутри границ сетки. False если нет.
+        bool isWorldChunkInbounds(int x, int y, int z) const;
+
+        /// @brief Проверка нахождения мировой позиции в внутри текущих границ сетки чанков.
+        /// @param position Позиция в мировых координатах.
+        /// @return True если позиция внутри границ сетки. False если нет.
+        bool isWorldPositionInbounds(const glm::vec3& position) const;
+
         inline bool isChunkYInbounds(unsigned int y) const { return y >= 0 && y < CHUNK_MAX_Y_SIZE; }
         inline bool isChunkXZInbounds(unsigned int x, unsigned int z) const { return x >= 0 && x < usedChunkGridWidth && z >= 0 && z < usedChunkGridWidth; }
     };

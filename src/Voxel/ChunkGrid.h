@@ -23,7 +23,7 @@ namespace engine {
         VoxelChunk& allocateChunk(int x, int y, int z);
         void freeChunk(int x, int y, int z);
         void freeChunk(int id);
-        bool isInUse(int x, int y, int z);
+        bool isHaveChunk(int x, int y, int z);
         void syncGpuChunkPositions();
         void resizeToBigger(int distance, std::vector<glm::ivec2>& chunksToCreate);
         void resizeToSmaller(int distance, std::vector<int>& chunksToDelete);

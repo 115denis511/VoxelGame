@@ -17,9 +17,8 @@ void engine::ChunkGridChanger::generateChunks(
         glm::ivec2 localPos = converter.worldChunkToLocalChunkPosition(pos.x, pos.y, gridBounds.currentOriginChunk.x, gridBounds.currentOriginChunk.y);
         m_toGenerateQueue.pop_back();
 
-        // Функция принимает ГЛОБАЛЬНЫЕ координаты! Задокументировать!
-        if (!gridBounds.isChunkInbounds(pos.x, 0, pos.y)) continue; 
-        if (m_grid.isInUse(localPos.x, 0, localPos.y)) continue;
+        if (!gridBounds.isWorldChunkInbounds(pos.x, 0, pos.y)) continue; 
+        if (m_grid.isHaveChunk(localPos.x, 0, localPos.y)) continue;
 
         for (int y = 0; y < gridBounds.CHUNK_MAX_Y_SIZE; y++) {
             VoxelChunk& chunk = m_grid.allocateChunk(localPos.x, y, localPos.y);

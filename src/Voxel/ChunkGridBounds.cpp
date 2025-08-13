@@ -1,6 +1,6 @@
 #include "ChunkGridBounds.h"
 
-bool engine::ChunkGridBounds::isChunkInbounds(int x, int y, int z) const {
+bool engine::ChunkGridBounds::isWorldChunkInbounds(int x, int y, int z) const {
     int maxX = currentOriginChunk.x + usedChunkGridWidth;
     int maxZ = currentOriginChunk.y + usedChunkGridWidth;
     int maxY = ChunkGridBounds::CHUNK_MAX_Y_SIZE;
@@ -8,7 +8,7 @@ bool engine::ChunkGridBounds::isChunkInbounds(int x, int y, int z) const {
     return result;
 }
 
-bool engine::ChunkGridBounds::isPositionInbounds(const glm::vec3 &position) const {
+bool engine::ChunkGridBounds::isWorldPositionInbounds(const glm::vec3 &position) const {
     int minX = currentOriginChunk.x * CHUNCK_DIMENSION_SIZE;
     int minZ = currentOriginChunk.y * CHUNCK_DIMENSION_SIZE;
     int minY = 0;

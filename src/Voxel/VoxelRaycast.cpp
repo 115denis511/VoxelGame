@@ -10,7 +10,7 @@ bool engine::VoxelRaycast::raycastVoxel(
     // https://github.com/thegedge/voxel_iterator/blob/main/voxel_iterator.cpp
 
     // если начальная позиция вне чанков или направление равно нулю, то возвращаем false
-    if (!bounds.isPositionInbounds(voxelPosition) || (direction.x == 0 && direction.y == 0 && direction.z == 0)) return false;
+    if (!bounds.isWorldPositionInbounds(voxelPosition) || (direction.x == 0 && direction.y == 0 && direction.z == 0)) return false;
 
     hitPosition = voxelPosition;
     glm::vec3 next(intbound(hitPosition.x, direction.x), intbound(hitPosition.y, direction.y), intbound(hitPosition.z, direction.z));
@@ -19,7 +19,7 @@ bool engine::VoxelRaycast::raycastVoxel(
     maxDistance /= std::sqrt(direction.x * direction.x + direction.y * direction.y + direction.z * direction.z);
 
     bool first = true;
-    while (bounds.isPositionInbounds(hitPosition)) {
+    while (bounds.isWorldPositionInbounds(hitPosition)) {
         if (!first && grid.isPositionHasSolidVoxel(hitPosition)) return true;
         first = false;
 

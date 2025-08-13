@@ -26,7 +26,7 @@ void engine::ChunkGridVisibility::checkVisibility(
 
     if (gridBounds.usedChunkGridWidth == 0) return;
 
-    if (gridBounds.isChunkInbounds(cameraChunk.x, cameraChunk.y, cameraChunk.z)) {
+    if (gridBounds.isWorldChunkInbounds(cameraChunk.x, cameraChunk.y, cameraChunk.z)) {
         m_stack.push(std::make_pair(cameraChunkLocal, ChunkVisibilityState::Side::NONE));
     } 
     else {

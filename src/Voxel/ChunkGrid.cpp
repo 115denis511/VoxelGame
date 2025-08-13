@@ -92,7 +92,7 @@ void engine::ChunkGrid::freeChunk(int id) {
     m_chunks[id].setInUseFlag(false);
 }
 
-bool engine::ChunkGrid::isInUse(int x, int y, int z) {
+bool engine::ChunkGrid::isHaveChunk(int x, int y, int z) {
     return m_grid[x][z].chunk[y] >= 0;
 }
 
@@ -211,7 +211,7 @@ void engine::ChunkGrid::resizeToSmaller(int distance, std::vector<int> &chunksTo
 
 bool engine::ChunkGrid::isPositionHasSolidVoxel(const glm::vec3 &position) {
     glm::ivec3 chunkPos = VoxelPositionConverter::worldPositionToChunkPosition(position, m_gridBounds.CHUNCK_DIMENSION_SIZE);
-    if (!m_gridBounds.isChunkInbounds(chunkPos.x, chunkPos.y, chunkPos.z)) return false;
+    if (!m_gridBounds.isWorldChunkInbounds(chunkPos.x, chunkPos.y, chunkPos.z)) return false;
     glm::ivec2 localXZ = VoxelPositionConverter::worldChunkToLocalChunkPosition(chunkPos.x, chunkPos.z, m_gridBounds.currentOriginChunk.x, m_gridBounds.currentOriginChunk.y);
     glm::ivec3 localVoxel = VoxelPositionConverter::worldPositionToLocalVoxelPosition(position, m_gridBounds.CHUNCK_DIMENSION_SIZE);
     VoxelChunk& chunk = getChunk(localXZ.x, chunkPos.y, localXZ.y);
