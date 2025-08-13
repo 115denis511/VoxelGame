@@ -212,9 +212,12 @@ void engine::ChunkGrid::resizeToSmaller(int distance, std::vector<int> &chunksTo
 bool engine::ChunkGrid::isPositionHasSolidVoxel(const glm::vec3 &position) {
     glm::ivec3 chunkPos = VoxelPositionConverter::worldPositionToChunkPosition(position, m_gridBounds.CHUNCK_DIMENSION_SIZE);
     if (!m_gridBounds.isWorldChunkInbounds(chunkPos.x, chunkPos.y, chunkPos.z)) return false;
+
     glm::ivec2 localXZ = VoxelPositionConverter::worldChunkToLocalChunkPosition(chunkPos.x, chunkPos.z, m_gridBounds.currentOriginChunk.x, m_gridBounds.currentOriginChunk.y);
     glm::ivec3 localVoxel = VoxelPositionConverter::worldPositionToLocalVoxelPosition(position, m_gridBounds.CHUNCK_DIMENSION_SIZE);
+    if (!isHaveChunk(localXZ.x, chunkPos.y, localXZ.y)) return false;
     VoxelChunk& chunk = getChunk(localXZ.x, chunkPos.y, localXZ.y);
+
     bool result = chunk.isVoxelSolid(localVoxel.x, localVoxel.y, localVoxel.z);
     return result;
 }
