@@ -13,7 +13,7 @@ layout(std140, binding = 0) uniform DrawVars
     mat4 view;
 };
 
-layout(std430, binding = 12) readonly buffer ChunkData { uvec2 packedData[]; }; // src/Voxel/MarchingCubesManager.h::SSBO_BLOCK__GLOBAL_CHUNK_STOTAGE
+layout(std430, binding = 12) readonly buffer ChunkData { uvec2 packedData[]; }; // src/Voxel/MarchingCubesManager.h::SSBO_BLOCK__GLOBAL_CHUNK_STORAGE
 
 layout(std430, binding = 13) readonly buffer ChunkPositions { ivec4 chunkPositions[]; }; // src/Voxel/MarchingCubesManager.h::SSBO_BLOCK__CHUNK_POSITIONS
 
@@ -44,8 +44,8 @@ void main()
 {
     int currentInstance = gl_BaseInstance + gl_InstanceID;
     uint chunkId = chunkRefs[gl_DrawID];
-    uint dataLocation = (chunkId * 29791) + currentInstance;
-    UnpackedData data = unpackData(packedData[dataLocation]); // 29791 = 31 * 31 * 31
+    uint dataLocation = (chunkId * 32768) + currentInstance; // 32768 = 32 * 32 * 32
+    UnpackedData data = unpackData(packedData[dataLocation]); 
 
     int localTriangleVertexId = gl_VertexID % 3;
     int globalTriangleBaseVertexId = (gl_VertexID - localTriangleVertexId);

@@ -25,14 +25,14 @@ namespace engine {
         
         static constexpr size_t VOXEL_CHUNK_SIZE = 32;
         static constexpr float VOXEL_SIZE = 1.f;
-        static constexpr GLsizeiptr VOXEL_CHUNK_BYTE_SIZE = 31 * 31 * 31 * sizeof(glm::ivec2);
+        static constexpr size_t VOXEL_COUNT = VOXEL_CHUNK_SIZE * VOXEL_CHUNK_SIZE * VOXEL_CHUNK_SIZE;
+        static constexpr GLsizeiptr VOXEL_CHUNK_BYTE_SIZE = VOXEL_COUNT * sizeof(glm::ivec2);
 
         MarchingCubesVoxel getVoxel(short x, short y, short z);
         bool isVoxelSolid(short x, short y, short z);
         void setVoxel(short x, short y, short z, uint8_t id, uint8_t size = 3);
         void setInUpdateQueueFlag(bool flag) { m_isInUpdateQueue = flag; };
         void setInUseFlag(bool flag) { m_isInUse = flag; };
-        void setMustClearOnUpdateFlag(bool flag) { m_mustClearOnUpdate = flag; };
         void clear();
         void bindSSBO(GLuint blockId) { m_ssbo.bind(blockId); }
         ShaderStorageBuffer<glm::ivec2>& getSSBO() { return m_ssbo; };
@@ -43,7 +43,6 @@ namespace engine {
         void clearDrawCommands() { m_drawCount = 0; };
         bool isInUpdateQueue() { return m_isInUpdateQueue; };
         bool isInUse() { return m_isInUse; };
-        bool isMustClearOnUpdate() { return m_mustClearOnUpdate; };
         void updateVisibilityStates();
         void updateVisibilityStatesForEmptyChunk();
         bool isVisibleThrough(ChunkVisibilityState::Side from, ChunkVisibilityState::Side to) { return m_visibilityStates[static_cast<int>(from)].isVisible(to); };
@@ -56,14 +55,14 @@ namespace engine {
         int m_drawCount{ 0 };
         bool m_isInUpdateQueue{ false };
         bool m_isInUse{ false };
-        bool m_mustClearOnUpdate{ false };
         ChunkVisibilityState m_visibilityStates[ChunkVisibilityState::getSidesCount() + 1];
         union {
-            ShaderStorageBuffer<glm::ivec2> m_ssbo; // ВЫЗЫВАЕТСЯ ЛИ ЗДЕСЬ ДЕСТРУКТОР?
+            ShaderStorageBuffer<glm::ivec2> m_ssbo;
             GLuint m_idInSSBO;
         };
 
-        void initSSBO() { m_ssbo.init(31 * 31 * 31, BufferUsage::DYNAMIC_DRAW); }
+        void initSSBO() { m_ssbo.init(VOXEL_COUNT, BufferUsage::DYNAMIC_DRAW); }
+        void freeSSBO() { m_ssbo.~ShaderStorageBuffer<glm::ivec2>(); }
         void setIdInSSBO(GLuint start) { m_idInSSBO = start; }
         bool isPositionInsideChunk(short x, short y, short z) { 
             return x >= 0 && x < (short)VOXEL_CHUNK_SIZE && 

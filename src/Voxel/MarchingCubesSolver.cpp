@@ -1,56 +1,22 @@
 #include "MarchingCubesSolver.h"
 
 engine::MarchingCubesSolver::MarchingCubesSolver() {
-
+    clear();
 }
 
-void engine::MarchingCubesSolver::regenerateChunk(MarchingCubes &marchingCubes, VoxelChunk &chunk, ShaderStorageBuffer<glm::ivec2>& globalChunkSSBO) {
-    constexpr short MARCHING_CUBES_COUNT = 31;
-    int cubesCount = 0;
-
-    // Определение количества отрисовок для каждой из фигур марширующих кубов и
-    // упаковка данных фигур для последующей загрузки в буфер SSBO
-    for (short z = 0; z < MARCHING_CUBES_COUNT; z++) {
-        for (short y = 0; y < MARCHING_CUBES_COUNT; y++) {
-            for (short x = 0; x < MARCHING_CUBES_COUNT; x++) {
-                MarchingCubesVoxel voxels[8] {
-                    chunk.getVoxel(x, y + 1, z + 1), // topFrontLeft
-                    chunk.getVoxel(x + 1, y + 1, z + 1), // topFrontRight
-                    chunk.getVoxel(x + 1, y + 1, z), // topBackRight
-                    chunk.getVoxel(x, y + 1, z), // topBackLeft
-                    chunk.getVoxel(x, y, z + 1), // bottomFrontLeft
-                    chunk.getVoxel(x + 1, y, z + 1), // bottomFrontRight
-                    chunk.getVoxel(x + 1, y, z), // bottomBackRight
-                    chunk.getVoxel(x, y, z) // bottomBackLeft
-                };
-
-                uint8_t caseId = getCaseIndex(voxels);
-                if (caseId == 0 || caseId == 255) continue;
-
-                auto verticesIds = marchingCubes.getVertecesIds(caseId);
-                // vId - индекс вершины в массиве voxels[]
-                int offsets[6] = { 0, 0, 0, 0, 0, 0 };
-                for (int i = 0; i < 6; i++) {
-                    int vId = verticesIds.ids[i];
-                    offsets[i] = voxels[vId].size;
-                }
-                int textures[4] = { 0, 0, 0, 0 };
-                for (int i = 0; i < 4; i++) {
-                    int vId = verticesIds.ids[i];
-                    textures[i] = voxels[vId].id;
-                }
-
-                glm::ivec2 caseData = packData(x, y, z, offsets, textures);
-                m_caseData[caseId].push_back(caseData);
-                cubesCount++;
-            }
-        }
-    }
+void engine::MarchingCubesSolver::regenerateChunk(
+    MarchingCubes &marchingCubes, 
+    ChunkGrid& grid, 
+    glm::ivec3 position, 
+    VoxelChunk &chunk, 
+    ShaderStorageBuffer<glm::ivec2>& globalChunkSSBO
+) {
+    accumulateCases(marchingCubes, grid, position, chunk);
 
     // Сборка коммандного буфера
     chunk.clearDrawCommands();
     std::vector<glm::ivec2> dataBuffer;
-    dataBuffer.reserve(cubesCount);
+    dataBuffer.reserve(m_cubesCount);
     int baseIndex = 0;
     for (int i = 1; i < 255; i++) {
         if (m_caseData[i].size() == 0) continue;
@@ -70,7 +36,7 @@ void engine::MarchingCubesSolver::regenerateChunk(MarchingCubes &marchingCubes, 
     }
 
     if (globalChunkSSBO.isInited()) {
-        constexpr GLsizei dataPerChunk = 31 * 31 * 31 * sizeof(glm::ivec2);
+        constexpr GLsizei dataPerChunk = VoxelChunk::VOXEL_CHUNK_BYTE_SIZE;
         GLsizei dataOffset = dataPerChunk * chunk.getIdInSSBO();
         globalChunkSSBO.pushData(&dataBuffer[0], dataBuffer.size(), dataOffset);
     }
@@ -98,13 +64,219 @@ void engine::MarchingCubesSolver::regenerateChunk(MarchingCubes &marchingCubes, 
     clear();
 }
 
+void engine::MarchingCubesSolver::accumulateCases(MarchingCubes &marchingCubes, ChunkGrid &grid, glm::ivec3 position, VoxelChunk &chunk) {
+    constexpr int MARCHING_CUBES_COUNT = 31;
+
+    // Определение количества отрисовок для каждой из фигур марширующих кубов и
+    // упаковка данных фигур для последующей загрузки в буфер SSBO
+    for (int z = 0; z < MARCHING_CUBES_COUNT; z++) {
+        for (int y = 0; y < MARCHING_CUBES_COUNT; y++) {
+            for (int x = 0; x < MARCHING_CUBES_COUNT; x++) {
+                std::array<MarchingCubesVoxel, 8> voxels {
+                    chunk.getVoxel(x, y + 1, z + 1), // topFrontLeft
+                    chunk.getVoxel(x + 1, y + 1, z + 1), // topFrontRight
+                    chunk.getVoxel(x + 1, y + 1, z), // topBackRight
+                    chunk.getVoxel(x, y + 1, z), // topBackLeft
+                    chunk.getVoxel(x, y, z + 1), // bottomFrontLeft
+                    chunk.getVoxel(x + 1, y, z + 1), // bottomFrontRight
+                    chunk.getVoxel(x + 1, y, z), // bottomBackRight
+                    chunk.getVoxel(x, y, z) // bottomBackLeft
+                };
+                addMarchingCube(marchingCubes, voxels, x, y, z);
+            }
+        }
+    }
+
+    ChunkGridBounds& gridBounds = grid.getGridBounds();
+    VoxelPositionConverter& converter = grid.getPositionConverter();
+
+    glm::ivec2 frontPos = converter.worldChunkToLocalChunkPosition(position.x, position.z + 1, gridBounds.currentOriginChunk.x, gridBounds.currentOriginChunk.y);
+    bool isFrontAvailable = gridBounds.isWorldChunkInbounds(position.x, position.y, position.z + 1) && grid.isHaveChunk(frontPos.x, position.y, frontPos.y);
+    if (isFrontAvailable) {
+        VoxelChunk& neighbour = grid.getChunk(frontPos.x, position.y, frontPos.y); 
+
+        for (int y = 0; y < MARCHING_CUBES_COUNT; y++) {
+            for (int x = 0; x < MARCHING_CUBES_COUNT; x++) {
+                std::array<MarchingCubesVoxel, 8> voxels {
+                    neighbour.getVoxel(x, y + 1, 0), // topFrontLeft
+                    neighbour.getVoxel(x + 1, y + 1, 0), // topFrontRight
+                    chunk.getVoxel(x + 1, y + 1, 31), // topBackRight
+                    chunk.getVoxel(x, y + 1, 31), // topBackLeft
+                    neighbour.getVoxel(x, y, 0), // bottomFrontLeft
+                    neighbour.getVoxel(x + 1, y, 0), // bottomFrontRight
+                    chunk.getVoxel(x + 1, y, 31), // bottomBackRight
+                    chunk.getVoxel(x, y, 31) // bottomBackLeft
+                };
+                addMarchingCube(marchingCubes, voxels, x, y, 31);
+            }
+        }
+    }
+
+    glm::ivec2 rightPos = converter.worldChunkToLocalChunkPosition(position.x + 1, position.z, gridBounds.currentOriginChunk.x, gridBounds.currentOriginChunk.y);
+    bool isRightAvailable = gridBounds.isWorldChunkInbounds(position.x + 1, position.y, position.z) && grid.isHaveChunk(rightPos.x, position.y, rightPos.y);
+    if (isRightAvailable) {
+        VoxelChunk& neighbour = grid.getChunk(rightPos.x, position.y, rightPos.y); 
+
+        for (int y = 0; y < MARCHING_CUBES_COUNT; y++) {
+            for (int z = 0; z < MARCHING_CUBES_COUNT; z++) {
+                std::array<MarchingCubesVoxel, 8> voxels {
+                    chunk.getVoxel(31, y + 1, z + 1), // topFrontLeft
+                    neighbour.getVoxel(0, y + 1, z + 1), // topFrontRight
+                    neighbour.getVoxel(0, y + 1, z), // topBackRight
+                    chunk.getVoxel(31, y + 1, z), // topBackLeft
+                    chunk.getVoxel(31, y, z + 1), // bottomFrontLeft
+                    neighbour.getVoxel(0, y, z + 1), // bottomFrontRight
+                    neighbour.getVoxel(0, y, z), // bottomBackRight
+                    chunk.getVoxel(31, y, z) // bottomBackLeft
+                };
+                addMarchingCube(marchingCubes, voxels, 31, y, z);
+            }
+        }
+    }
+
+    glm::ivec2 topPos = converter.worldChunkToLocalChunkPosition(position.x, position.z, gridBounds.currentOriginChunk.x, gridBounds.currentOriginChunk.y);
+    bool isUpAvailable = (position.y + 1 < gridBounds.CHUNK_MAX_Y_SIZE) && grid.isHaveChunk(topPos.x, position.y + 1, topPos.y);
+    if (isUpAvailable) {
+        VoxelChunk& neighbour = grid.getChunk(topPos.x, position.y + 1, topPos.y); 
+
+        for (int x = 0; x < MARCHING_CUBES_COUNT; x++) {
+            for (int z = 0; z < MARCHING_CUBES_COUNT; z++) {
+                std::array<MarchingCubesVoxel, 8> voxels {
+                    neighbour.getVoxel(x, 0, z + 1), // topFrontLeft
+                    neighbour.getVoxel(x + 1, 0, z + 1), // topFrontRight
+                    neighbour.getVoxel(x + 1, 0, z), // topBackRight
+                    neighbour.getVoxel(x, 0, z), // topBackLeft
+                    chunk.getVoxel(x, 31, z + 1), // bottomFrontLeft
+                    chunk.getVoxel(x + 1, 31, z + 1), // bottomFrontRight
+                    chunk.getVoxel(x + 1, 31, z), // bottomBackRight
+                    chunk.getVoxel(x, 31, z) // bottomBackLeft
+                };
+                addMarchingCube(marchingCubes, voxels, x, 31, z);
+            }
+        }
+    }
+
+    glm::ivec2 frontRightPos = converter.worldChunkToLocalChunkPosition(position.x + 1, position.z + 1, gridBounds.currentOriginChunk.x, gridBounds.currentOriginChunk.y);
+    bool isFrontRightAvailable = isFrontAvailable && isRightAvailable && grid.isHaveChunk(frontRightPos.x, position.y, frontRightPos.y);
+    if (isFrontRightAvailable) {
+        VoxelChunk& neighbourFront = grid.getChunk(frontPos.x, position.y, frontPos.y); 
+        VoxelChunk& neighbourRight = grid.getChunk(rightPos.x, position.y, rightPos.y); 
+        VoxelChunk& neighbour = grid.getChunk(frontRightPos.x, position.y, frontRightPos.y); 
+
+        for (int y = 0; y < MARCHING_CUBES_COUNT; y++) {
+            std::array<MarchingCubesVoxel, 8> voxels {
+                neighbourFront.getVoxel(31, y + 1, 0), // topFrontLeft
+                neighbour.getVoxel(0, y + 1, 0), // topFrontRight
+                neighbourRight.getVoxel(0, y + 1, 31), // topBackRight
+                chunk.getVoxel(31, y + 1, 31), // topBackLeft
+                neighbourFront.getVoxel(31, y, 0), // bottomFrontLeft
+                neighbour.getVoxel(0, y, 0), // bottomFrontRight
+                neighbourRight.getVoxel(0, y, 31), // bottomBackRight
+                chunk.getVoxel(31, y, 31) // bottomBackLeft
+            };
+            addMarchingCube(marchingCubes, voxels, 31, y, 31);
+        }
+    }
+
+    glm::ivec2 frontTopPos = converter.worldChunkToLocalChunkPosition(position.x, position.z + 1, gridBounds.currentOriginChunk.x, gridBounds.currentOriginChunk.y);
+    bool isFrontTopAvailable = isFrontAvailable && isUpAvailable && grid.isHaveChunk(frontTopPos.x, position.y + 1, frontTopPos.y);
+    if (isFrontTopAvailable) {
+        VoxelChunk& neighbourFront = grid.getChunk(frontPos.x, position.y, frontPos.y); 
+        VoxelChunk& neighbourUp = grid.getChunk(topPos.x, position.y + 1, topPos.y); 
+        VoxelChunk& neighbour = grid.getChunk(frontTopPos.x, position.y + 1, frontTopPos.y); 
+
+        for (int x = 0; x < MARCHING_CUBES_COUNT; x++) {
+            std::array<MarchingCubesVoxel, 8> voxels {
+                neighbour.getVoxel(x, 0, 0), // topFrontLeft
+                neighbour.getVoxel(x + 1, 0, 0), // topFrontRight
+                neighbourUp.getVoxel(x + 1, 0, 31), // topBackRight
+                neighbourUp.getVoxel(x, 0, 31), // topBackLeft
+                neighbourFront.getVoxel(x, 31, 0), // bottomFrontLeft
+                neighbourFront.getVoxel(x + 1, 31, 0), // bottomFrontRight
+                chunk.getVoxel(x + 1, 31, 31), // bottomBackRight
+                chunk.getVoxel(x, 31, 31) // bottomBackLeft
+            };
+            addMarchingCube(marchingCubes, voxels, x, 31, 31);
+        }
+    }
+
+    glm::ivec2 rightTopPos = converter.worldChunkToLocalChunkPosition(position.x + 1, position.z, gridBounds.currentOriginChunk.x, gridBounds.currentOriginChunk.y);
+    bool isRightTopAvailable = isRightAvailable && isUpAvailable && grid.isHaveChunk(rightTopPos.x, position.y + 1, rightTopPos.y);
+    if (isRightTopAvailable) {
+        VoxelChunk& neighbourRight = grid.getChunk(rightPos.x, position.y, rightPos.y); 
+        VoxelChunk& neighbourUp = grid.getChunk(topPos.x, position.y + 1, topPos.y); 
+        VoxelChunk& neighbour = grid.getChunk(rightTopPos.x, position.y + 1, rightTopPos.y); 
+
+        for (int z = 0; z < MARCHING_CUBES_COUNT; z++) {
+            std::array<MarchingCubesVoxel, 8> voxels {
+                neighbourUp.getVoxel(31, 0, z + 1), // topFrontLeft
+                neighbour.getVoxel(0, 0, z + 1), // topFrontRight
+                neighbour.getVoxel(0, 0, z), // topBackRight
+                neighbourUp.getVoxel(31, 0, z), // topBackLeft
+                chunk.getVoxel(31, 31, z + 1), // bottomFrontLeft
+                neighbourRight.getVoxel(0, 31, z + 1), // bottomFrontRight
+                neighbourRight.getVoxel(0, 31, z), // bottomBackRight
+                chunk.getVoxel(31, 31, z) // bottomBackLeft
+            };
+            addMarchingCube(marchingCubes, voxels, 31, 31, z);
+        }
+    }
+
+    glm::ivec2 frontRightTopPos = converter.worldChunkToLocalChunkPosition(position.x + 1, position.z + 1, gridBounds.currentOriginChunk.x, gridBounds.currentOriginChunk.y);
+    if (isFrontRightAvailable && isFrontTopAvailable && isRightTopAvailable && grid.isHaveChunk(frontRightTopPos.x, position.y + 1, frontRightTopPos.y)) {
+        VoxelChunk& neighbourFront = grid.getChunk(frontPos.x, position.y, frontPos.y); 
+        VoxelChunk& neighbourRight = grid.getChunk(rightPos.x, position.y, rightPos.y); 
+        VoxelChunk& neighbourUp = grid.getChunk(topPos.x, position.y + 1, topPos.y); 
+        VoxelChunk& neighbourFrontRight = grid.getChunk(frontRightPos.x, position.y, frontRightPos.y); 
+        VoxelChunk& neighbourFrontTop = grid.getChunk(frontTopPos.x, position.y + 1, frontTopPos.y); 
+        VoxelChunk& neighbourRightTop = grid.getChunk(rightTopPos.x, position.y + 1, rightTopPos.y); 
+        VoxelChunk& neighbourFrontRightTop = grid.getChunk(frontRightTopPos.x, position.y + 1, frontRightTopPos.y); 
+
+        std::array<MarchingCubesVoxel, 8> voxels {
+            neighbourFrontTop.getVoxel(31, 0, 0), // topFrontLeft
+            neighbourFrontRightTop.getVoxel(0, 0, 0), // topFrontRight
+            neighbourRightTop.getVoxel(0, 0, 31), // topBackRight
+            neighbourUp.getVoxel(31, 0, 31), // topBackLeft
+            neighbourFront.getVoxel(31, 31, 0), // bottomFrontLeft
+            neighbourFrontRight.getVoxel(0, 31, 0), // bottomFrontRight
+            neighbourRight.getVoxel(0, 31, 31), // bottomBackRight
+            chunk.getVoxel(31, 31, 31) // bottomBackLeft
+        };
+        addMarchingCube(marchingCubes, voxels, 31, 31, 31);
+    }
+}
+
 void engine::MarchingCubesSolver::clear() {
+    m_cubesCount = 0;
+
     for (std::vector<glm::ivec2>& caseBuffer : m_caseData) {
         caseBuffer.clear();
     }
 }
 
-uint8_t engine::MarchingCubesSolver::getCaseIndex(MarchingCubesVoxel voxels[8]) {
+void engine::MarchingCubesSolver::addMarchingCube(MarchingCubes& marchingCubes, std::array<MarchingCubesVoxel, 8> &voxels, int x, int y, int z) {
+    uint8_t caseId = getCaseIndex(voxels);
+    if (caseId == 0 || caseId == 255) return;
+
+    auto verticesIds = marchingCubes.getVertecesIds(caseId);
+    // vId - индекс вершины в массиве voxels[]
+    int offsets[6] = { 0, 0, 0, 0, 0, 0 };
+    for (int i = 0; i < 6; i++) {
+        int vId = verticesIds.ids[i];
+        offsets[i] = voxels[vId].size;
+    }
+    int textures[4] = { 0, 0, 0, 0 };
+    for (int i = 0; i < 4; i++) {
+        int vId = verticesIds.ids[i];
+        textures[i] = voxels[vId].id;
+    }
+
+    glm::ivec2 caseData = packData(x, y, z, offsets, textures);
+    m_caseData[caseId].push_back(caseData);
+    m_cubesCount++;
+}
+
+uint8_t engine::MarchingCubesSolver::getCaseIndex(std::array<MarchingCubesVoxel, 8>& voxels) {
     uint8_t caseId = voxels[0].id < 128;
     caseId |= (voxels[1].id < 128) << 1;
     caseId |= (voxels[2].id < 128) << 2;

@@ -28,8 +28,12 @@ void engine::ChunkGrid::initChunkLocationsInSSBO() {
     for (int i = 0; i < ChunkGridBounds::CHUNK_COUNT; i++) {
         m_chunks[i].setIdInSSBO(i);
     }
+}
 
-    m_chunkPositions = std::vector<glm::ivec4>(ChunkGridBounds::CHUNK_COUNT, glm::ivec4(0));
+void engine::ChunkGrid::freeChunksSSBO() {
+    for (auto& chunk : m_chunks) {
+        chunk.freeSSBO();
+    }
 }
 
 int engine::ChunkGrid::getChunkId(int x, int y, int z) {
@@ -58,23 +62,21 @@ engine::VoxelChunk &engine::ChunkGrid::allocateChunk(int x, int y, int z) {
     chunk.setInUseFlag(true);
     m_grid[x][z].chunk[y] = id;
 
-    if (!m_chunkPositions.empty()) {
-        m_minUpdated = std::min(m_minUpdated, id);
-        m_maxUpdated = std::max(m_maxUpdated, id);
+    m_minUpdated = std::min(m_minUpdated, id);
+    m_maxUpdated = std::max(m_maxUpdated, id);
 
-        glm::ivec2 worldPosition = m_converter.localChunkToWorldChunkPosition(
-            x, 
-            z, 
-            m_gridBounds.currentOriginChunk.x, 
-            m_gridBounds.currentOriginChunk.y
-        );
-        m_chunkPositions[id] = glm::ivec4(
-            worldPosition.x * m_gridBounds.CHUNCK_DIMENSION_SIZE, 
-            y * m_gridBounds.CHUNCK_DIMENSION_SIZE, 
-            worldPosition.y * m_gridBounds.CHUNCK_DIMENSION_SIZE, 
-            0
-        );
-    }
+    glm::ivec2 worldPosition = m_converter.localChunkToWorldChunkPosition(
+        x, 
+        z, 
+        m_gridBounds.currentOriginChunk.x, 
+        m_gridBounds.currentOriginChunk.y
+    );
+    m_chunkPositions[id] = glm::ivec4(
+        worldPosition.x * m_gridBounds.CHUNCK_DIMENSION_SIZE, 
+        y * m_gridBounds.CHUNCK_DIMENSION_SIZE, 
+        worldPosition.y * m_gridBounds.CHUNCK_DIMENSION_SIZE, 
+        0
+    );
 
     return chunk;
 }

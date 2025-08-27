@@ -3,7 +3,10 @@
 
 #include "../stdafx.h"
 #include "../Render/ShaderStorageBuffer.h"
+#include "ChunkGrid.h"
+#include "ChunkGridBounds.h"
 #include "VoxelChunk.h"
+#include "VoxelPositionConverter.h"
 #include "MarchingCubes.h"
 
 namespace engine {
@@ -11,13 +14,27 @@ namespace engine {
     public:
         MarchingCubesSolver();
 
-        void regenerateChunk(MarchingCubes& marchingCubes, VoxelChunk& chunk, ShaderStorageBuffer<glm::ivec2>& globalChunkSSBO);
+        void regenerateChunk(
+            MarchingCubes& marchingCubes, 
+            ChunkGrid& grid, 
+            glm::ivec3 position, 
+            VoxelChunk& chunk, 
+            ShaderStorageBuffer<glm::ivec2>& globalChunkSSBO
+        );
 
     private:
         std::vector<glm::ivec2> m_caseData[256];
+        int m_cubesCount{ 0 };
 
+        void accumulateCases(
+            MarchingCubes& marchingCubes, 
+            ChunkGrid& grid, 
+            glm::ivec3 position, 
+            VoxelChunk& chunk
+        );
         void clear();
-        uint8_t getCaseIndex(MarchingCubesVoxel voxels[8]);
+        void addMarchingCube(MarchingCubes& marchingCubes, std::array<MarchingCubesVoxel, 8>& voxels, int x, int y, int z);
+        uint8_t getCaseIndex(std::array<MarchingCubesVoxel, 8>& voxels);
         glm::ivec2 packData(int x, int y, int z, int offset[6], int textureId[4]);
         
     };

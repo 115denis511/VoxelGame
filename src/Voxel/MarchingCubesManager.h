@@ -33,7 +33,7 @@ namespace engine {
 
         static MarchingCubesManager* getInstance();
 
-        static constexpr GLuint SSBO_BLOCK__GLOBAL_CHUNK_STOTAGE = 12;
+        static constexpr GLuint SSBO_BLOCK__GLOBAL_CHUNK_STORAGE = 12;
         static constexpr GLuint SSBO_BLOCK__CHUNK_POSITIONS = 13;
         static constexpr GLuint SSBO_BLOCK__VOXEL_VERTECES_DATA_IDS = 14;
         static constexpr GLuint SSBO_BLOCK__DRAW_ID_TO_CHUNK = 15;

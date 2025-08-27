@@ -35,13 +35,15 @@ namespace engine {
         );
         void pushToUpdateQueue(size_t index);
         void pushToUpdateQueueForced(size_t index);
-        VoxelChunk& popFromUpdateQueue();
+        size_t popFromUpdateQueue();
 
     private:
         ChunkGrid& m_grid;
         std::stack<size_t> m_toUpdateQueue;
         std::vector<glm::ivec2> m_toGenerateQueue;
         MarchingCubesSolver m_solver;
+
+        void refineChunkBorders(ChunkGridBounds& gridBounds, glm::ivec2 localPos);
     };
 }
 

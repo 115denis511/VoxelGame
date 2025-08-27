@@ -5,7 +5,7 @@
 
 namespace engine {
     struct ChunkGridBounds {
-        static constexpr int CHUNCK_DIMENSION_SIZE = 32 - 1;
+        static constexpr int CHUNCK_DIMENSION_SIZE = 32;
         static constexpr int VOXEL_SIZE = 1;
         static constexpr int CHUNK_MAX_X_Z_SIZE = 24;
         static constexpr int CHUNK_MAX_Y_SIZE = 8;
