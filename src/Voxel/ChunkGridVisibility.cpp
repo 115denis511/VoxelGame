@@ -16,23 +16,23 @@ void engine::ChunkGridVisibility::clearResults() {
 
 void engine::ChunkGridVisibility::checkVisibility(
     const glm::vec3 &cameraPosition, const glm::vec3 &cameraDirection, 
-    const Frustum& frustum, VisabilityType type, ChunkGrid &grid, const ChunkGridBounds &gridBounds
+    const Frustum& frustum, VisabilityType type, ChunkGrid &grid, const ChunkGridBounds &gridBounds, VoxelPositionConverter& converter
 ) {
     // Сделано на основе следующих материалов:
     // https://tomcc.github.io/2014/08/31/visibility-1.html
     // https://tomcc.github.io/2014/08/31/visibility-2.html
-    glm::ivec3 cameraChunk = VoxelPositionConverter::worldPositionToChunkPosition(cameraPosition, gridBounds.CHUNCK_DIMENSION_SIZE);
-    glm::ivec3 cameraChunkLocal = VoxelPositionConverter::worldChunkToLocalChunkPosition(cameraChunk, gridBounds.currentOriginChunk);
+    glm::ivec3 cameraChunk = converter.worldPositionToChunkPosition(cameraPosition, gridBounds.CHUNCK_DIMENSION_SIZE);
+    glm::ivec3 cameraChunkLocal = converter.worldChunkToLocalChunkPosition(cameraChunk, gridBounds.currentOriginChunk);
 
     if (gridBounds.usedChunkGridWidth == 0) return;
 
     if (gridBounds.isWorldChunkInbounds(cameraChunk.x, cameraChunk.y, cameraChunk.z)) {
-        m_stack.push(std::make_pair(cameraChunkLocal, ChunkVisibilityState::Side::NONE));
+        queueCloseToCameraChunks(cameraPosition, cameraChunkLocal, frustum, grid, gridBounds, converter);
     } 
     else {
-        queueBorderChunks(cameraPosition, frustum, gridBounds);
+        queueBorderChunks(cameraPosition, frustum, gridBounds, converter);
         /*m_stack.push(std::make_pair(
-            raycastBorderChunk(cameraPosition, cameraDirection, frustum, gridBounds), 
+            raycastBorderChunk(cameraPosition, cameraDirection, frustum, gridBounds, converter), 
             ChunkVisibilityState::Side::NONE
         ));*/
     }
@@ -60,15 +60,88 @@ void engine::ChunkGridVisibility::checkVisibility(
             VoxelChunk& chunk = grid.getChunk(currentChunk.x, currentChunk.y, currentChunk.z);
             if (!chunk.isVisibleThrough(cameFrom, cameTo)) { continue; }
 
-            if (!isChunkInFrustum(neighbourChunk, frustum, gridBounds)) { continue; }
+            if (!isChunkInFrustum(neighbourChunk, frustum, gridBounds, converter)) { continue; }
 
             m_stack.push(std::pair<glm::ivec3, ChunkVisibilityState::Side>(neighbourChunk, cameTo));
         }
     }
+
+    borderVisibilityFix(frustum, type, grid, gridBounds, converter);
 }
 
-bool engine::ChunkGridVisibility::isChunkInFrustum(const glm::ivec3 &chunkPosition, const Frustum &frustum, const ChunkGridBounds &gridBounds) {
-    glm::ivec2 worldChunkPos = VoxelPositionConverter::localChunkToWorldChunkPosition(
+void engine::ChunkGridVisibility::borderVisibilityFix(
+    const Frustum& frustum, VisabilityType type, ChunkGrid &grid, const ChunkGridBounds &gridBounds, VoxelPositionConverter& converter
+) {
+    for (int x = 1; x < ChunkGridBounds::CHUNK_MAX_X_Z_SIZE; x++) {
+        for (int z = 1; z < ChunkGridBounds::CHUNK_MAX_X_Z_SIZE; z++) {
+            if (isVisible(x, 0, z, type)) { 
+                VoxelChunk& chunk = grid.getChunk(x, 0, z);
+                bool isBackAvailable = false, isLeftAvailable = false;
+                borderVisibilityFixGroundLevel(frustum, type, gridBounds, converter, chunk, x, 0, z, isBackAvailable, isLeftAvailable);
+            }
+
+            for (int y = 1; y < ChunkGridBounds::CHUNK_MAX_Y_SIZE; y++) {
+                if (!isVisible(x, y, z, type)) { continue; }
+
+                VoxelChunk& chunk = grid.getChunk(x, y, z);
+                
+                bool isBackAvailable = false, isLeftAvailable = false;
+                borderVisibilityFixGroundLevel(frustum, type, gridBounds, converter, chunk, x, y, z, isBackAvailable, isLeftAvailable);
+                borderVisibilityFixUndergroundLevel(frustum, type, gridBounds, converter, chunk, x, y, z, isBackAvailable, isLeftAvailable);
+            }
+        }
+    }
+}
+
+void engine::ChunkGridVisibility::borderVisibilityFixGroundLevel(
+    const Frustum& frustum, VisabilityType type, const ChunkGridBounds &gridBounds, VoxelPositionConverter& converter,
+    VoxelChunk& chunk, int x, int y, int z, bool &isBackAvailable, bool &isLeftAvailable
+) {
+    ChunkVisibilityState::Side side = ChunkVisibilityState::Side::BACK_FACE;
+    isBackAvailable = chunk.isVisibleThrough(side, side);
+    if (isBackAvailable && !isVisible(x, y, z - 1, type) && isChunkInFrustum(glm::ivec3(x, y, z - 1), frustum, gridBounds, converter)) {
+        setVisibilityStateVisible(glm::ivec3(x, y, z - 1), type);
+    }
+
+    side = ChunkVisibilityState::Side::LEFT_FACE;
+    isLeftAvailable = chunk.isVisibleThrough(side, side);
+    if (isLeftAvailable && !isVisible(x - 1, y, z, type) && isChunkInFrustum(glm::ivec3(x - 1, y, z), frustum, gridBounds, converter)) {
+        setVisibilityStateVisible(glm::ivec3(x - 1, y, z), type);
+    }
+
+    if ((isBackAvailable && isLeftAvailable) && !isVisible(x - 1, y, z - 1, type) && isChunkInFrustum(glm::ivec3(x - 1, y, z - 1), frustum, gridBounds, converter)) {
+        setVisibilityStateVisible(glm::ivec3(x - 1, y, z - 1), type);
+    }
+}
+
+void engine::ChunkGridVisibility::borderVisibilityFixUndergroundLevel(
+    const Frustum& frustum, VisabilityType type, const ChunkGridBounds &gridBounds, VoxelPositionConverter& converter,
+    VoxelChunk& chunk, int x, int y, int z, bool isBackAvailable, bool isLeftAvailable
+) { 
+    ChunkVisibilityState::Side side = ChunkVisibilityState::Side::BOTTOM_FACE;
+    bool isBottomAvailable = chunk.isVisibleThrough(side, side);
+    if (isBottomAvailable && !isVisible(x, y - 1, z, type) && isChunkInFrustum(glm::ivec3(x, y - 1, z), frustum, gridBounds, converter)) {
+        setVisibilityStateVisible(glm::ivec3(x, y - 1, z), type);
+    }
+
+    if ((isBackAvailable && isBottomAvailable) && !isVisible(x, y - 1, z - 1, type) && isChunkInFrustum(glm::ivec3(x, y - 1, z - 1), frustum, gridBounds, converter)) {
+        setVisibilityStateVisible(glm::ivec3(x, y - 1, z - 1), type);
+    } 
+    if ((isBottomAvailable && isLeftAvailable) && !isVisible(x - 1, y - 1, z, type) && isChunkInFrustum(glm::ivec3(x - 1, y - 1, z), frustum, gridBounds, converter)) {
+        setVisibilityStateVisible(glm::ivec3(x - 1, y - 1, z), type);
+    } 
+    if (
+        (isBottomAvailable && isLeftAvailable && isBackAvailable) && 
+        !isVisible(x - 1, y - 1, z - 1, type) && isChunkInFrustum(glm::ivec3(x - 1, y - 1, z - 1), frustum, gridBounds, converter)
+    ) {
+        setVisibilityStateVisible(glm::ivec3(x - 1, y - 1, z - 1), type);
+    } 
+}
+
+bool engine::ChunkGridVisibility::isChunkInFrustum(
+    const glm::ivec3 &chunkPosition, const Frustum &frustum, const ChunkGridBounds &gridBounds, VoxelPositionConverter& converter
+) {
+    glm::ivec2 worldChunkPos = converter.localChunkToWorldChunkPosition(
         chunkPosition.x, chunkPosition.z, gridBounds.currentOriginChunk.x, gridBounds.currentOriginChunk.y
     );
     unsigned int height = chunkPosition.y * gridBounds.CHUNCK_DIMENSION_SIZE;
@@ -92,7 +165,7 @@ bool engine::ChunkGridVisibility::isChunkInFrustum(const glm::ivec3 &chunkPositi
 }
 
 glm::ivec3 engine::ChunkGridVisibility::raycastBorderChunk(
-    const glm::vec3 &cameraPosition, const glm::vec3& cameraDirection, const Frustum &frustum, const ChunkGridBounds &gridBounds
+    const glm::vec3 &cameraPosition, const glm::vec3& cameraDirection, const Frustum &frustum, const ChunkGridBounds &gridBounds, VoxelPositionConverter& converter
 ) {
     float halfWidth = (gridBounds.usedChunkGridWidth * gridBounds.CHUNCK_DIMENSION_SIZE) / 2;
     float halfHeight = (gridBounds.CHUNK_MAX_Y_SIZE * gridBounds.CHUNCK_DIMENSION_SIZE) / 2;
@@ -111,8 +184,8 @@ glm::ivec3 engine::ChunkGridVisibility::raycastBorderChunk(
     }
     
     glm::vec3 position = cameraPosition + cameraDirection * (distance + 1.f);
-    glm::ivec3 iPosition = VoxelPositionConverter::worldPositionToChunkPosition(position, gridBounds.CHUNCK_DIMENSION_SIZE);
-    iPosition = VoxelPositionConverter::worldChunkToLocalChunkPosition(iPosition.x, iPosition.y, iPosition.z, gridBounds.currentOriginChunk.x, gridBounds.currentOriginChunk.y);
+    glm::ivec3 iPosition = converter.worldPositionToChunkPosition(position, gridBounds.CHUNCK_DIMENSION_SIZE);
+    iPosition = converter.worldChunkToLocalChunkPosition(iPosition.x, iPosition.y, iPosition.z, gridBounds.currentOriginChunk.x, gridBounds.currentOriginChunk.y);
 
     if (iPosition.x < 0) { iPosition.x = 0; }
     else if (iPosition.x >= (int)gridBounds.usedChunkGridWidth) { iPosition.x = (int)gridBounds.usedChunkGridWidth - 1; }
@@ -124,14 +197,97 @@ glm::ivec3 engine::ChunkGridVisibility::raycastBorderChunk(
     return iPosition;
 }
 
-void engine::ChunkGridVisibility::queueBorderChunks(const glm::vec3 &cameraPosition, const Frustum &frustum, const ChunkGridBounds &gridBounds) {
+void engine::ChunkGridVisibility::queueCloseToCameraChunks(
+    const glm::vec3& cameraPosition, const glm::vec3 &localCameraChunk, 
+    const Frustum &frustum, ChunkGrid& grid, const ChunkGridBounds &gridBounds, VoxelPositionConverter& converter
+) {
+    m_stack.push(std::make_pair(localCameraChunk, ChunkVisibilityState::Side::NONE));
+    
+    glm::ivec3 worldVoxel = converter.worldPositionToVoxelPosition(cameraPosition, gridBounds.VOXEL_SIZE);
+    glm::ivec3 localVoxel = converter.worldPositionToLocalVoxelPosition(worldVoxel, gridBounds.CHUNCK_DIMENSION_SIZE);
+    
+    if (localVoxel.x < 31 && localVoxel.y < 31 && localVoxel.z < 31) { return; }
+    if (!gridBounds.isChunkXZInbounds(localCameraChunk.x, localCameraChunk.z) || !gridBounds.isChunkYInbounds(localCameraChunk.y)) { return; }
+
+    constexpr ChunkVisibilityState::Side sideF = ChunkVisibilityState::Side::FRONT_FACE;
+    constexpr ChunkVisibilityState::Side sideR = ChunkVisibilityState::Side::RIGHT_FACE;
+    constexpr ChunkVisibilityState::Side sideT = ChunkVisibilityState::Side::TOP_FACE;
+
+    bool isRightAvailable = localCameraChunk.x + 1 < static_cast<int>(gridBounds.usedChunkGridWidth);
+    if (isRightAvailable) {
+        glm::ivec3 pos = glm::ivec3(localCameraChunk.x + 1, localCameraChunk.y, localCameraChunk.z);
+        VoxelChunk& chunk = grid.getChunk(pos);
+        if (chunk.isVisibleThrough(sideR, sideR) && isChunkInFrustum(pos, frustum, gridBounds, converter)) {
+            m_stack.push(std::make_pair(pos, ChunkVisibilityState::Side::NONE));
+        }
+    }
+
+    bool isFrontAvailable = localCameraChunk.z + 1 < static_cast<int>(gridBounds.usedChunkGridWidth);
+    if (isFrontAvailable) {
+        glm::ivec3 pos = glm::ivec3(localCameraChunk.x, localCameraChunk.y, localCameraChunk.z + 1);
+        VoxelChunk& chunk = grid.getChunk(pos);
+        if (chunk.isVisibleThrough(sideF, sideF) && isChunkInFrustum(pos, frustum, gridBounds, converter)) {
+            m_stack.push(std::make_pair(pos, ChunkVisibilityState::Side::NONE));
+        }
+    }
+
+    bool isTopAvailable = localCameraChunk.y + 1 < gridBounds.CHUNK_MAX_Y_SIZE;
+    if (isTopAvailable) {
+        glm::ivec3 pos = glm::ivec3(localCameraChunk.x, localCameraChunk.y + 1, localCameraChunk.z);
+        VoxelChunk& chunk = grid.getChunk(pos);
+        if (chunk.isVisibleThrough(sideT, sideT) && isChunkInFrustum(pos, frustum, gridBounds, converter)) {
+            m_stack.push(std::make_pair(pos, ChunkVisibilityState::Side::NONE));
+        }
+    }
+
+    if (isFrontAvailable && isRightAvailable) {
+        glm::ivec3 pos = glm::ivec3(localCameraChunk.x + 1, localCameraChunk.y, localCameraChunk.z + 1);
+        VoxelChunk& chunk = grid.getChunk(pos);
+        if (chunk.isVisibleThrough(sideF, sideF) && chunk.isVisibleThrough(sideR, sideR) && isChunkInFrustum(pos, frustum, gridBounds, converter)) {
+            m_stack.push(std::make_pair(pos, ChunkVisibilityState::Side::NONE));
+        }
+    }
+
+    if (isFrontAvailable && isTopAvailable) {
+        glm::ivec3 pos = glm::ivec3(localCameraChunk.x, localCameraChunk.y + 1, localCameraChunk.z + 1);
+        VoxelChunk& chunk = grid.getChunk(pos);
+        if (chunk.isVisibleThrough(sideF, sideF) && chunk.isVisibleThrough(sideT, sideT) && isChunkInFrustum(pos, frustum, gridBounds, converter)) {
+            m_stack.push(std::make_pair(pos, ChunkVisibilityState::Side::NONE));
+        }
+    }
+
+    if (isRightAvailable && isTopAvailable) {
+        glm::ivec3 pos = glm::ivec3(localCameraChunk.x + 1, localCameraChunk.y + 1, localCameraChunk.z);
+        VoxelChunk& chunk = grid.getChunk(pos);
+        if (chunk.isVisibleThrough(sideR, sideR) && chunk.isVisibleThrough(sideT, sideT) && isChunkInFrustum(pos, frustum, gridBounds, converter)) {
+            m_stack.push(std::make_pair(pos, ChunkVisibilityState::Side::NONE));
+        }
+    }
+
+    if (isFrontAvailable && isRightAvailable && isTopAvailable) {
+        glm::ivec3 pos = glm::ivec3(localCameraChunk.x + 1, localCameraChunk.y + 1, localCameraChunk.z + 1);
+        VoxelChunk& chunk = grid.getChunk(pos);
+        if (
+            chunk.isVisibleThrough(sideF, sideF) && 
+            chunk.isVisibleThrough(sideR, sideR) && 
+            chunk.isVisibleThrough(sideT, sideT) && 
+            isChunkInFrustum(pos, frustum, gridBounds, converter)
+        ) {
+            m_stack.push(std::make_pair(pos, ChunkVisibilityState::Side::NONE));
+        }
+    }
+}
+
+void engine::ChunkGridVisibility::queueBorderChunks(
+    const glm::vec3 &cameraPosition, const Frustum &frustum, const ChunkGridBounds &gridBounds, VoxelPositionConverter& converter
+) {
     unsigned int borderX = 0;
     if (cameraPosition.x > gridBounds.currentCenterChunk.x * gridBounds.CHUNCK_DIMENSION_SIZE) borderX = gridBounds.usedChunkGridWidth - 1;
 
     for (unsigned int y = 0; y < gridBounds.CHUNK_MAX_Y_SIZE; y++) {
         for (unsigned int z = 0; z < gridBounds.usedChunkGridWidth; z++) {
             glm::ivec3 chunkPosition = glm::ivec3(borderX, y, z);
-            if (isChunkInFrustum(chunkPosition, frustum, gridBounds)) { 
+            if (isChunkInFrustum(chunkPosition, frustum, gridBounds, converter)) { 
                 m_stack.emplace(std::make_pair(chunkPosition, ChunkVisibilityState::Side::NONE));
             }
         }
@@ -143,7 +299,7 @@ void engine::ChunkGridVisibility::queueBorderChunks(const glm::vec3 &cameraPosit
     for (unsigned int x = 0; x < gridBounds.usedChunkGridWidth; x++) {
         for (unsigned int z = 0; z < gridBounds.usedChunkGridWidth; z++) {
             glm::ivec3 chunkPosition = glm::ivec3(x, borderY, z);
-            if (isChunkInFrustum(chunkPosition, frustum, gridBounds)) { 
+            if (isChunkInFrustum(chunkPosition, frustum, gridBounds, converter)) { 
                 m_stack.emplace(std::make_pair(chunkPosition, ChunkVisibilityState::Side::NONE));
             }
         }
@@ -155,7 +311,7 @@ void engine::ChunkGridVisibility::queueBorderChunks(const glm::vec3 &cameraPosit
     for (unsigned int y = 0; y < gridBounds.CHUNK_MAX_Y_SIZE; y++) {
         for (unsigned int x = 0; x < gridBounds.usedChunkGridWidth; x++) {
             glm::ivec3 chunkPosition = glm::ivec3(x, y, borderZ);
-            if (isChunkInFrustum(chunkPosition, frustum, gridBounds)) { 
+            if (isChunkInFrustum(chunkPosition, frustum, gridBounds, converter)) { 
                 m_stack.emplace(std::make_pair(chunkPosition, ChunkVisibilityState::Side::NONE));
             }
         }

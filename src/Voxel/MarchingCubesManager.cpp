@@ -122,7 +122,7 @@ void engine::MarchingCubesManager::drawAllInOne(const CameraVars &cameraVars, Fr
 
     m_gridVisibility.clearResults();
     m_gridVisibility.checkVisibility(
-        cameraVars.cameraPosition, cameraVars.cameraTarget, frustum, ChunkGridVisibility::VisabilityType::CAMERA, m_grid, m_gridBounds
+        cameraVars.cameraPosition, cameraVars.cameraTarget, frustum, ChunkGridVisibility::VisabilityType::CAMERA, m_grid, m_gridBounds, m_converter
     );
 
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_commandBuffer);
@@ -163,7 +163,7 @@ void engine::MarchingCubesManager::drawBatches(const CameraVars& cameraVars, Fru
     //glm::vec3 debugCameraPos = cameraVars.cameraPosition; debugCameraPos.y = 1.f;
     m_gridVisibility.clearResults();
     m_gridVisibility.checkVisibility(
-        cameraVars.cameraPosition, cameraVars.cameraTarget, frustum, ChunkGridVisibility::VisabilityType::CAMERA, m_grid, m_gridBounds
+        cameraVars.cameraPosition, cameraVars.cameraTarget, frustum, ChunkGridVisibility::VisabilityType::CAMERA, m_grid, m_gridBounds, m_converter
     );
     /*m_gridVisibility.checkVisibility(
         debugCameraPos, cameraVars.cameraTarget, frustum, ChunkGridVisibility::VisabilityType::CAMERA, m_grid, m_gridBounds

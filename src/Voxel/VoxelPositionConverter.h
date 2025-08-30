@@ -16,7 +16,7 @@ namespace engine {
         };
         static glm::ivec3 worldPositionToChunkPosition(const glm::vec3& position, int chunkDimensionSize);
         static glm::ivec3 worldPositionToVoxelPosition(const glm::vec3& position, int voxelSize);
-        static glm::ivec3 worldPositionToLocalVoxelPosition(const glm::ivec3& position, int chunkDimensionSize);
+        static glm::ivec3 worldPositionToLocalVoxelPosition(const glm::ivec3& worldVoxel, int chunkDimensionSize);
 
     private:
 

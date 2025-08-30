@@ -46,6 +46,10 @@ int engine::ChunkGrid::getChunkId(int x, int y, int z) {
     return m_grid[x][z].chunk[y];
 }
 
+engine::VoxelChunk &engine::ChunkGrid::getChunk(glm::ivec3 &localPosition) {
+    return m_chunks[getChunkId(localPosition.x, localPosition.y, localPosition.z)];
+}
+
 engine::VoxelChunk &engine::ChunkGrid::getChunk(int x, int y, int z) {
     return m_chunks[getChunkId(x, y, z)];
 }

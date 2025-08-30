@@ -20,17 +20,17 @@ glm::ivec3 engine::VoxelPositionConverter::worldPositionToVoxelPosition(const gl
     return glm::ivec3(std::floor(position.x / voxelSize), std::floor(position.y / voxelSize), std::floor(position.z / voxelSize)); 
 }
 
-glm::ivec3 engine::VoxelPositionConverter::worldPositionToLocalVoxelPosition(const glm::ivec3 &position, int chunkDimensionSize) {
+glm::ivec3 engine::VoxelPositionConverter::worldPositionToLocalVoxelPosition(const glm::ivec3 &worldVoxel, int chunkDimensionSize) {
     glm::ivec3 local;
-    local.x = position.x % chunkDimensionSize;
+    local.x = worldVoxel.x % chunkDimensionSize;
     if (local.x < 0) {
         local.x += chunkDimensionSize;
     }
-    local.y = position.y % chunkDimensionSize;
+    local.y = worldVoxel.y % chunkDimensionSize;
     if (local.y < 0) {
         local.y += chunkDimensionSize;
     }
-    local.z = position.z % chunkDimensionSize;
+    local.z = worldVoxel.z % chunkDimensionSize;
     if (local.z < 0) {
         local.z += chunkDimensionSize;
     }

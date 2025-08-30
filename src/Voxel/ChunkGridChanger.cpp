@@ -38,25 +38,25 @@ void engine::ChunkGridChanger::generateChunks(
                     }
                 }
 
-                if (pos.x <= -1 && std::abs(pos.x) >= std::abs(pos.y)) {
-                    for (size_t y = 0; y < 32; y++) {
-                        for (size_t z = 0; z < 32; z++){
-                            chunk.setVoxel(0,y,z, 1);
-                            chunk.setVoxel(31,y,z, 1);
-                            chunk.setVoxel(z,y,0, 1);
-                            chunk.setVoxel(z,y,31, 1);
-                            chunk.setVoxel(z,0,y, 1);
-                            chunk.setVoxel(z,31,y, 1);
-                        }
-                    }
-                }
-                else if (pos.x == 0 && pos.y == 0) {
+                if (pos.x == 0 && pos.y == 0) {
                     for (size_t y = 0; y < 32; y+=2) {
                         for (size_t z = 0; z < 32; z+=2) {
                             for (size_t x = 0; x < 32; x+=2) {
                                 chunk.setVoxel(x,y,z, 1);
                             }
                         }
+                    }
+                }
+            }
+            if (pos.x <= -1 && (std::abs(pos.x) + std::abs(pos.y) + y) % 2 != 0) {
+                for (size_t y = 0; y < 32; y++) {
+                    for (size_t z = 0; z < 32; z++){
+                        chunk.setVoxel(0,y,z, 1);
+                        chunk.setVoxel(31,y,z, 1);
+                        chunk.setVoxel(z,y,0, 1);
+                        chunk.setVoxel(z,y,31, 1);
+                        chunk.setVoxel(z,0,y, 1);
+                        chunk.setVoxel(z,31,y, 1);
                     }
                 }
             }

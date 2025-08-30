@@ -20,6 +20,7 @@ namespace engine {
         void freeChunksSSBO();
         int getChunkId(int x,  int y, int z);
         glm::ivec3 getChunkWorldPosition(int id) { return m_chunkPositions[id] / 32; }
+        VoxelChunk& getChunk(glm::ivec3& localPosition);
         VoxelChunk& getChunk(int x, int y, int z);
         VoxelChunk& getChunk(int id);
         VoxelChunk& allocateChunk(int x, int y, int z);
