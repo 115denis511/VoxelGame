@@ -27,33 +27,18 @@ namespace engine {
     private:
         static constexpr uint8_t INVISIBLE_STATE = 0;
         uint8_t m_gridVisible[ChunkGridBounds::CHUNK_MAX_X_Z_SIZE][ChunkGridBounds::CHUNK_MAX_Y_SIZE][ChunkGridBounds::CHUNK_MAX_X_Z_SIZE];
+        bool m_visitedDirection[ChunkGridBounds::CHUNK_MAX_X_Z_SIZE][ChunkGridBounds::CHUNK_MAX_Y_SIZE][ChunkGridBounds::CHUNK_MAX_X_Z_SIZE][7];
         std::stack<std::pair<glm::ivec3, ChunkVisibilityState::Side>> m_stack;
 
         void setVisibilityStateVisible(int x, int y, int z, VisabilityType type) { m_gridVisible[x][y][z] |= (uint8_t)type; }
         void setVisibilityStateVisible(const glm::ivec3& chunkPosition, VisabilityType type) { m_gridVisible[chunkPosition.x][chunkPosition.y][chunkPosition.z] |= (uint8_t)type; }
-
-        /// @brief Исправление видимости краёв чанков, использующих воксели соседних чанков.
-        void borderVisibilityFix(
-            const Frustum& frustum, VisabilityType type, ChunkGrid &grid, const ChunkGridBounds &gridBounds, VoxelPositionConverter& converter
-        );
-
-        /// @brief Исправление видимости краёв чанков на одной высоте с текущим чанком.
-        /// @param chunk - Объект текущего чанка.
-        /// @param x, y, z - Позиция текущего чанка.
-        /// @param isBackAvailable, isLeftAvailable - Возвращаемые значения видимости боковых чанков. 
-        void borderVisibilityFixGroundLevel(
-            const Frustum& frustum, VisabilityType type, const ChunkGridBounds &gridBounds, VoxelPositionConverter& converter,
-            VoxelChunk& chunk, int x, int y, int z, bool& isBackAvailable, bool& isLeftAvailable
-        );
-
-        /// @brief Исправление видимости краёв чанков на один чанк ниже текущего.
-        /// @param chunk - Объект текущего чанка.
-        /// @param x, y, z - Позиция текущего чанка.
-        /// @param isBackAvailable, isLeftAvailable - Значения видимости боковых чанков.
-        void borderVisibilityFixUndergroundLevel(
-            const Frustum& frustum, VisabilityType type, const ChunkGridBounds &gridBounds, VoxelPositionConverter& converter,
-            VoxelChunk& chunk, int x, int y, int z, bool isBackAvailable, bool isLeftAvailable
-        );
+        void clearVisitedDirections();
+        void setVisitedDirection(glm::ivec3& chunkPosition, ChunkVisibilityState::Side dir, bool state) {
+            m_visitedDirection[chunkPosition.x][chunkPosition.y][chunkPosition.z][static_cast<int>(dir)] = state;
+        }
+        bool isDirectionVisited(glm::ivec3& chunkPosition, ChunkVisibilityState::Side dir) {
+            return m_visitedDirection[chunkPosition.x][chunkPosition.y][chunkPosition.z][static_cast<int>(dir)];
+        }
 
         /// @brief Проверка наличия чанка в пирамиде отсечения.
         /// @param chunkPosition Позиция проверяемого чанка.
@@ -73,18 +58,6 @@ namespace engine {
         ///         будет возвращено значение (0,0,0).
         glm::ivec3 raycastBorderChunk(
             const glm::vec3 &cameraPosition, const glm::vec3& cameraDirection, const Frustum& frustum, const ChunkGridBounds &gridBounds, VoxelPositionConverter& converter
-        );
-        
-        /// @brief Функция добаления ближайших к камере чанков в очередь проверки видимости.
-        /// @param cameraPosition Позиция камеры.
-        /// @param localCameraChunk Локальная для сетки позиция чанка, в котором находится камера.
-        /// @param frustum Объект пирамиды отсечения.
-        /// @param grid Объект сетки чанков.
-        /// @param gridBounds Объект класса определения границ текущего воксельного поля.
-        /// @param converter Конвертер координат.
-        void queueCloseToCameraChunks(
-            const glm::vec3& cameraPosition, const glm::vec3& localCameraChunk, 
-            const Frustum& frustum, ChunkGrid& grid, const ChunkGridBounds &gridBounds, VoxelPositionConverter& converter
         );
 
         /// @brief Функция добавления всех чанков на границах воксельного поля в очередь проверки видимости.

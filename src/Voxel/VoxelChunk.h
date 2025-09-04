@@ -43,7 +43,7 @@ namespace engine {
         void clearDrawCommands() { m_drawCount = 0; };
         bool isInUpdateQueue() { return m_isInUpdateQueue; };
         bool isInUse() { return m_isInUse; };
-        void updateVisibilityStates();
+        void updateVisibilityStates(VoxelChunk* rightNeighbour, VoxelChunk* frontNeighbour, VoxelChunk* topNeighbour);
         void updateVisibilityStatesForEmptyChunk();
         bool isVisibleThrough(ChunkVisibilityState::Side from, ChunkVisibilityState::Side to) { return m_visibilityStates[static_cast<int>(from)].isVisible(to); };
 
@@ -72,7 +72,11 @@ namespace engine {
         bool isVoxelEmptyAndNotChecked(short x, short y, short z, VisibilityCheckState (&state)[VOXEL_CHUNK_SIZE][VOXEL_CHUNK_SIZE][VOXEL_CHUNK_SIZE]) {
             return !isVoxelSolid(x, y, z) && state[x][y][z] == VisibilityCheckState::NOT_CHECKED;
         };
-        int floodFill(short x, short y, short z, VisibilityCheckState (&state)[VOXEL_CHUNK_SIZE][VOXEL_CHUNK_SIZE][VOXEL_CHUNK_SIZE], ChunkVisibilityState& visabilityState);
+        int floodFill(
+            short x, short y, short z, 
+            VoxelChunk* rightNeighbour, VoxelChunk* frontNeighbour, VoxelChunk* topNeighbour,
+            VisibilityCheckState (&state)[VOXEL_CHUNK_SIZE][VOXEL_CHUNK_SIZE][VOXEL_CHUNK_SIZE], ChunkVisibilityState& visabilityState
+        );
         void floodFillScanNext(
             int lx, int rx, int y, int z, std::stack<glm::ivec3> &stack, VisibilityCheckState (&state)[VOXEL_CHUNK_SIZE][VOXEL_CHUNK_SIZE][VOXEL_CHUNK_SIZE]
         );

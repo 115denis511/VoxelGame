@@ -47,6 +47,13 @@ void engine::ChunkGridChanger::generateChunks(
                         }
                     }
                 }
+                else if (pos.x == 1 && pos.y == -3) {
+                    for (size_t y = 0; y < 32; y++) {
+                        for (size_t z = 0; z < 32; z++) {
+                            chunk.setVoxel(25,y,z, 1);
+                        }
+                    }
+                }
             }
             if (pos.x <= -1 && (std::abs(pos.x) + std::abs(pos.y) + y) % 2 != 0) {
                 for (size_t y = 0; y < 32; y++) {
