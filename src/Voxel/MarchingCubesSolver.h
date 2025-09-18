@@ -5,9 +5,10 @@
 #include "../Render/ShaderStorageBuffer.h"
 #include "ChunkGrid.h"
 #include "ChunkGridBounds.h"
+#include "ChunkVisibilityChecker.h"
+#include "MarchingCubes.h"
 #include "VoxelChunk.h"
 #include "VoxelPositionConverter.h"
-#include "MarchingCubes.h"
 
 namespace engine {
     class MarchingCubesSolver {
@@ -25,6 +26,7 @@ namespace engine {
     private:
         std::vector<glm::ivec2> m_caseData[256];
         int m_cubesCount{ 0 };
+        ChunkVisibilityChecker m_checker;
 
         void accumulateCases(
             MarchingCubes& marchingCubes, 

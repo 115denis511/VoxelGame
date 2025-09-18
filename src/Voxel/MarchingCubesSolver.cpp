@@ -29,27 +29,10 @@ void engine::MarchingCubesSolver::regenerateChunk(
     }
 
     if (chunk.getDrawCommandsCount() != 0) {
-        ChunkGridBounds& gridBounds = grid.getGridBounds();
-        VoxelPositionConverter& converter = grid.getPositionConverter();
-
-        glm::ivec2 localPos = converter.worldChunkToLocalChunkPosition(position.x, position.z, gridBounds.currentOriginChunk.x, gridBounds.currentOriginChunk.y);
-
-        bool isRightAvailable = gridBounds.isWorldChunkInbounds(position.x + 1, position.y, position.z) && grid.isHaveChunk(position.x + 1, position.y, position.z);
-        VoxelChunk* rightNeighbour = nullptr;
-        if (isRightAvailable) rightNeighbour = &grid.getChunk(localPos.x + 1, position.y, localPos.y); 
-
-        bool isFrontAvailable = gridBounds.isWorldChunkInbounds(position.x, position.y, position.z + 1) && grid.isHaveChunk(position.x, position.y, position.z + 1);
-        VoxelChunk* frontNeighbour = nullptr;
-        if (isFrontAvailable) frontNeighbour = &grid.getChunk(localPos.x, position.y, localPos.y + 1); 
-
-        bool isTopAvailable = gridBounds.isWorldChunkInbounds(position.x, position.y + 1, position.z) && grid.isHaveChunk(position.x, position.y + 1, position.z);
-        VoxelChunk* topNeighbour = nullptr;
-        if (isTopAvailable) topNeighbour = &grid.getChunk(localPos.x, position.y + 1, localPos.y); 
-
-        chunk.updateVisibilityStates(rightNeighbour, frontNeighbour, topNeighbour);
+        m_checker.updateVisibilityStates(grid, chunk, position);
     }
     else {
-        chunk.updateVisibilityStatesForEmptyChunk();
+        chunk.clearVisibilityStatesForEmptyChunk();
     }
 
     if (globalChunkSSBO.isInited()) {

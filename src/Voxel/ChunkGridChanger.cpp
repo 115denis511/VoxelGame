@@ -25,7 +25,7 @@ void engine::ChunkGridChanger::generateChunks(
             int id = m_grid.getChunkId(localPos.x, y, localPos.y);
 
             chunk.clear();
-            chunk.updateVisibilityStatesForEmptyChunk();
+            chunk.clearVisibilityStatesForEmptyChunk();
             chunk.clearDrawCommands();
 
             pushToUpdateQueueForced(id);

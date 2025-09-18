@@ -43,13 +43,12 @@ namespace engine {
         void clearDrawCommands() { m_drawCount = 0; };
         bool isInUpdateQueue() { return m_isInUpdateQueue; };
         bool isInUse() { return m_isInUse; };
-        void updateVisibilityStates(VoxelChunk* rightNeighbour, VoxelChunk* frontNeighbour, VoxelChunk* topNeighbour);
-        void updateVisibilityStatesForEmptyChunk();
         bool isVisibleThrough(ChunkVisibilityState::Side from, ChunkVisibilityState::Side to) { return m_visibilityStates[static_cast<int>(from)].isVisible(to); };
+        void saveVisibilityStates(ChunkVisibilityState& visibilityStates);
+        void clearVisibilityStates();
+        void clearVisibilityStatesForEmptyChunk();
 
     private:
-        enum class VisibilityCheckState : uint8_t { NOT_CHECKED = 0, CHECKED };
-
         utilites::Array3D<MarchingCubesVoxel, VOXEL_CHUNK_SIZE, VOXEL_CHUNK_SIZE, VOXEL_CHUNK_SIZE> m_voxels;
         std::array<DrawArraysIndirectCommand, 254> m_drawCommands;
         int m_drawCount{ 0 };
@@ -69,19 +68,6 @@ namespace engine {
                    y >= 0 && y < (short)VOXEL_CHUNK_SIZE && 
                    z >= 0 && z < (short)VOXEL_CHUNK_SIZE; 
         };
-        bool isVoxelEmptyAndNotChecked(short x, short y, short z, VisibilityCheckState (&state)[VOXEL_CHUNK_SIZE][VOXEL_CHUNK_SIZE][VOXEL_CHUNK_SIZE]) {
-            return !isVoxelSolid(x, y, z) && state[x][y][z] == VisibilityCheckState::NOT_CHECKED;
-        };
-        int floodFill(
-            short x, short y, short z, 
-            VoxelChunk* rightNeighbour, VoxelChunk* frontNeighbour, VoxelChunk* topNeighbour,
-            VisibilityCheckState (&state)[VOXEL_CHUNK_SIZE][VOXEL_CHUNK_SIZE][VOXEL_CHUNK_SIZE], ChunkVisibilityState& visabilityState
-        );
-        void floodFillScanNext(
-            int lx, int rx, int y, int z, std::stack<glm::ivec3> &stack, VisibilityCheckState (&state)[VOXEL_CHUNK_SIZE][VOXEL_CHUNK_SIZE][VOXEL_CHUNK_SIZE]
-        );
-        void saveVisibilityStates(ChunkVisibilityState& visibilityStates);
-        void clearVisibilityStates();
     };
 }
 

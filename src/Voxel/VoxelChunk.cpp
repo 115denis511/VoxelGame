@@ -34,155 +34,6 @@ void engine::VoxelChunk::addDrawCommand(const engine::DrawArraysIndirectCommand 
     m_drawCount++;
 }
 
-void engine::VoxelChunk::updateVisibilityStates(VoxelChunk* rightNeighbour, VoxelChunk* frontNeighbour, VoxelChunk* topNeighbour) {
-    VisibilityCheckState state[VOXEL_CHUNK_SIZE][VOXEL_CHUNK_SIZE][VOXEL_CHUNK_SIZE];
-    for (size_t x = 0; x < VOXEL_CHUNK_SIZE; x++) {
-        for (size_t y = 0; y < VOXEL_CHUNK_SIZE; y++) {
-            for (size_t z = 0; z < VOXEL_CHUNK_SIZE; z++) {
-                state[x][y][z] = VisibilityCheckState::NOT_CHECKED;
-            }
-        }
-    }
-
-    clearVisibilityStates();
-
-    // Проверка верхнего и нижнего края
-    for (size_t x = 0; x < VOXEL_CHUNK_SIZE; x++) {
-        for (size_t z = 0; z < VOXEL_CHUNK_SIZE; z++) {
-            ChunkVisibilityState visibilityState;
-            int edgeApproachCounter = floodFill(x, 0, z, rightNeighbour, frontNeighbour, topNeighbour, state, visibilityState);
-            if (edgeApproachCounter > 0) saveVisibilityStates(visibilityState);
-
-            visibilityState.clear();
-            edgeApproachCounter = floodFill(x, VOXEL_CHUNK_SIZE - 1, z, rightNeighbour, frontNeighbour, topNeighbour, state, visibilityState);
-            if (edgeApproachCounter > 0) saveVisibilityStates(visibilityState);
-        }
-    }
-    // Проверка левого и правого края
-    for (size_t y = 1; y < VOXEL_CHUNK_SIZE - 1; y++) {
-        for (size_t z = 0; z < VOXEL_CHUNK_SIZE; z++) {
-            ChunkVisibilityState visibilityState;
-            int edgeApproachCounter = floodFill(0, y, z, rightNeighbour, frontNeighbour, topNeighbour, state, visibilityState);
-            if (edgeApproachCounter > 0) saveVisibilityStates(visibilityState);
-
-            visibilityState.clear();
-            edgeApproachCounter = floodFill(VOXEL_CHUNK_SIZE - 1, y, z, rightNeighbour, frontNeighbour, topNeighbour, state, visibilityState);
-            if (edgeApproachCounter > 0) saveVisibilityStates(visibilityState);
-        }
-    }
-    // Проверка переднего и заднего края
-    for (size_t x = 1; x < VOXEL_CHUNK_SIZE - 1; x++) {
-        for (size_t y = 1; y < VOXEL_CHUNK_SIZE - 1; y++) {
-            ChunkVisibilityState visibilityState;
-            int edgeApproachCounter = floodFill(x, y, 0, rightNeighbour, frontNeighbour, topNeighbour, state, visibilityState);
-            if (edgeApproachCounter > 0) saveVisibilityStates(visibilityState);
-
-            visibilityState.clear();
-            edgeApproachCounter = floodFill(x, y, VOXEL_CHUNK_SIZE - 1, rightNeighbour, frontNeighbour, topNeighbour, state, visibilityState);
-            if (edgeApproachCounter > 0) saveVisibilityStates(visibilityState);
-        }
-    }
-}
-
-void engine::VoxelChunk::updateVisibilityStatesForEmptyChunk() {
-    constexpr uint32_t SIDES_AND_NONE = ChunkVisibilityState::getSidesCount() + 1;
-    for (size_t i = 0; i < SIDES_AND_NONE; i++) { 
-        m_visibilityStates[i].setAllVisible(); 
-    }
-}
-
-int engine::VoxelChunk::floodFill(
-    short x, short y, short z, 
-    VoxelChunk* rightNeighbour, VoxelChunk* frontNeighbour, VoxelChunk* topNeighbour,
-    VisibilityCheckState (&state)[VOXEL_CHUNK_SIZE][VOXEL_CHUNK_SIZE][VOXEL_CHUNK_SIZE], ChunkVisibilityState& visabilityState
-) {
-    if (!isVoxelEmptyAndNotChecked(x, y, z, state)) {
-        return 0;
-    }
-
-    int edgeApproachCounter = 0;
-
-    std::stack<glm::ivec3> stack;
-    stack.push(glm::ivec3(x, y, z));
-
-    while (!stack.empty()) {
-        glm::ivec3 current = stack.top();
-        stack.pop(); 
-
-        // Центр
-        state[current.x][current.y][current.z] = VisibilityCheckState::CHECKED; 
-        // Обход влево
-        int lx = current.x;
-        while (isVoxelEmptyAndNotChecked(lx - 1, current.y, current.z, state) && lx > 0) { 
-            state[lx - 1][current.y][current.z] = VisibilityCheckState::CHECKED;
-            lx--;
-        }
-        // Обход вправо
-        while (isVoxelEmptyAndNotChecked(current.x + 1, current.y, current.z, state) && current.x < (int)VOXEL_CHUNK_SIZE - 1) { 
-            state[current.x + 1][current.y][current.z] = VisibilityCheckState::CHECKED;
-            current.x++;
-        }
-
-
-            
-        // Проверка краев
-        ChunkVisibilityState currentPositionState;
-        // Для X не должно быть else, потому что lx(левый) и x(правый) определяются в одной и той же итерации цикла
-        if (current.x == (int)VOXEL_CHUNK_SIZE - 1) { 
-            currentPositionState.set(ChunkVisibilityState::Side::RIGHT_FACE); edgeApproachCounter++; 
-        }
-        if (lx == 0) { 
-            currentPositionState.set(ChunkVisibilityState::Side::LEFT_FACE); edgeApproachCounter++; 
-        }
-
-        if (current.y == (int)VOXEL_CHUNK_SIZE - 1) { currentPositionState.set(ChunkVisibilityState::Side::TOP_FACE); edgeApproachCounter++; }
-        else if (current.y == 0)                    { currentPositionState.set(ChunkVisibilityState::Side::BOTTOM_FACE); edgeApproachCounter++; }
-        
-        if (current.z == (int)VOXEL_CHUNK_SIZE - 1) { currentPositionState.set(ChunkVisibilityState::Side::FRONT_FACE); edgeApproachCounter++; }
-        else if (current.z == 0)                    { currentPositionState.set(ChunkVisibilityState::Side::BACK_FACE); edgeApproachCounter++; }
-
-        visabilityState.merge(currentPositionState);
-
-
-
-        lx = (lx - 1 < 0) ? 0 : lx - 1;
-        current.x = (current.x + 1 >= (int)VOXEL_CHUNK_SIZE) ? (int)VOXEL_CHUNK_SIZE - 1 : current.x + 1; //
-        bool yTopInside = current.y + 1 < (int)VOXEL_CHUNK_SIZE;
-        bool yBottomInside = current.y - 1 >= 0;
-        bool zFrontInside = current.z + 1 <(int)VOXEL_CHUNK_SIZE;
-        bool zBackInside = current.z - 1 >= 0;
-        if (yTopInside) {
-            floodFillScanNext(lx, current.x, current.y + 1, current.z, stack, state);
-            if (zFrontInside) floodFillScanNext(lx, current.x, current.y + 1, current.z + 1, stack, state);
-            if (zBackInside) floodFillScanNext(lx, current.x, current.y + 1, current.z - 1, stack, state);
-        }
-        if (yBottomInside) {
-            floodFillScanNext(lx, current.x, current.y - 1, current.z, stack, state);
-            if (zFrontInside) floodFillScanNext(lx, current.x, current.y - 1, current.z + 1, stack, state);
-            if (zBackInside) floodFillScanNext(lx, current.x, current.y - 1, current.z - 1, stack, state);
-        }
-        if (zFrontInside) floodFillScanNext(lx, current.x, current.y, current.z + 1, stack, state);
-        if (zBackInside) floodFillScanNext(lx, current.x, current.y, current.z - 1, stack, state);
-    }
-
-    return edgeApproachCounter;
-}
-
-void engine::VoxelChunk::floodFillScanNext(
-    int lx, int rx, int y, int z, std::stack<glm::ivec3> &stack, VisibilityCheckState (&state)[VOXEL_CHUNK_SIZE][VOXEL_CHUNK_SIZE][VOXEL_CHUNK_SIZE]
-) {
-    bool spanAdded = false;
-    for (int x = lx; x <= rx; x++) {
-        if (!isVoxelEmptyAndNotChecked(x, y, z, state)) {
-            spanAdded = false;
-        }
-        else if (!spanAdded) {
-            stack.push(glm::ivec3(x, y, z));
-            spanAdded = true;
-        }
-    }
-}
-
 void engine::VoxelChunk::saveVisibilityStates(ChunkVisibilityState& visibilityStates) {
     constexpr uint32_t sidesCount = ChunkVisibilityState::getSidesCount();
     for (uint32_t i = 0; i < sidesCount; i++) {
@@ -202,6 +53,13 @@ void engine::VoxelChunk::clearVisibilityStates() {
     constexpr uint32_t SIDES_AND_NONE = ChunkVisibilityState::getSidesCount() + 1;
     for (size_t i = 0; i < SIDES_AND_NONE; i++) { 
         m_visibilityStates[i].clear();  
+    }
+}
+
+void engine::VoxelChunk::clearVisibilityStatesForEmptyChunk() {
+    constexpr uint32_t SIDES_AND_NONE = ChunkVisibilityState::getSidesCount() + 1;
+    for (size_t i = 0; i < SIDES_AND_NONE; i++) { 
+        m_visibilityStates[i].setAllVisible(); 
     }
 }
 
