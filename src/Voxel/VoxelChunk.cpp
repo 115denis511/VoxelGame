@@ -19,9 +19,9 @@ void engine::VoxelChunk::setVoxel(short x, short y, short z, uint8_t id, uint8_t
 }
 
 void engine::VoxelChunk::clear() {
-    for (size_t x = 0; x < VOXEL_CHUNK_SIZE; x++) {
-        for (size_t y = 0; y < VOXEL_CHUNK_SIZE; y++) {
-            for (size_t z = 0; z < VOXEL_CHUNK_SIZE; z++) {
+    for (size_t x = 0; x < GRID_SIZE; x++) {
+        for (size_t y = 0; y < GRID_SIZE; y++) {
+            for (size_t z = 0; z < GRID_SIZE; z++) {
                 m_voxels(x, y, z) = MarchingCubesVoxel();
             }
         }

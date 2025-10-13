@@ -40,6 +40,10 @@
             через ту самую отдельную очередь.
         -   Методу ChunkGridChanger::pushToUpdateQueue нужен мютекс, так как этот метод используется при изменении вокселей игровой логикой.
         -   Изменения положения и размера чанковой сетки должны отправляться в поток обработки чанков как отложенный запрос, а не тут же выполняться как сейчас.
+    -   Для шейдера отрисовки воксельных чанков, хранящихся в едином буффере, можно переместить данные марширующих кубов из SSBO в Layout 
+        (см. layout(std430, binding = 12) readonly buffer ChunkData { uvec2 packedData[]; }; в bin/Shader/marchingCubesAllInOne.vert). 
+        В теории это можно сделать с помощь glVertexAttribDivisor, но тогда хранимые значения в gl_BaseVertex и gl_BaseInstance придётся
+        поменять местами.
 -   Voxel/VoxelPositionConverter
     -   Возможно стоит сделать typedef для входных/возвращаемых значений фукнций, например typedef glm::ivec2 ChunkPosLocal; typedef glm::ivec2 ChunkPosWorld.
 -   Render/AssetManager.h

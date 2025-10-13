@@ -16,9 +16,7 @@ namespace engine {
     private:
         enum class VisibilityCheckState : uint8_t { NOT_CHECKED = 0, CHECKED };
 
-        static constexpr int VOXEL_CHUNK_SIZE = (int)VoxelChunk::VOXEL_CHUNK_SIZE;
-        static constexpr int MARCHING_CUBE_OVERLAPING_BORDER = 1;
-        static constexpr int STATE_GRID_SIZE = VOXEL_CHUNK_SIZE + MARCHING_CUBE_OVERLAPING_BORDER;
+        static constexpr int STATE_GRID_SIZE = VoxelChunk::GRID_SIZE;
 
         VisibilityCheckState m_state [STATE_GRID_SIZE][STATE_GRID_SIZE][STATE_GRID_SIZE];
         std::stack<glm::ivec3> m_stack;

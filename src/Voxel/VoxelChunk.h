@@ -23,9 +23,11 @@ namespace engine {
         VoxelChunk();
         ~VoxelChunk();
         
-        static constexpr size_t VOXEL_CHUNK_SIZE = 32;
+        static constexpr int VOXEL_CHUNK_SIZE = 32;
+        static constexpr int MARCHING_CUBE_OVERLAPING_BORDER = 1;
+        static constexpr int GRID_SIZE = VOXEL_CHUNK_SIZE + MARCHING_CUBE_OVERLAPING_BORDER;
         static constexpr float VOXEL_SIZE = 1.f;
-        static constexpr size_t VOXEL_COUNT = VOXEL_CHUNK_SIZE * VOXEL_CHUNK_SIZE * VOXEL_CHUNK_SIZE;
+        static constexpr int VOXEL_COUNT = VOXEL_CHUNK_SIZE * VOXEL_CHUNK_SIZE * VOXEL_CHUNK_SIZE;
         static constexpr GLsizeiptr VOXEL_CHUNK_BYTE_SIZE = VOXEL_COUNT * sizeof(glm::ivec2);
 
         MarchingCubesVoxel getVoxel(short x, short y, short z);
@@ -49,7 +51,7 @@ namespace engine {
         void clearVisibilityStatesForEmptyChunk();
 
     private:
-        utilites::Array3D<MarchingCubesVoxel, VOXEL_CHUNK_SIZE, VOXEL_CHUNK_SIZE, VOXEL_CHUNK_SIZE> m_voxels;
+        utilites::Array3D<MarchingCubesVoxel, GRID_SIZE, GRID_SIZE, GRID_SIZE> m_voxels;
         std::array<DrawArraysIndirectCommand, 254> m_drawCommands;
         int m_drawCount{ 0 };
         bool m_isInUpdateQueue{ false };
