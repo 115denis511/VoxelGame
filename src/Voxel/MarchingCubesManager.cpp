@@ -31,7 +31,7 @@ void engine::MarchingCubesManager::freeResources() {
 }
 
 void engine::MarchingCubesManager::updateChunks(size_t maxCount) {
-    m_gridChanger.generateChunks(m_gridBounds, m_converter, m_usingGlobalChunkSSBO, 1);
+    m_gridChanger.generateChunks(m_usingGlobalChunkSSBO, 1);
     m_gridChanger.updateChunks(m_marchingCubes, m_globalChunkSSBO, 8);
 }
 
@@ -122,7 +122,7 @@ void engine::MarchingCubesManager::drawAllInOne(const CameraVars &cameraVars, Fr
 
     m_gridVisibility.clearResults();
     m_gridVisibility.checkVisibility(
-        cameraVars.cameraPosition, cameraVars.cameraTarget, frustum, ChunkGridVisibility::VisabilityType::CAMERA, m_grid, m_gridBounds, m_converter
+        cameraVars.cameraPosition, cameraVars.cameraTarget, frustum, ChunkGridVisibility::VisabilityType::CAMERA, m_grid
     );
 
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_commandBuffer);
@@ -163,10 +163,10 @@ void engine::MarchingCubesManager::drawBatches(const CameraVars& cameraVars, Fru
     //glm::vec3 debugCameraPos = cameraVars.cameraPosition; debugCameraPos.y = 1.f;
     m_gridVisibility.clearResults();
     m_gridVisibility.checkVisibility(
-        cameraVars.cameraPosition, cameraVars.cameraTarget, frustum, ChunkGridVisibility::VisabilityType::CAMERA, m_grid, m_gridBounds, m_converter
+        cameraVars.cameraPosition, cameraVars.cameraTarget, frustum, ChunkGridVisibility::VisabilityType::CAMERA, m_grid
     );
     /*m_gridVisibility.checkVisibility(
-        debugCameraPos, cameraVars.cameraTarget, frustum, ChunkGridVisibility::VisabilityType::CAMERA, m_grid, m_gridBounds
+        debugCameraPos, cameraVars.cameraTarget, frustum, ChunkGridVisibility::VisabilityType::CAMERA, m_grid
     );*/
 
     unsigned int gridWidth = m_gridBounds.usedChunkGridWidth;
@@ -344,11 +344,5 @@ void engine::MarchingCubesManager::setRenderChunkRadius(int radius) {
     m_renderChunkRadius = uRadius;
     m_gridBounds.currentOriginChunk = glm::ivec2(m_gridBounds.currentCenterChunk.x - radius, m_gridBounds.currentCenterChunk.y - radius);
 
-    m_gridChanger.resizeGrid(
-        m_gridBounds, 
-        m_chunkPositionsSSBO, 
-        m_converter, 
-        m_usingGlobalChunkSSBO, 
-        uRadius * 2
-    );
+    m_gridChanger.resizeGrid(m_chunkPositionsSSBO, m_usingGlobalChunkSSBO, uRadius * 2);
 }

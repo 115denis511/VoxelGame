@@ -16,11 +16,14 @@ void engine::ChunkGridVisibility::clearResults() {
 
 void engine::ChunkGridVisibility::checkVisibility(
     const glm::vec3 &cameraPosition, const glm::vec3 &cameraDirection, 
-    const Frustum& frustum, VisabilityType type, ChunkGrid &grid, const ChunkGridBounds &gridBounds, VoxelPositionConverter& converter
+    const Frustum& frustum, VisabilityType type, ChunkGrid &grid
 ) {
     // Сделано на основе следующих материалов:
     // https://tomcc.github.io/2014/08/31/visibility-1.html
     // https://tomcc.github.io/2014/08/31/visibility-2.html
+    ChunkGridBounds &gridBounds = grid.getGridBounds();
+    VoxelPositionConverter& converter = grid.getPositionConverter();
+
     glm::ivec3 cameraChunk = converter.worldPositionToChunkPosition(cameraPosition, gridBounds.CHUNCK_DIMENSION_SIZE);
     glm::ivec3 cameraChunkLocal = converter.worldChunkToLocalChunkPosition(cameraChunk, gridBounds.currentOriginChunk);
 

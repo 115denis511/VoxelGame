@@ -19,7 +19,7 @@ namespace engine {
         void clearResults();
         void checkVisibility(
             const glm::vec3& cameraPosition, const glm::vec3& cameraDirection, 
-            const Frustum& frustum, VisabilityType type, ChunkGrid& grid, const ChunkGridBounds &gridBounds, VoxelPositionConverter& converter
+            const Frustum& frustum, VisabilityType type, ChunkGrid& grid
         );
         bool isVisible(int x, int y, int z, VisabilityType type) { return m_gridVisible[x][y][z] & (uint8_t)type; }
         bool isVisible(const glm::ivec3& chunkPosition, VisabilityType type) { return m_gridVisible[chunkPosition.x][chunkPosition.y][chunkPosition.z] & (uint8_t)type; }

@@ -6,12 +6,10 @@ engine::ChunkGridChanger::ChunkGridChanger(ChunkGrid& grid)
     
 }
 
-void engine::ChunkGridChanger::generateChunks(
-    ChunkGridBounds& gridBounds, 
-    VoxelPositionConverter& converter,
-    bool usingGlobalChunkSSBO, 
-    size_t maxSlices
-) {
+void engine::ChunkGridChanger::generateChunks(bool usingGlobalChunkSSBO, size_t maxSlices) {
+    ChunkGridBounds& gridBounds = m_grid.getGridBounds();
+    VoxelPositionConverter& converter = m_grid.getPositionConverter();
+
     while (!m_toGenerateQueue.empty() && maxSlices > 0) {
         glm::ivec2 pos = m_toGenerateQueue.back();
         glm::ivec2 localPos = converter.worldChunkToLocalChunkPosition(pos.x, pos.y, gridBounds.currentOriginChunk.x, gridBounds.currentOriginChunk.y);
@@ -92,13 +90,9 @@ void engine::ChunkGridChanger::updateChunks(
     }
 }
 
-void engine::ChunkGridChanger::resizeGrid(
-    ChunkGridBounds& gridBounds, 
-    ShaderStorageBuffer<glm::ivec4>& chunkPositionsSSBO,
-    VoxelPositionConverter& converter,
-    bool usingGlobalChunkSSBO,
-    int size
-) {
+void engine::ChunkGridChanger::resizeGrid(ShaderStorageBuffer<glm::ivec4>& chunkPositionsSSBO, bool usingGlobalChunkSSBO, int size) {
+    ChunkGridBounds& gridBounds = m_grid.getGridBounds();
+
     if (size % 2 == 1) size -= 1;
     if (size > gridBounds.CHUNK_MAX_X_Z_SIZE) size = gridBounds.CHUNK_MAX_X_Z_SIZE;
     int usedChunkDistance = static_cast<int>(gridBounds.usedChunkGridWidth);
