@@ -17,8 +17,7 @@ namespace engine {
 
         void regenerateChunk(
             MarchingCubes& marchingCubes, 
-            ChunkGrid& grid, 
-            glm::ivec3 position, 
+            ChunkGrid& grid,
             VoxelChunk& chunk, 
             ShaderStorageBuffer<glm::ivec2>& globalChunkSSBO
         );
@@ -28,12 +27,7 @@ namespace engine {
         int m_cubesCount{ 0 };
         ChunkVisibilityChecker m_checker;
 
-        void accumulateCases(
-            MarchingCubes& marchingCubes, 
-            ChunkGrid& grid, 
-            glm::ivec3 position, 
-            VoxelChunk& chunk
-        );
+        void accumulateCases(MarchingCubes& marchingCubes, ChunkGrid& grid,VoxelChunk& chunk);
         void clear();
         void addMarchingCube(MarchingCubes& marchingCubes, std::array<MarchingCubesVoxel, 8>& voxels, int x, int y, int z);
         uint8_t getCaseIndex(std::array<MarchingCubesVoxel, 8>& voxels);

@@ -11,7 +11,7 @@ namespace engine {
     public:
         ChunkVisibilityChecker() {}
 
-        void updateVisibilityStates(ChunkGrid& grid, VoxelChunk& chunk, glm::ivec3 worldPosition);
+        void updateVisibilityStates(ChunkGrid& grid, VoxelChunk& chunk);
 
     private:
         enum class VisibilityCheckState : uint8_t { NOT_CHECKED = 0, CHECKED };

@@ -11,7 +11,7 @@ namespace engine {
         static constexpr int CHUNK_MAX_Y_SIZE = 8;
         static constexpr unsigned int MAX_RENDER_CHUNK_RADIUS = CHUNK_MAX_X_Z_SIZE / 2;
         static constexpr int CHUNK_COUNT = CHUNK_MAX_X_Z_SIZE * CHUNK_MAX_X_Z_SIZE * CHUNK_MAX_Y_SIZE;
-        /* Позиция чанка[0, y, 0] из сетки чанков в мировых координатах.
+        /* Позиция локального чанка[0, 0, 0] в мировой чанковой сетке.
            x - позиция чанка по оси X, y - позиция чанка по оси Z. */
         glm::ivec2 currentOriginChunk{ glm::ivec2( -(CHUNK_MAX_X_Z_SIZE / 2), -(CHUNK_MAX_X_Z_SIZE / 2)) };
         glm::ivec2 currentCenterChunk{ glm::ivec2( 0, 0) };

@@ -6,12 +6,11 @@ engine::MarchingCubesSolver::MarchingCubesSolver() {
 
 void engine::MarchingCubesSolver::regenerateChunk(
     MarchingCubes &marchingCubes, 
-    ChunkGrid& grid, 
-    glm::ivec3 position, 
+    ChunkGrid& grid,
     VoxelChunk &chunk, 
     ShaderStorageBuffer<glm::ivec2>& globalChunkSSBO
 ) {
-    accumulateCases(marchingCubes, grid, position, chunk);
+    accumulateCases(marchingCubes, grid, chunk);
 
     // Сборка коммандного буфера
     chunk.clearDrawCommands();
@@ -29,7 +28,7 @@ void engine::MarchingCubesSolver::regenerateChunk(
     }
 
     if (chunk.getDrawCommandsCount() != 0) {
-        m_checker.updateVisibilityStates(grid, chunk, position);
+        m_checker.updateVisibilityStates(grid, chunk);
     }
     else {
         chunk.clearVisibilityStatesForEmptyChunk();
@@ -64,7 +63,7 @@ void engine::MarchingCubesSolver::regenerateChunk(
     clear();
 }
 
-void engine::MarchingCubesSolver::accumulateCases(MarchingCubes &marchingCubes, ChunkGrid &grid, glm::ivec3 position, VoxelChunk &chunk) {
+void engine::MarchingCubesSolver::accumulateCases(MarchingCubes &marchingCubes, ChunkGrid &grid, VoxelChunk &chunk) {
     constexpr int MARCHING_CUBES_COUNT = 32;
 
     // Определение количества отрисовок для каждой из фигур марширующих кубов и

@@ -82,11 +82,10 @@ void engine::ChunkGridChanger::updateChunks(
 ) {
     for (size_t i = 0; i < maxCount && !m_toUpdateQueue.empty(); i++) {
         size_t id = popFromUpdateQueue();
-        glm::ivec3 position = m_grid.getChunkWorldPosition(id);
         VoxelChunk& chunk = m_grid.getChunk(id);
         if (!chunk.isInUse()) { continue; }
 
-        m_solver.regenerateChunk(marchingCubes, m_grid, position, chunk, globalChunkSSBO);
+        m_solver.regenerateChunk(marchingCubes, m_grid, chunk, globalChunkSSBO);
     }
 }
 
@@ -116,21 +115,21 @@ void engine::ChunkGridChanger::pushToUpdateQueue(size_t index) {
     VoxelChunk& chunk = m_grid.getChunk(index);
     if (!chunk.isInUpdateQueue()) {
         chunk.setInUpdateQueueFlag(true);
-        m_toUpdateQueue.push(index);
+        m_toUpdateQueue.push_back(index);
     }
 }
 
 void engine::ChunkGridChanger::pushToUpdateQueueForced(size_t index) {
     m_grid.getChunk(index).setInUpdateQueueFlag(true);
-    m_toUpdateQueue.push(index);
+    m_toUpdateQueue.push_back(index);
 }
 
 size_t engine::ChunkGridChanger::popFromUpdateQueue() {
-    VoxelChunk& chunk = m_grid.getChunk(m_toUpdateQueue.top());
+    VoxelChunk& chunk = m_grid.getChunk(m_toUpdateQueue.back());
     chunk.setInUpdateQueueFlag(false);
 
-    size_t id = m_toUpdateQueue.top();
-    m_toUpdateQueue.pop();
+    size_t id = m_toUpdateQueue.back();
+    m_toUpdateQueue.pop_back();
     return id;
 }
 
@@ -237,4 +236,16 @@ void engine::ChunkGridChanger::refineChunkBorders(ChunkGridBounds& gridBounds, g
             }
         }
     }
+}
+
+void engine::ChunkGridChanger::sortUpdateQueue() {
+    ChunkGridBounds& gridBounds = m_grid.getGridBounds();
+    VoxelPositionConverter& converter = m_grid.getPositionConverter();
+
+    m_generateQueueChanges = 0;
+
+    /*glm::ivec2& worldCenter = gridBounds.currentCenterChunk;
+    sort(m_toUpdateQueue.begin(), m_toUpdateQueue.end(), [&](const size_t a, const size_t b){
+
+    });*/
 }

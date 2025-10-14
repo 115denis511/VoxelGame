@@ -1,6 +1,6 @@
 #include "ChunkVisibilityChecker.h"
 
-void engine::ChunkVisibilityChecker::updateVisibilityStates(ChunkGrid &grid, VoxelChunk& chunk, glm::ivec3 worldPosition) {
+void engine::ChunkVisibilityChecker::updateVisibilityStates(ChunkGrid &grid, VoxelChunk& chunk) {
     clearStates();
     chunk.clearVisibilityStates();
 
