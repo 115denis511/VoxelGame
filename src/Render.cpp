@@ -94,11 +94,17 @@ void engine::Render::freeResources() {
 }
 
 void engine::Render::draw(CameraVars cameraVars, SceneResources& sceneResources, BVHTreeEntities& worldBVH) {
+    MarchingCubesManager* m_marchingCubesManager = MarchingCubesManager::getInstance();
+
     if (WindowGLFW::g_isRenderMustUpdateViewport) {
         updateViewports();
     }
 
-    uniform_structs::DrawVars vars(m_projectionPerspective.getMatrix() * cameraVars.lookAt, m_projectionPerspective.getMatrix(), cameraVars.lookAt);
+    uniform_structs::DrawVars vars({
+        m_projectionPerspective.getMatrix() * cameraVars.lookAt, 
+        m_projectionPerspective.getMatrix(), 
+        cameraVars.lookAt
+    });
     UniformManager::setDrawVars(vars);
 
     //g_resources->m_gBuffer->bind();
@@ -111,8 +117,8 @@ void engine::Render::draw(CameraVars cameraVars, SceneResources& sceneResources,
     //MeshManager::getPrimitiveSphere(1.f, 32, 32)->draw();
 
     Frustum frustum(cameraVars, m_projectionPerspective);
-
-    MarchingCubesManager::getInstance()->draw(cameraVars, frustum);
+    
+    m_marchingCubesManager->draw(cameraVars, frustum);
     accamulateInstancingBuffers(sceneResources, worldBVH, frustum);
     ShaderStorageManager::resetBindings();
     drawInstanced();

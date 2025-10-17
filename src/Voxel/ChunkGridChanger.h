@@ -23,17 +23,15 @@ namespace engine {
         size_t popFromUpdateQueue();
 
     private:
-        static constexpr int MAX_QUEUE_CAHNGES_WITHOUT_SORTING = 32;
-
         ChunkGrid& m_grid;
         std::vector<size_t> m_toUpdateQueue;
-        int m_updateQueueChanges{ 0 };
+        bool m_isToUpdateQueueNeedSort{ false };
         std::vector<glm::ivec2> m_toGenerateQueue;
-        int m_generateQueueChanges{ 0 };
         MarchingCubesSolver m_solver;
 
         void refineChunkBorders(ChunkGridBounds& gridBounds, glm::ivec2 localPos);
-        void sortUpdateQueue();
+        void sortToUpdateQueue();
+        void sortToGenerateQueue();
     };
 }
 
