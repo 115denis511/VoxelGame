@@ -4,30 +4,6 @@ engine::VoxelChunk::VoxelChunk() {}
 
 engine::VoxelChunk::~VoxelChunk() {}
 
-engine::MarchingCubesVoxel engine::VoxelChunk::getVoxel(short x, short y, short z) {
-    return m_voxels(x, y, z);
-}
-
-bool engine::VoxelChunk::isVoxelSolid(short x, short y, short z) {
-    uint8_t id = m_voxels(x, y, z).id;
-    return id < 128;
-}
-
-void engine::VoxelChunk::setVoxel(short x, short y, short z, uint8_t id, uint8_t size) {
-    m_voxels(x, y, z).id = id;
-    m_voxels(x, y, z).size = size < 8 ? size : 7;
-}
-
-void engine::VoxelChunk::clear() {
-    for (size_t x = 0; x < GRID_SIZE; x++) {
-        for (size_t y = 0; y < GRID_SIZE; y++) {
-            for (size_t z = 0; z < GRID_SIZE; z++) {
-                m_voxels(x, y, z) = MarchingCubesVoxel();
-            }
-        }
-    }
-}
-
 void engine::VoxelChunk::addDrawCommand(const engine::DrawArraysIndirectCommand &command) {
     assert(m_drawCount < static_cast<int>(m_drawCommands.size()) && "ASSERT ERROR! - Adding more commands in chunk buffer than it can store!");
     m_drawCommands[m_drawCount] = command;
