@@ -6,6 +6,10 @@ engine::ChunkGridChanger::ChunkGridChanger(ChunkGrid& grid)
     
 }
 
+engine::ChunkGridChanger::~ChunkGridChanger() {
+    if (m_loader != nullptr) delete m_loader;
+}
+
 void engine::ChunkGridChanger::generateChunks(bool usingGlobalChunkSSBO, size_t maxSlices) {
     ChunkGridBounds& gridBounds = m_grid.getGridBounds();
     VoxelPositionConverter& converter = m_grid.getPositionConverter();
@@ -18,55 +22,21 @@ void engine::ChunkGridChanger::generateChunks(bool usingGlobalChunkSSBO, size_t 
         if (!gridBounds.isWorldChunkInbounds(pos.x, 0, pos.y)) continue; 
         if (m_grid.isHaveChunk(localPos.x, 0, localPos.y)) continue;
 
+        std::array<VoxelChunkBase*, 8> chunkSlice;
+
         for (int y = 0; y < gridBounds.CHUNK_MAX_Y_SIZE; y++) {
             VoxelChunk& chunk = m_grid.allocateChunk(localPos.x, y, localPos.y);
             int id = m_grid.getChunkId(localPos.x, y, localPos.y);
+            chunkSlice[y] = &chunk;
 
             chunk.clear();
             chunk.clearVisibilityStatesForEmptyChunk();
             chunk.clearDrawCommands();
 
             pushToUpdateQueueForced(id);
-
-            // Временный код генерации мира
-            if (y == 0) {
-                for (size_t x = 0; x < 32; x++) {
-                    for (size_t z = 0; z < 32; z++){
-                        chunk.setVoxel(x,1,z, 0);
-                    }
-                }
-
-                if (pos.x == 0 && pos.y == 0) {
-                    for (size_t y = 0; y < 32; y+=2) {
-                        for (size_t z = 0; z < 32; z+=2) {
-                            for (size_t x = 0; x < 32; x+=2) {
-                                chunk.setVoxel(x,y,z, 1);
-                            }
-                        }
-                    }
-                }
-                else if (pos.x == 1 && pos.y == -3) {
-                    for (size_t y = 0; y < 32; y++) {
-                        for (size_t z = 0; z < 32; z++) {
-                            chunk.setVoxel(25,y,z, 1);
-                        }
-                    }
-                }
-            }
-            if (pos.x <= -1) { // && (std::abs(pos.x) + std::abs(pos.y) + y) % 2 != 0
-                for (size_t y = 0; y < 32; y++) {
-                    for (size_t z = 0; z < 32; z++){
-                        chunk.setVoxel(0,y,z, 1);
-                        chunk.setVoxel(31,y,z, 1);
-                        chunk.setVoxel(z,y,0, 1);
-                        chunk.setVoxel(z,y,31, 1);
-                        chunk.setVoxel(z,0,y, 1);
-                        chunk.setVoxel(z,31,y, 1);
-                    }
-                }
-            }
         }
         
+        m_loader->load(pos, chunkSlice);
         refineChunkBorders(gridBounds, localPos);
 
         maxSlices--;
@@ -142,6 +112,11 @@ size_t engine::ChunkGridChanger::popFromUpdateQueue() {
     size_t id = m_toUpdateQueue.back();
     m_toUpdateQueue.pop_back();
     return id;
+}
+
+void engine::ChunkGridChanger::setChunkLoader(IChunkLoader* newLoader) {
+    if (m_loader != nullptr) delete m_loader;
+    m_loader = newLoader;
 }
 
 void engine::ChunkGridChanger::refineChunkBorders(ChunkGridBounds& gridBounds, glm::ivec2 localPos) {

@@ -10,6 +10,7 @@
 #include "Log.h"
 
 #include "Voxel/MarchingCubesManager.h"
+#include "TestScene/ExampleWorldGenerator.h"
 
 namespace engine {
 

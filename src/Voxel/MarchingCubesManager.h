@@ -46,6 +46,7 @@ namespace engine {
         void setRenderChunkRadius(int radius);
         int getRenderChunkRadius() const { return (int)m_renderChunkRadius; }
         bool isUningGlobalChunkSSBO() { return m_usingGlobalChunkSSBO; }
+        void setChunkLoader(IChunkLoader* newLoader) { m_gridChanger.setChunkLoader(newLoader); }
         const ChunkGridBounds& getGridBounds() { return m_gridBounds; }
         
         static constexpr std::array<float, 8> getVoxelOffsets() { return MarchingCubes::OFFSETS_STRENGTH; };

@@ -70,12 +70,11 @@ void engine::Core::start(ISceneLogic* sceneLogic) {
     Scene::g_requests->deleteEntity(5);
 
     MarchingCubesManager::init();
-    // REMEMBER DELETE FREE RESOURCES AT MAIN LOOP END
-    //Shader mcShader("Shader/marchingCubes.vert", "Shader/marchingCubes.frag"); 
 
     auto marching = MarchingCubesManager::getInstance();
     //marching->resizeChunkGrid(24);
     marching->setRenderChunkRadius(3);
+    marching->setChunkLoader(new ExampleWorldGenerator());
     marching->startTextureEditing();
     marching->setVoxelTexture(0, "grass.jpg");
     marching->setVoxelTexture(1, "bricksx64.png");

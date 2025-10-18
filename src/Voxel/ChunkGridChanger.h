@@ -5,6 +5,7 @@
 #include "../Render/ShaderStorageBuffer.h"
 #include "ChunkGrid.h"
 #include "ChunkGridBounds.h"
+#include "IChunkLoader.h"
 #include "MarchingCubes.h"
 #include "MarchingCubesSolver.h"
 #include "VoxelChunk.h"
@@ -14,6 +15,7 @@ namespace engine {
     class ChunkGridChanger{
     public:
         ChunkGridChanger(ChunkGrid& grid);
+        ~ChunkGridChanger();
 
         void generateChunks(bool usingGlobalChunkSSBO, size_t maxSlices);
         void updateChunks(MarchingCubes& marchingCubes, ShaderStorageBuffer<glm::ivec2>& globalChunkSSBO, size_t maxUpdates = 8);
@@ -21,6 +23,7 @@ namespace engine {
         void pushToUpdateQueue(size_t index);
         void pushToUpdateQueueForced(size_t index);
         size_t popFromUpdateQueue();
+        void setChunkLoader(IChunkLoader* newLoader);
 
     private:
         ChunkGrid& m_grid;
@@ -28,6 +31,7 @@ namespace engine {
         bool m_isToUpdateQueueNeedSort{ false };
         std::vector<glm::ivec2> m_toGenerateQueue;
         MarchingCubesSolver m_solver;
+        IChunkLoader* m_loader{ new NullChunkLoader() };
 
         void refineChunkBorders(ChunkGridBounds& gridBounds, glm::ivec2 localPos);
         void sortToUpdateQueue();
