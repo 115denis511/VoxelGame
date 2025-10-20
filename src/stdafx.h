@@ -26,6 +26,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <chrono>
+#include <random>
 
 #define GLEW_STATIC
 #include <gl/glew.h>

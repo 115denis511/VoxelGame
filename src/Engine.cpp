@@ -79,6 +79,7 @@ void engine::Core::start(ISceneLogic* sceneLogic) {
     marching->setVoxelTexture(0, "grass.jpg");
     marching->setVoxelTexture(1, "bricksx64.png");
     marching->setVoxelTexture(2, glm::vec4(1.f, 0.3f, 0.2f, 1.f));
+    marching->setVoxelTexture(3, "seamless_rock.png");
     marching->endTextureEditing();
 
     int errors = 0;

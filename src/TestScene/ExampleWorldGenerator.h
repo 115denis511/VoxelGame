@@ -3,9 +3,43 @@
 
 #include "../stdafx.h"
 #include "../Voxel/IChunkLoader.h"
+#include "../Utilites/PerlinNoise.h"
 
 class ExampleWorldGenerator : public engine::IChunkLoader {
+public:
     virtual void load(const glm::ivec2& worldChunkPosition, std::array<engine::VoxelChunkBase*, 8>& chunkSlice) override {
+        //makeTestTerrain(worldChunkPosition, chunkSlice);
+        makePerlinNoiseTerrain(worldChunkPosition, chunkSlice);
+    }
+
+    void makePerlinNoiseTerrain(const glm::ivec2& worldChunkPosition, std::array<engine::VoxelChunkBase*, 8>& chunkSlice) {
+        for (int x = 0; x < engine::VoxelChunkBase::VOXEL_CHUNK_SIZE; x++) {
+            for (int y = 0; y < engine::VoxelChunkBase::VOXEL_CHUNK_SIZE; y++) {
+                for (int z = 0; z < engine::VoxelChunkBase::VOXEL_CHUNK_SIZE; z++) {
+                    chunkSlice[0]->setVoxel(x ,y, z, 3, 7);    
+                }
+            }
+        }
+
+        for (int x = 0; x < engine::VoxelChunkBase::VOXEL_CHUNK_SIZE; x++) {
+            for (int z = 0; z < engine::VoxelChunkBase::VOXEL_CHUNK_SIZE; z++) {
+                float h = m_perlin.noise((float)x / 32 + worldChunkPosition.x, (float)z / 32 + worldChunkPosition.y, 1, 0.7f);
+                int ih = (h + 1) * 16 * 8;
+                int y = (ih / 8);
+                int t = ih & 0b111;
+                //std::cout << h << "\n";
+                
+                chunkSlice[1]->setVoxel(x ,y, z, 0, t);
+                y--;
+                while (y >= 0) {
+                    chunkSlice[1]->setVoxel(x ,y, z, 3, 7);
+                    y--;
+                }
+            }
+        }
+    }
+
+    void makeTestTerrain(const glm::ivec2& worldChunkPosition, std::array<engine::VoxelChunkBase*, 8>& chunkSlice) {
         for (size_t x = 0; x < 32; x++) {
             for (size_t z = 0; z < 32; z++){
                 chunkSlice[0]->setVoxel(x,1,z, 0);
@@ -42,6 +76,9 @@ class ExampleWorldGenerator : public engine::IChunkLoader {
             }
         }
     }
+
+private:
+    utilites::PerlinNoise m_perlin;
 };
 
 #endif
