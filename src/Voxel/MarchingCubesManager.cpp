@@ -320,10 +320,10 @@ void engine::MarchingCubesManager::setVoxel(const glm::vec3 &position, uint8_t i
     }
 }
 
-engine::MarchingCubesVoxel engine::MarchingCubesManager::getVoxel(const glm::vec3 &position) {
+engine::Voxel engine::MarchingCubesManager::getVoxel(const glm::vec3 &position) {
     glm::ivec3 chunkPos = m_converter.worldPositionToChunkPosition(position, m_gridBounds.CHUNCK_DIMENSION_SIZE);
     if (!m_gridBounds.isWorldChunkInbounds(chunkPos.x, chunkPos.y, chunkPos.z)) {
-        return MarchingCubesVoxel(255, 0);
+        return Voxel();
     }
     glm::ivec2 localXZ = m_converter.worldChunkToLocalChunkPosition(chunkPos.x, chunkPos.z, m_gridBounds.currentOriginChunk.x, m_gridBounds.currentOriginChunk.y);
     glm::ivec3 localVoxel = m_converter.worldPositionToLocalVoxelPosition(position, m_gridBounds.CHUNCK_DIMENSION_SIZE);

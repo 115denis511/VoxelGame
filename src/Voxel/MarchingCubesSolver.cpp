@@ -71,7 +71,7 @@ void engine::MarchingCubesSolver::accumulateCases(MarchingCubes &marchingCubes, 
     for (int z = 0; z < MARCHING_CUBES_COUNT; z++) {
         for (int y = 0; y < MARCHING_CUBES_COUNT; y++) {
             for (int x = 0; x < MARCHING_CUBES_COUNT; x++) {
-                std::array<MarchingCubesVoxel, 8> voxels {
+                std::array<Voxel, 8> voxels {
                     chunk.getVoxel(x, y + 1, z + 1), // topFrontLeft
                     chunk.getVoxel(x + 1, y + 1, z + 1), // topFrontRight
                     chunk.getVoxel(x + 1, y + 1, z), // topBackRight
@@ -95,7 +95,7 @@ void engine::MarchingCubesSolver::clear() {
     }
 }
 
-void engine::MarchingCubesSolver::addMarchingCube(MarchingCubes& marchingCubes, std::array<MarchingCubesVoxel, 8> &voxels, int x, int y, int z) {
+void engine::MarchingCubesSolver::addMarchingCube(MarchingCubes& marchingCubes, std::array<Voxel, 8> &voxels, int x, int y, int z) {
     uint8_t caseId = getCaseIndex(voxels);
     if (caseId == 0 || caseId == 255) return;
 
@@ -104,12 +104,12 @@ void engine::MarchingCubesSolver::addMarchingCube(MarchingCubes& marchingCubes, 
     int offsets[6] = { 0, 0, 0, 0, 0, 0 };
     for (int i = 0; i < 6; i++) {
         int vId = verticesIds.ids[i];
-        offsets[i] = voxels[vId].size;
+        offsets[i] = voxels[vId].getSolidSize();
     }
     int textures[4] = { 0, 0, 0, 0 };
     for (int i = 0; i < 4; i++) {
         int vId = verticesIds.ids[i];
-        textures[i] = voxels[vId].id;
+        textures[i] = voxels[vId].getSolidId();
     }
 
     glm::ivec2 caseData = packData(x, y, z, offsets, textures);
@@ -117,15 +117,15 @@ void engine::MarchingCubesSolver::addMarchingCube(MarchingCubes& marchingCubes, 
     m_cubesCount++;
 }
 
-uint8_t engine::MarchingCubesSolver::getCaseIndex(std::array<MarchingCubesVoxel, 8>& voxels) {
-    uint8_t caseId = voxels[0].id < 128;
-    caseId |= (voxels[1].id < 128) << 1;
-    caseId |= (voxels[2].id < 128) << 2;
-    caseId |= (voxels[3].id < 128) << 3;
-    caseId |= (voxels[4].id < 128) << 4;
-    caseId |= (voxels[5].id < 128) << 5;
-    caseId |= (voxels[6].id < 128) << 6;
-    caseId |= (voxels[7].id < 128) << 7;
+uint8_t engine::MarchingCubesSolver::getCaseIndex(std::array<Voxel, 8>& voxels) {
+    uint8_t caseId = voxels[0].isHaveSolid();
+    caseId |= voxels[1].isHaveSolid() << 1;
+    caseId |= voxels[2].isHaveSolid() << 2;
+    caseId |= voxels[3].isHaveSolid() << 3;
+    caseId |= voxels[4].isHaveSolid() << 4;
+    caseId |= voxels[5].isHaveSolid() << 5;
+    caseId |= voxels[6].isHaveSolid() << 6;
+    caseId |= voxels[7].isHaveSolid() << 7;
     return caseId;
 }
 

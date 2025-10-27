@@ -42,7 +42,7 @@ namespace engine {
         bool isPositionHasSolidVoxel(const glm::vec3& position);
         bool raycastVoxel(const glm::vec3& position, const glm::vec3& direction, float maxDistance, glm::ivec3& hitPosition, glm::ivec3& hitFace);
         void setVoxel(const glm::vec3& position, uint8_t id, uint8_t size = 3);
-        MarchingCubesVoxel getVoxel(const glm::vec3& position);
+        Voxel getVoxel(const glm::vec3& position);
         void setRenderChunkRadius(int radius);
         int getRenderChunkRadius() const { return (int)m_renderChunkRadius; }
         bool isUningGlobalChunkSSBO() { return m_usingGlobalChunkSSBO; }

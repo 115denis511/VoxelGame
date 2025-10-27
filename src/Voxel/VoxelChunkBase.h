@@ -3,13 +3,9 @@
 
 #include "../stdafx.h"
 #include "../Utilites/MultidimensionalArrays.h"
+#include "Voxel.h"
 
 namespace engine {
-    struct MarchingCubesVoxel {
-        uint8_t id = 255;
-        uint8_t size = 3;
-    };
-
     class VoxelChunkBase {
     public:
         VoxelChunkBase();
@@ -22,13 +18,13 @@ namespace engine {
         static constexpr GLsizeiptr VOXEL_CHUNK_BYTE_SIZE = VOXEL_COUNT * sizeof(glm::ivec2);
 
         void setVoxel(short x, short y, short z, uint8_t id, uint8_t size = 3);
-        void setVoxel(short x, short y, short z, const MarchingCubesVoxel& voxel);
-        MarchingCubesVoxel getVoxel(short x, short y, short z);
+        void setVoxel(short x, short y, short z, const Voxel& voxel);
+        Voxel getVoxel(short x, short y, short z);
         bool isVoxelSolid(short x, short y, short z);
         void clear();
 
     protected:
-        utilites::Array3D<MarchingCubesVoxel, GRID_SIZE, GRID_SIZE, GRID_SIZE> m_voxels;
+        utilites::Array3D<Voxel, GRID_SIZE, GRID_SIZE, GRID_SIZE> m_voxels;
     };
 }
 

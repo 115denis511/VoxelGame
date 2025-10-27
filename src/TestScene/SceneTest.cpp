@@ -56,7 +56,7 @@ void SceneTest::update(engine::Camera& camera, engine::SceneResources &resources
             
             glm::ivec3 hit, face;
             if (marching->raycastVoxel(cameraPos, cameraTarget, 100.f, hit, face)) {
-                auto size = marching->getVoxel(hit).size;
+                auto size = marching->getVoxel(hit).getSolidSize();
                 glm::vec3 place(hit.x + offset[size] * face.x, hit.y + offset[size] * face.y, hit.z + offset[size] * face.z);
                 resources.transforms.get(0).getObject().setPosition(place);
             }
@@ -68,9 +68,9 @@ void SceneTest::update(engine::Camera& camera, engine::SceneResources &resources
             if (marching->raycastVoxel(cameraPos, cameraTarget, 100.f, hit, face)) {
                 if (engine::Controls::isKeyPressed(GLFW_KEY_LEFT_CONTROL)) {
                     auto voxel = marching->getVoxel(hit);
-                    if (voxel.size > 0) {
+                    if (voxel.getSolidSize() > 0) {
                         std::cout << "Voxel size decreased at " << hit.x << " " << hit.y << " " << hit.z << "\n";
-                        marching->setVoxel(hit, voxel.id, voxel.size - 1);
+                        marching->setVoxel(hit, voxel.getSolidId(), voxel.getSolidSize() - 1);
                     }
                 }
                 else {
@@ -87,7 +87,7 @@ void SceneTest::update(engine::Camera& camera, engine::SceneResources &resources
                 if (engine::Controls::isKeyPressed(GLFW_KEY_LEFT_CONTROL)) {
                     auto voxel = marching->getVoxel(hit);
                     std::cout << "Voxel size increased at " << hit.x << " " << hit.y << " " << hit.z << "\n";
-                    marching->setVoxel(hit, voxel.id, voxel.size + 1);
+                    marching->setVoxel(hit, voxel.getSolidId(), voxel.getSolidSize() + 1);
                 }
                 else {
                     marching->setVoxel(hit + face, 1, 0);

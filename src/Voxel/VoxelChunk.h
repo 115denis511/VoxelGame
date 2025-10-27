@@ -35,7 +35,6 @@ namespace engine {
         void clearVisibilityStatesForEmptyChunk();
 
     private:
-        utilites::Array3D<MarchingCubesVoxel, GRID_SIZE, GRID_SIZE, GRID_SIZE> m_voxels; //
         std::array<DrawArraysIndirectCommand, 254> m_drawCommands;
         int m_drawCount{ 0 };
         bool m_isInUpdateQueue{ false };
