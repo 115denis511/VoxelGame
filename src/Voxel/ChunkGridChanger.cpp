@@ -135,7 +135,7 @@ void engine::ChunkGridChanger::refineChunkBorders(ChunkGridBounds& gridBounds, g
             for (int vy = 0; vy < VoxelChunk::VOXEL_CHUNK_SIZE; vy++) {
                 for (int vz = 0; vz < VoxelChunk::VOXEL_CHUNK_SIZE; vz++) {
                     Voxel voxel = heighbour.getVoxel(0, vy, vz);
-                    chunks[y]->setVoxel(32, vy, vz, voxel.getSolidId(), voxel.getSolidSize());
+                    chunks[y]->setVoxel(32, vy, vz, voxel);
                 }
             }
         }
@@ -150,7 +150,7 @@ void engine::ChunkGridChanger::refineChunkBorders(ChunkGridBounds& gridBounds, g
             for (int vy = 0; vy < VoxelChunk::VOXEL_CHUNK_SIZE; vy++) {
                 for (int vx = 0; vx < VoxelChunk::VOXEL_CHUNK_SIZE; vx++) {
                     Voxel voxel = heighbour.getVoxel(vx, vy, 0);
-                    chunks[y]->setVoxel(vx, vy, 32, voxel.getSolidId(), voxel.getSolidSize());
+                    chunks[y]->setVoxel(vx, vy, 32, voxel);
                 }
             }
         }
@@ -164,7 +164,7 @@ void engine::ChunkGridChanger::refineChunkBorders(ChunkGridBounds& gridBounds, g
             VoxelChunk& heighbour = m_grid.getChunk(chunkId);
             for (int vy = 0; vy < VoxelChunk::VOXEL_CHUNK_SIZE; vy++) {
                 Voxel voxel = heighbour.getVoxel(0, vy, 0);
-                chunks[y]->setVoxel(32, vy, 32, voxel.getSolidId(), voxel.getSolidSize());
+                chunks[y]->setVoxel(32, vy, 32, voxel);
             }
         }
     }
@@ -173,7 +173,7 @@ void engine::ChunkGridChanger::refineChunkBorders(ChunkGridBounds& gridBounds, g
         for (int x = 0; x < VoxelChunk::GRID_SIZE; x++) {
             for (int z = 0; z < VoxelChunk::GRID_SIZE; z++) {
                 Voxel voxel = chunks[y + 1]->getVoxel(x, 0, z);
-                chunks[y]->setVoxel(x, 32, z, voxel.getSolidId(), voxel.getSolidSize());
+                chunks[y]->setVoxel(x, 32, z, voxel);
             }
         }
     }
@@ -193,7 +193,7 @@ void engine::ChunkGridChanger::refineChunkBorders(ChunkGridBounds& gridBounds, g
             for (int vy = 0; vy < VoxelChunk::GRID_SIZE; vy++) {
                 for (int vz = 0; vz < VoxelChunk::GRID_SIZE; vz++) {
                     Voxel voxel = chunks[y]->getVoxel(0, vy, vz);
-                    heighbour.setVoxel(32, vy, vz, voxel.getSolidId(), voxel.getSolidSize());
+                    heighbour.setVoxel(32, vy, vz, voxel);
                 }
             }
         }
@@ -209,7 +209,7 @@ void engine::ChunkGridChanger::refineChunkBorders(ChunkGridBounds& gridBounds, g
             for (int vy = 0; vy < VoxelChunk::GRID_SIZE; vy++) {
                 for (int vx = 0; vx < VoxelChunk::GRID_SIZE; vx++) {
                     Voxel voxel = chunks[y]->getVoxel(vx, vy, 0);
-                    heighbour.setVoxel(vx, vy, 32, voxel.getSolidId(), voxel.getSolidSize());
+                    heighbour.setVoxel(vx, vy, 32, voxel);
                 }
             }
         }
@@ -224,7 +224,7 @@ void engine::ChunkGridChanger::refineChunkBorders(ChunkGridBounds& gridBounds, g
             VoxelChunk& heighbour = m_grid.getChunk(chunkId);
             for (int vy = 0; vy < VoxelChunk::GRID_SIZE; vy++) {
                 Voxel voxel = chunks[y]->getVoxel(0, vy, 0);
-                heighbour.setVoxel(32, vy, 32, voxel.getSolidId(), voxel.getSolidSize());
+                heighbour.setVoxel(32, vy, 32, voxel);
             }
         }
     }

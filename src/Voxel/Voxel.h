@@ -14,31 +14,25 @@ namespace engine {
         {}
 
         void setSolidId(uint8_t id) { m_solidId = id; }
-        void setSolidSize(uint8_t size) {
-            size = size <= MAX_VOXEL_SIZE ? size : MAX_VOXEL_SIZE;
-            m_solidSize = size;
-        }
+        void setSolidSize(uint8_t size) { m_solidSize = (m_solidSize & (~SIZE_MASK)) | (size & SIZE_MASK); }
         void setSolidVoxel(uint8_t id, uint8_t size) {
             setSolidId(id);
             setSolidSize(size);
         }
         bool isHaveSolid() { return m_solidId != NO_VOXEL; };
         uint8_t getSolidId() { return m_solidId; }
-        uint8_t getSolidSize() { return m_solidSize; }
+        uint8_t getSolidSize() { return m_solidSize & SIZE_MASK; }
         void deleteSolid() { m_solidId = NO_VOXEL; }
 
         void setWaterId(uint8_t id) { m_waterId = id; }
-        void setWaterSize(uint8_t size) {
-            size = size <= MAX_VOXEL_SIZE ? size : MAX_VOXEL_SIZE;
-            m_waterSize = size;
-        }
+        void setWaterSize(uint8_t size) { m_waterSize = (m_waterSize & (~SIZE_MASK)) | (size & SIZE_MASK); }
         void setWaterVoxel(uint8_t id, uint8_t size) {
             setWaterId(id);
             setWaterSize(size);
         }
         bool isHaveWater() { return m_waterId != NO_VOXEL; };
         uint8_t getWaterId() { return m_waterId; }
-        uint8_t getWaterSize() { return m_waterSize; }
+        uint8_t getWaterSize() { return m_waterSize & SIZE_MASK; }
         void deleteWater() { m_waterId = NO_VOXEL; }
 
         uint32_t dbg_getRaw() { return m_raw; }
@@ -49,7 +43,7 @@ namespace engine {
 
     private:
         static constexpr uint8_t NO_VOXEL = 0xFF;
-        static constexpr uint8_t MAX_VOXEL_SIZE = 7;
+        static constexpr uint8_t SIZE_MASK = 0b111;
         
         union {
             struct {
