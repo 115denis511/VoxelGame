@@ -32,7 +32,7 @@ void engine::MarchingCubesManager::freeResources() {
 
 void engine::MarchingCubesManager::updateChunks(size_t maxCount) {
     m_gridChanger.generateChunks(m_usingGlobalChunkSSBO, 1);
-    m_gridChanger.updateChunks(m_marchingCubes, m_globalChunkSSBO, 8);
+    m_gridChanger.updateChunks(m_marchingCubes, m_globalChunkSSBO, m_globalChunkGridsSSBO, 8);
 }
 
 bool engine::MarchingCubesManager::setVoxelTexture(int layer, unsigned char *rawImage, int width, int height, int nrComponents) {
@@ -62,7 +62,7 @@ void engine::MarchingCubesManager::endTextureEditing() {
 engine::MarchingCubesManager::MarchingCubesManager() {
     GLint size;
     glGetIntegerv(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, &size);
-    constexpr GLsizeiptr CHUNK_BUFFER_SIZE = VoxelChunk::VOXEL_CHUNK_BYTE_SIZE * ChunkGridBounds::CHUNK_COUNT;
+    constexpr GLsizeiptr CHUNK_BUFFER_SIZE = VoxelChunk::MARCHING_CUBES_BYTE_SIZE * ChunkGridBounds::CHUNK_COUNT;
 
     //if (true) {
     if (size < CHUNK_BUFFER_SIZE) { 
@@ -89,7 +89,8 @@ engine::MarchingCubesManager::MarchingCubesManager() {
         m_drawBufferRefs.resize(254 * ChunkGridBounds::CHUNK_COUNT);
         
         m_chunkPositionsSSBO.init(ChunkGridBounds::CHUNK_COUNT, BufferUsage::DYNAMIC_DRAW);
-        m_globalChunkSSBO.init(VoxelChunk::VOXEL_COUNT * ChunkGridBounds::CHUNK_COUNT, BufferUsage::DYNAMIC_DRAW);
+        m_globalChunkSSBO.init(VoxelChunk::MARCHING_CUBES_COUNT * ChunkGridBounds::CHUNK_COUNT, BufferUsage::DYNAMIC_DRAW);
+        m_globalChunkGridsSSBO.init(VoxelChunk::GRID_VOXEL_COUNT * ChunkGridBounds::CHUNK_COUNT, BufferUsage::DYNAMIC_DRAW);
         m_drawIdToDataSSBO.init(254 * ChunkGridBounds::CHUNK_COUNT, BufferUsage::DYNAMIC_DRAW);
 
         m_shader = new Shader("Shader/marchingCubesAllInOne.vert", "Shader/marchingCubes.frag");
@@ -115,6 +116,7 @@ void engine::MarchingCubesManager::drawAllInOne(const CameraVars &cameraVars, Fr
     m_shader->use();
     m_textures.use();
 
+    m_globalChunkGridsSSBO.bind(SSBO_BLOCK__GLOBAL_CHUNK_GRIDS_STORAGE);
     m_globalChunkSSBO.bind(SSBO_BLOCK__GLOBAL_CHUNK_STORAGE);
     m_chunkPositionsSSBO.bind(SSBO_BLOCK__CHUNK_POSITIONS);
     m_marchingCubes.bindSSBO(SSBO_BLOCK__VOXEL_VERTECES_DATA_IDS);

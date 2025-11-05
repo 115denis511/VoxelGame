@@ -20,6 +20,9 @@ namespace utilites {
             return m_data[y * sizeX + x];
         }
 
+        size_t getSize() { return sizeX * sizeY; }
+        T* getDataPtr() { return m_data; }
+
     private:
         T* m_data;
     };
@@ -41,6 +44,9 @@ namespace utilites {
         const T& operator () (size_t x, size_t y, size_t z) const {
             return m_data[(z * sizeX * sizeY) + (y * sizeX + x)];
         }
+
+        size_t getSize() { return sizeX * sizeY * sizeZ; }
+        T* getDataPtr() { return m_data; }
 
     private:
         T* m_data;

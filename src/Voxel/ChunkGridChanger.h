@@ -18,7 +18,12 @@ namespace engine {
         ~ChunkGridChanger();
 
         void generateChunks(bool usingGlobalChunkSSBO, size_t maxSlices);
-        void updateChunks(MarchingCubes& marchingCubes, ShaderStorageBuffer<glm::ivec2>& globalChunkSSBO, size_t maxUpdates = 8);
+        void updateChunks(
+            MarchingCubes& marchingCubes, 
+            ShaderStorageBuffer<glm::ivec2>& globalChunkSSBO, 
+            ShaderStorageBuffer<Voxel>& globalChunkGridsSSBO, 
+            size_t maxUpdates = 8
+        );
         void resizeGrid(ShaderStorageBuffer<glm::ivec4>& chunkPositionsSSBO, bool usingGlobalChunkSSBO, int size);
         void pushToUpdateQueue(size_t index);
         void pushToUpdateQueueForced(size_t index);

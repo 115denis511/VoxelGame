@@ -8,7 +8,8 @@ void engine::MarchingCubesSolver::regenerateChunk(
     MarchingCubes &marchingCubes, 
     ChunkGrid& grid,
     VoxelChunk &chunk, 
-    ShaderStorageBuffer<glm::ivec2>& globalChunkSSBO
+    ShaderStorageBuffer<glm::ivec2>& globalChunkSSBO,
+    ShaderStorageBuffer<Voxel>& globalChunkGridsSSBO
 ) {
     accumulateCases(marchingCubes, grid, chunk);
 
@@ -35,9 +36,14 @@ void engine::MarchingCubesSolver::regenerateChunk(
     }
 
     if (globalChunkSSBO.isInited()) {
-        constexpr GLsizei dataPerChunk = VoxelChunk::VOXEL_CHUNK_BYTE_SIZE;
+        constexpr GLsizei dataPerChunk = VoxelChunk::MARCHING_CUBES_BYTE_SIZE;
         GLsizei dataOffset = dataPerChunk * chunk.getIdInSSBO();
         globalChunkSSBO.pushData(&dataBuffer[0], dataBuffer.size(), dataOffset);
+
+        constexpr GLsizei gridSizePerChunk = VoxelChunk::GRID_BYTE_SIZE;
+        GLsizei gridOffset = gridSizePerChunk * chunk.getIdInSSBO();
+        auto& storage = chunk.getVoxelArray();
+        globalChunkGridsSSBO.pushData(storage.getDataPtr(), storage.getSize(), gridOffset);
     }
     else {
         chunk.getSSBO().pushData(&dataBuffer[0], dataBuffer.size());

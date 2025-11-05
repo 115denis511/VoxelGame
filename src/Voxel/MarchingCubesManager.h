@@ -33,6 +33,7 @@ namespace engine {
 
         static MarchingCubesManager* getInstance();
 
+        static constexpr GLuint SSBO_BLOCK__GLOBAL_CHUNK_GRIDS_STORAGE = 11;
         static constexpr GLuint SSBO_BLOCK__GLOBAL_CHUNK_STORAGE = 12;
         static constexpr GLuint SSBO_BLOCK__CHUNK_POSITIONS = 13;
         static constexpr GLuint SSBO_BLOCK__VOXEL_VERTECES_DATA_IDS = 14;
@@ -78,6 +79,7 @@ namespace engine {
         bool m_usingGlobalChunkSSBO;
         ShaderStorageBuffer<glm::ivec4> m_chunkPositionsSSBO;
         ShaderStorageBuffer<glm::ivec2> m_globalChunkSSBO;
+        ShaderStorageBuffer<Voxel> m_globalChunkGridsSSBO;
         ShaderStorageBuffer<GLuint> m_drawIdToDataSSBO;
         Shader* m_shader;
 

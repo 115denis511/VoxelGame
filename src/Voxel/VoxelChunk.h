@@ -45,7 +45,7 @@ namespace engine {
             GLuint m_idInSSBO;
         };
 
-        void initSSBO() { m_ssbo.init(VOXEL_COUNT, BufferUsage::DYNAMIC_DRAW); }
+        void initSSBO() { m_ssbo.init(MARCHING_CUBES_COUNT, BufferUsage::DYNAMIC_DRAW); }
         void freeSSBO() { m_ssbo.~ShaderStorageBuffer<glm::ivec2>(); }
         void setIdInSSBO(GLuint start) { m_idInSSBO = start; }
         bool isPositionInsideChunk(short x, short y, short z) { 

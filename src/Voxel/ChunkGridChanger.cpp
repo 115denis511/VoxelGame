@@ -47,7 +47,8 @@ void engine::ChunkGridChanger::generateChunks(bool usingGlobalChunkSSBO, size_t 
 
 void engine::ChunkGridChanger::updateChunks(
     MarchingCubes &marchingCubes,
-    ShaderStorageBuffer<glm::ivec2> &globalChunkSSBO,
+    ShaderStorageBuffer<glm::ivec2>& globalChunkSSBO,
+    ShaderStorageBuffer<Voxel>& globalChunkGridsSSBO,
     size_t maxCount
 ) {
     if (m_isToUpdateQueueNeedSort) {
@@ -60,7 +61,7 @@ void engine::ChunkGridChanger::updateChunks(
         VoxelChunk& chunk = m_grid.getChunk(id);
         if (!chunk.isInUse()) { continue; }
 
-        m_solver.regenerateChunk(marchingCubes, m_grid, chunk, globalChunkSSBO);
+        m_solver.regenerateChunk(marchingCubes, m_grid, chunk, globalChunkSSBO, globalChunkGridsSSBO);
     }
 }
 

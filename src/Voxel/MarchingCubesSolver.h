@@ -19,7 +19,8 @@ namespace engine {
             MarchingCubes& marchingCubes, 
             ChunkGrid& grid,
             VoxelChunk& chunk, 
-            ShaderStorageBuffer<glm::ivec2>& globalChunkSSBO
+            ShaderStorageBuffer<glm::ivec2>& globalChunkSSBO,
+            ShaderStorageBuffer<Voxel>& globalChunkGridsSSBO
         );
 
     private:
