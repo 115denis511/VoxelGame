@@ -58,6 +58,15 @@ namespace engine {
         CaseVertex& bottomBackLeft() { return vertices[7]; }
 
     private:
+        static constexpr int TOP_FRONT_LEFT_ID = 0;
+        static constexpr int TOP_FRONT_RIGHT_ID = 1;
+        static constexpr int TOP_BACK_RIGHT_ID = 2;
+        static constexpr int TOP_BACK_LEFT_ID = 3;
+        static constexpr int BOTTOM_FRONT_LEFT_ID = 4;
+        static constexpr int BOTTOM_FRONT_RIGHT_ID = 5;
+        static constexpr int BOTTOM_BACK_RIGHT_ID = 6;
+        static constexpr int BOTTOM_BACK_LEFT_ID = 7;
+
         MarchingCubesVertecesIds vertecesId;
 
         void swapIds(int aIndex, const CaseVertex& b);

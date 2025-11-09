@@ -3,8 +3,7 @@
 out vec2 texCoord;
 out vec3 vertexTextureWeights;
 out mat3 TBN;
-flat out uint marchingCubeTextureIds[6];
-flat out uvec3 triangleVertexVoxelIds;
+flat out uvec3 triangleVertexIds;
 
 layout(std140, binding = 0) uniform DrawVars
 {
@@ -12,6 +11,8 @@ layout(std140, binding = 0) uniform DrawVars
     mat4 projection;
     mat4 view;
 };
+
+layout(std430, binding = 11) readonly buffer ChunkVoxelGrid { uint voxelGrid[]; }; // src/Voxel/MarchingCubesManager.h::SSBO_BLOCK__GLOBAL_CHUNK_GRIDS_STORAGE
 
 layout(std430, binding = 12) readonly buffer ChunkData { uvec2 packedData[]; }; // src/Voxel/MarchingCubesManager.h::SSBO_BLOCK__GLOBAL_CHUNK_STORAGE
 
@@ -35,10 +36,19 @@ struct UnpackedData {
     uint offsets[6];
     uint textureIds[6];
 };
+struct UnpackedVoxel {
+    uint id;
+    uint size;
+};
 
 const vec3 triangleVertexTextureWeights[3] = { vec3(1.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0), vec3(0.0, 0.0, 1.0)};
+const uvec3 idOffset[8] = {
+    uvec3(0, 1, 1), uvec3(1, 1, 1), uvec3(1, 1, 0), uvec3(0, 1, 0),
+    uvec3(0, 0, 1), uvec3(1, 0, 1), uvec3(1, 0, 0), uvec3(0, 0, 0)
+};
 
 UnpackedData unpackData(uvec2 data);
+UnpackedVoxel unpackVoxel(uint raw);
 
 void main()
 {
@@ -51,9 +61,27 @@ void main()
     int globalTriangleBaseVertexId = (gl_VertexID - localTriangleVertexId);
     int globalTriangleId = (globalTriangleBaseVertexId - gl_BaseVertex) / 3;
 
-    uint vertexOffsetX = data.offsets[triangleData[globalTriangleId].vertexVoxelIds[0]];
-    uint vertexOffsetY = data.offsets[triangleData[globalTriangleId].vertexVoxelIds[1]];
-    uint vertexOffsetZ = data.offsets[triangleData[globalTriangleId].vertexVoxelIds[2]];
+    uint v0Id = triangleData[globalTriangleId].vertexVoxelIds[0];
+    uint v1Id = triangleData[globalTriangleId].vertexVoxelIds[1];
+    uint v2Id = triangleData[globalTriangleId].vertexVoxelIds[2];
+
+    // 33 * 33 = 1089
+    uint v0FlatArrayId = ((data.z + idOffset[v0Id].z) * 1089) + ((data.y + idOffset[v0Id].y) * 33) + (data.x + idOffset[v0Id].x);
+    uint v1FlatArrayId = ((data.z + idOffset[v1Id].z) * 1089) + ((data.y + idOffset[v1Id].y) * 33) + (data.x + idOffset[v1Id].x);
+    uint v2FlatArrayId = ((data.z + idOffset[v2Id].z) * 1089) + ((data.y + idOffset[v2Id].y) * 33) + (data.x + idOffset[v2Id].x);
+
+    uint gridLocation = chunkId * 35937; // 35937 = 33 * 33 * 33
+    uint v0Raw = voxelGrid[gridLocation + v0FlatArrayId];
+    uint v1Raw = voxelGrid[gridLocation + v1FlatArrayId];
+    uint v2Raw = voxelGrid[gridLocation + v2FlatArrayId];
+
+    UnpackedVoxel v0 = unpackVoxel(v0Raw);
+    UnpackedVoxel v1 = unpackVoxel(v1Raw);
+    UnpackedVoxel v2 = unpackVoxel(v2Raw);
+
+    uint vertexOffsetX = v0.size;
+    uint vertexOffsetY = v1.size;
+    uint vertexOffsetZ = v2.size;
 
     // 8 * 8 = 64
     uint variantId = vertexOffsetZ * 64 + vertexOffsetY * 8 + vertexOffsetX;
@@ -77,11 +105,10 @@ void main()
         triangleData[globalTriangleId].variants[variantId].pos_TBN_tex[texId + 1].w
     );
     vertexTextureWeights = triangleVertexTextureWeights[localTriangleVertexId];
-    marchingCubeTextureIds = data.textureIds;
 
-    triangleVertexVoxelIds.x = triangleData[globalTriangleId].vertexVoxelIds[0];
-    triangleVertexVoxelIds.y = triangleData[globalTriangleId].vertexVoxelIds[1];
-    triangleVertexVoxelIds.z = triangleData[globalTriangleId].vertexVoxelIds[2];
+    triangleVertexIds.x = v0.id;
+    triangleVertexIds.y = v1.id;
+    triangleVertexIds.z = v2.id;
 }
 
 UnpackedData unpackData(uvec2 data)
@@ -107,4 +134,13 @@ UnpackedData unpackData(uvec2 data)
     unpaked.textureIds[5] = unpaked.textureIds[3];
 
     return unpaked;
+}
+
+UnpackedVoxel unpackVoxel(uint raw)
+{
+    UnpackedVoxel unpacked;
+    unpacked.id = raw & 255; // 255 = 0bFF
+    unpacked.size = (raw >> 8) & 7; // 7 = 0b111
+
+    return unpacked;
 }

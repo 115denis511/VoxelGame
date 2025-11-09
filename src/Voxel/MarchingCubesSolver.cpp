@@ -109,13 +109,13 @@ void engine::MarchingCubesSolver::addMarchingCube(MarchingCubes& marchingCubes, 
     // vId - индекс вершины в массиве voxels[]
     int offsets[6] = { 0, 0, 0, 0, 0, 0 };
     for (int i = 0; i < 6; i++) {
-        int vId = verticesIds.ids[i];
-        offsets[i] = voxels[vId].getSolidSize();
+        //int vId = verticesIds.ids[i];
+        //offsets[i] = voxels[vId].getSolidSize();
     }
     int textures[4] = { 0, 0, 0, 0 };
     for (int i = 0; i < 4; i++) {
-        int vId = verticesIds.ids[i];
-        textures[i] = voxels[vId].getSolidId();
+        //int vId = verticesIds.ids[i];
+        //textures[i] = voxels[vId].getSolidId();
     }
 
     glm::ivec2 caseData = packData(x, y, z, offsets, textures);

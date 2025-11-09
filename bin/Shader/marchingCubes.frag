@@ -5,8 +5,7 @@
 in vec2 texCoord;
 in vec3 vertexTextureWeights;
 in mat3 TBN;
-flat in uint marchingCubeTextureIds[6];
-flat in uvec3 triangleVertexVoxelIds;
+flat in uvec3 triangleVertexIds;
 
 out vec4 fragColor;
 
@@ -24,9 +23,9 @@ float getCoord(uint capacity, uint layer)
 
 void main()
 {
-    uint layer0 = marchingCubeTextureIds[triangleVertexVoxelIds.x];
-    uint layer1 = marchingCubeTextureIds[triangleVertexVoxelIds.y];
-    uint layer2 = marchingCubeTextureIds[triangleVertexVoxelIds.z];
+    uint layer0 = triangleVertexIds.x;
+    uint layer1 = triangleVertexIds.y;
+    uint layer2 = triangleVertexIds.z;
 
     vec4 tex0 = vec4(texture(texArray, vec3(texCoord, getCoord(capacity, layer0))));
     vec4 tex1 = vec4(texture(texArray, vec3(texCoord, getCoord(capacity, layer1))));

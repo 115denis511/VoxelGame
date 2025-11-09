@@ -171,7 +171,7 @@ engine::MarchingCubesVertexData engine::MarchingCubesCase::getVertexData(const g
             assert(topFrontLeft().isSolid != topFrontRight().isSolid);
             assert((topFrontLeft().isSolid == true && topFrontLeft().id != -1) || (topFrontRight().isSolid == true && topFrontRight().id != -1));
             result.direction = topFrontLeft().isSolid ? X_RIGHT : X_LEFT;
-            result.id = topFrontLeft().isSolid ? topFrontLeft().id : topFrontRight().id;
+            result.id = topFrontLeft().isSolid ? TOP_FRONT_LEFT_ID : TOP_FRONT_RIGHT_ID;
             assert(result.id != -1);
         }
         break;
@@ -181,7 +181,7 @@ engine::MarchingCubesVertexData engine::MarchingCubesCase::getVertexData(const g
             assert(topFrontRight().isSolid != topBackRight().isSolid);
             assert((topFrontRight().isSolid == true && topFrontRight().id != -1) || (topBackRight().isSolid == true && topBackRight().id != -1));
             result.direction = topFrontRight().isSolid ? Z_BACK : Z_FRONT;
-            result.id = topFrontRight().isSolid ? topFrontRight().id : topBackRight().id;
+            result.id = topFrontRight().isSolid ? TOP_FRONT_RIGHT_ID : TOP_BACK_RIGHT_ID;
             assert(result.id != -1);
         }
         break;
@@ -191,7 +191,7 @@ engine::MarchingCubesVertexData engine::MarchingCubesCase::getVertexData(const g
             assert(topBackLeft().isSolid != topBackRight().isSolid);
             assert((topBackLeft().isSolid == true && topBackLeft().id != -1) || (topBackRight().isSolid == true && topBackRight().id != -1));
             result.direction = topBackLeft().isSolid ? X_RIGHT : X_LEFT;
-            result.id = topBackLeft().isSolid ? topBackLeft().id : topBackRight().id;
+            result.id = topBackLeft().isSolid ? TOP_BACK_LEFT_ID : TOP_BACK_RIGHT_ID;
             assert(result.id != -1);
         }
         break;
@@ -201,7 +201,7 @@ engine::MarchingCubesVertexData engine::MarchingCubesCase::getVertexData(const g
             assert(topFrontLeft().isSolid != topBackLeft().isSolid);
             assert((topFrontLeft().isSolid == true && topFrontLeft().id != -1) || (topBackLeft().isSolid == true && topBackLeft().id != -1));
             result.direction = topBackLeft().isSolid ? Z_FRONT : Z_BACK;
-            result.id = topFrontLeft().isSolid ? topFrontLeft().id : topBackLeft().id;
+            result.id = topFrontLeft().isSolid ? TOP_FRONT_LEFT_ID : TOP_BACK_LEFT_ID;
             assert(result.id != -1);
         }
         break;
@@ -211,7 +211,7 @@ engine::MarchingCubesVertexData engine::MarchingCubesCase::getVertexData(const g
             assert(bottomFrontLeft().isSolid != topFrontLeft().isSolid);
             assert((bottomFrontLeft().isSolid == true && bottomFrontLeft().id != -1) || (topFrontLeft().isSolid == true && topFrontLeft().id != -1));
             result.direction = bottomFrontLeft().isSolid ? Y_UP : Y_DOWN;
-            result.id = bottomFrontLeft().isSolid ? bottomFrontLeft().id : topFrontLeft().id;
+            result.id = bottomFrontLeft().isSolid ? BOTTOM_FRONT_LEFT_ID : TOP_FRONT_LEFT_ID;
             assert(result.id != -1);
         }
         break;
@@ -221,7 +221,7 @@ engine::MarchingCubesVertexData engine::MarchingCubesCase::getVertexData(const g
             assert(bottomFrontRight().isSolid != topFrontRight().isSolid);
             assert((bottomFrontRight().isSolid == true && bottomFrontRight().id != -1) || (topFrontRight().isSolid == true && topFrontRight().id != -1));
             result.direction = bottomFrontRight().isSolid ? Y_UP : Y_DOWN;
-            result.id = bottomFrontRight().isSolid ? bottomFrontRight().id : topFrontRight().id;
+            result.id = bottomFrontRight().isSolid ? BOTTOM_FRONT_RIGHT_ID : TOP_FRONT_RIGHT_ID;
             assert(result.id != -1);
         }
         break;
@@ -231,7 +231,7 @@ engine::MarchingCubesVertexData engine::MarchingCubesCase::getVertexData(const g
             assert(bottomBackRight().isSolid != topBackRight().isSolid);
             assert((bottomBackRight().isSolid == true && bottomBackRight().id != -1) || (topBackRight().isSolid == true && topBackRight().id != -1));
             result.direction = bottomBackRight().isSolid ? Y_UP : Y_DOWN;
-            result.id = bottomBackRight().isSolid ? bottomBackRight().id : topBackRight().id;
+            result.id = bottomBackRight().isSolid ? BOTTOM_BACK_RIGHT_ID : TOP_BACK_RIGHT_ID;
             assert(result.id != -1);
         }
         break;
@@ -241,7 +241,7 @@ engine::MarchingCubesVertexData engine::MarchingCubesCase::getVertexData(const g
             assert(bottomBackLeft().isSolid != topBackLeft().isSolid);
             assert((bottomBackLeft().isSolid == true && bottomBackLeft().id != -1) || (topBackLeft().isSolid == true && topBackLeft().id != -1));
             result.direction = bottomBackLeft().isSolid ? Y_UP : Y_DOWN;
-            result.id = bottomBackLeft().isSolid ? bottomBackLeft().id : topBackLeft().id;
+            result.id = bottomBackLeft().isSolid ? BOTTOM_BACK_LEFT_ID : TOP_BACK_LEFT_ID;
             assert(result.id != -1);
         }
         break;
@@ -251,7 +251,7 @@ engine::MarchingCubesVertexData engine::MarchingCubesCase::getVertexData(const g
             assert(bottomFrontLeft().isSolid != bottomFrontRight().isSolid);
             assert((bottomFrontLeft().isSolid == true && bottomFrontLeft().id != -1) || (bottomFrontRight().isSolid == true && bottomFrontRight().id != -1));
             result.direction = bottomFrontLeft().isSolid ? X_RIGHT : X_LEFT;
-            result.id = bottomFrontLeft().isSolid ? bottomFrontLeft().id : bottomFrontRight().id;
+            result.id = bottomFrontLeft().isSolid ? BOTTOM_FRONT_LEFT_ID : BOTTOM_FRONT_RIGHT_ID;
             assert(result.id != -1);
         }
         break;
@@ -261,7 +261,7 @@ engine::MarchingCubesVertexData engine::MarchingCubesCase::getVertexData(const g
             assert(bottomFrontRight().isSolid != bottomBackRight().isSolid);
             assert((bottomFrontRight().isSolid == true && bottomFrontRight().id != -1) || (bottomBackRight().isSolid == true && bottomBackRight().id != -1));
             result.direction = bottomFrontRight().isSolid ? Z_BACK : Z_FRONT;
-            result.id = bottomFrontRight().isSolid ? bottomFrontRight().id : bottomBackRight().id;
+            result.id = bottomFrontRight().isSolid ? BOTTOM_FRONT_RIGHT_ID : BOTTOM_BACK_RIGHT_ID;
             assert(result.id != -1);
         }
         break;
@@ -271,7 +271,7 @@ engine::MarchingCubesVertexData engine::MarchingCubesCase::getVertexData(const g
             assert(bottomBackLeft().isSolid != bottomBackRight().isSolid);
             assert((bottomBackLeft().isSolid == true && bottomBackLeft().id != -1) || (bottomBackRight().isSolid == true && bottomBackRight().id != -1));
             result.direction = bottomBackLeft().isSolid ? X_RIGHT : X_LEFT;
-            result.id = bottomBackLeft().isSolid ? bottomBackLeft().id : bottomBackRight().id;
+            result.id = bottomBackLeft().isSolid ? BOTTOM_BACK_LEFT_ID : BOTTOM_BACK_RIGHT_ID;
             assert(result.id != -1);
         }
         break;
@@ -281,7 +281,7 @@ engine::MarchingCubesVertexData engine::MarchingCubesCase::getVertexData(const g
             assert(bottomFrontLeft().isSolid != bottomBackLeft().isSolid);
             assert((bottomFrontLeft().isSolid == true && bottomFrontLeft().id != -1) || (bottomBackLeft().isSolid == true && bottomBackLeft().id != -1));
             result.direction = bottomBackLeft().isSolid ? Z_FRONT : Z_BACK;
-            result.id = bottomFrontLeft().isSolid ? bottomFrontLeft().id : bottomBackLeft().id;
+            result.id = bottomFrontLeft().isSolid ? BOTTOM_FRONT_LEFT_ID : BOTTOM_BACK_LEFT_ID;
             assert(result.id != -1);
         }
         break;
