@@ -19,12 +19,12 @@ namespace engine {
             MarchingCubes& marchingCubes, 
             ChunkGrid& grid,
             VoxelChunk& chunk, 
-            ShaderStorageBuffer<glm::ivec2>& globalChunkSSBO,
+            ShaderStorageBuffer<GLuint>& globalChunkSSBO,
             ShaderStorageBuffer<Voxel>& globalChunkGridsSSBO
         );
 
     private:
-        std::vector<glm::ivec2> m_caseData[256];
+        std::vector<GLuint> m_caseData[256];
         int m_cubesCount{ 0 };
         ChunkVisibilityChecker m_checker;
 
@@ -32,7 +32,7 @@ namespace engine {
         void clear();
         void addMarchingCube(MarchingCubes& marchingCubes, std::array<Voxel, 8>& voxels, int x, int y, int z);
         uint8_t getCaseIndex(std::array<Voxel, 8>& voxels);
-        glm::ivec2 packData(int x, int y, int z);
+        GLuint packData(int x, int y, int z);
         
     };
 }

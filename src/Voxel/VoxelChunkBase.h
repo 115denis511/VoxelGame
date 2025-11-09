@@ -16,7 +16,7 @@ namespace engine {
         static constexpr int GRID_SIZE = VOXEL_CHUNK_SIZE + MARCHING_CUBE_OVERLAPING_BORDER;
         static constexpr int MARCHING_CUBES_COUNT = VOXEL_CHUNK_SIZE * VOXEL_CHUNK_SIZE * VOXEL_CHUNK_SIZE;
         static constexpr int GRID_VOXEL_COUNT = GRID_SIZE * GRID_SIZE * GRID_SIZE;
-        static constexpr GLsizeiptr MARCHING_CUBES_BYTE_SIZE = MARCHING_CUBES_COUNT * sizeof(glm::ivec2);
+        static constexpr GLsizeiptr MARCHING_CUBES_BYTE_SIZE = MARCHING_CUBES_COUNT * sizeof(GLuint);
         static constexpr GLsizeiptr GRID_BYTE_SIZE = GRID_VOXEL_COUNT * sizeof(Voxel);
 
         void setVoxel(short x, short y, short z, uint8_t id, uint8_t size = 3);

@@ -20,7 +20,7 @@ namespace engine {
         void generateChunks(bool usingGlobalChunkSSBO, size_t maxSlices);
         void updateChunks(
             MarchingCubes& marchingCubes, 
-            ShaderStorageBuffer<glm::ivec2>& globalChunkSSBO, 
+            ShaderStorageBuffer<GLuint>& globalChunkSSBO, 
             ShaderStorageBuffer<Voxel>& globalChunkGridsSSBO, 
             size_t maxUpdates = 8
         );

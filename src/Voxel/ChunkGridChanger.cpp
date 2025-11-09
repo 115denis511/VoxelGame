@@ -47,7 +47,7 @@ void engine::ChunkGridChanger::generateChunks(bool usingGlobalChunkSSBO, size_t 
 
 void engine::ChunkGridChanger::updateChunks(
     MarchingCubes &marchingCubes,
-    ShaderStorageBuffer<glm::ivec2>& globalChunkSSBO,
+    ShaderStorageBuffer<GLuint>& globalChunkSSBO,
     ShaderStorageBuffer<Voxel>& globalChunkGridsSSBO,
     size_t maxCount
 ) {

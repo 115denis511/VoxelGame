@@ -14,7 +14,7 @@ layout(std140, binding = 0) uniform DrawVars
 
 layout(std430, binding = 11) readonly buffer ChunkVoxelGrid { uint voxelGrid[]; }; // src/Voxel/MarchingCubesManager.h::SSBO_BLOCK__GLOBAL_CHUNK_GRIDS_STORAGE
 
-layout(std430, binding = 12) readonly buffer ChunkData { uvec2 packedData[]; }; // src/Voxel/MarchingCubesManager.h::SSBO_BLOCK__GLOBAL_CHUNK_STORAGE
+layout(std430, binding = 12) readonly buffer ChunkData { uint packedData[]; }; // src/Voxel/MarchingCubesManager.h::SSBO_BLOCK__GLOBAL_CHUNK_STORAGE
 
 layout(std430, binding = 13) readonly buffer ChunkPositions { ivec4 chunkPositions[]; }; // src/Voxel/MarchingCubesManager.h::SSBO_BLOCK__CHUNK_POSITIONS
 
@@ -33,8 +33,6 @@ struct UnpackedData {
     uint x;
     uint y;
     uint z;
-    uint offsets[6];
-    uint textureIds[6];
 };
 struct UnpackedVoxel {
     uint id;
@@ -47,7 +45,7 @@ const uvec3 idOffset[8] = {
     uvec3(0, 0, 1), uvec3(1, 0, 1), uvec3(1, 0, 0), uvec3(0, 0, 0)
 };
 
-UnpackedData unpackData(uvec2 data);
+UnpackedData unpackData(uint data);
 UnpackedVoxel unpackVoxel(uint raw);
 
 void main()
@@ -111,27 +109,13 @@ void main()
     triangleVertexIds.z = v2.id;
 }
 
-UnpackedData unpackData(uvec2 data)
+UnpackedData unpackData(uint data)
 {
     UnpackedData unpaked;
 
-    unpaked.x = (data[0] >> 25) & 31; // 31 = 0b11111
-    unpaked.y = (data[0] >> 20) & 31; // 31 = 0b11111
-    unpaked.z = (data[0] >> 15) & 31; // 31 = 0b11111
-    unpaked.offsets[0] = (data[0] >> 12) & 7; // 7 = 0b111;
-    unpaked.offsets[1] = (data[0] >> 9) & 7; // 7 = 0b111;
-    unpaked.offsets[2] = (data[0] >> 6) & 7; // 7 = 0b111;
-    unpaked.offsets[3] = (data[0] >> 3) & 7; // 7 = 0b111;
-    unpaked.offsets[4] = data[0] & 7; // 7 = 0b111;
-
-    unpaked.offsets[5] = (data.y >> 28) & 7; // 7 = 0b111;
-    unpaked.textureIds[0] = (data.y >> 21) & 127; // 127 = 0b1111111;
-    unpaked.textureIds[1] = (data.y >> 14) & 127; // 127 = 0b1111111;
-    unpaked.textureIds[2] = (data.y >> 7) & 127; // 127 = 0b1111111;
-    unpaked.textureIds[3] = data.y & 127; // 127 = 0b1111111
-
-    unpaked.textureIds[4] = unpaked.textureIds[2];
-    unpaked.textureIds[5] = unpaked.textureIds[3];
+    unpaked.x = (data >> 10) & 31; // 31 = 0b11111
+    unpaked.y = (data >> 5) & 31; // 31 = 0b11111
+    unpaked.z = (data) & 31; // 31 = 0b11111
 
     return unpaked;
 }
@@ -139,6 +123,7 @@ UnpackedData unpackData(uvec2 data)
 UnpackedVoxel unpackVoxel(uint raw)
 {
     UnpackedVoxel unpacked;
+
     unpacked.id = raw & 255; // 255 = 0bFF
     unpacked.size = (raw >> 8) & 7; // 7 = 0b111
 

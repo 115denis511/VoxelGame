@@ -78,7 +78,7 @@ namespace engine {
         std::vector<glm::vec4> m_drawChunkPositions;
         bool m_usingGlobalChunkSSBO;
         ShaderStorageBuffer<glm::ivec4> m_chunkPositionsSSBO;
-        ShaderStorageBuffer<glm::ivec2> m_globalChunkSSBO;
+        ShaderStorageBuffer<GLuint> m_globalChunkSSBO;
         ShaderStorageBuffer<Voxel> m_globalChunkGridsSSBO;
         ShaderStorageBuffer<GLuint> m_drawIdToDataSSBO;
         Shader* m_shader;
