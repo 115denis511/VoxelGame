@@ -27,28 +27,13 @@ uint8_t engine::MarchingCubesCase::resolve() {
 engine::MarchingCubesCase engine::MarchingCubesCase::rotateRight() {
     MarchingCubesCase result;
 
-    result.swapIds(0, topBackLeft());
     result.topFrontLeft() = topBackLeft();
-
-    result.swapIds(1, topFrontLeft());
     result.topFrontRight() = topFrontLeft();
-
-    result.swapIds(2, topFrontRight());
     result.topBackRight() = topFrontRight();
-
-    result.swapIds(3, topBackRight());
     result.topBackLeft() = topBackRight();
-
-    result.swapIds(4, bottomBackLeft());
     result.bottomFrontLeft() = bottomBackLeft();
-
-    result.swapIds(5, bottomFrontLeft());
     result.bottomFrontRight() = bottomFrontLeft();
-
-    result.swapIds(6, bottomFrontRight());
     result.bottomBackRight() = bottomFrontRight();
-
-    result.swapIds(7, bottomBackRight());
     result.bottomBackLeft() = bottomBackRight();
 
     return result;
@@ -57,28 +42,13 @@ engine::MarchingCubesCase engine::MarchingCubesCase::rotateRight() {
 engine::MarchingCubesCase engine::MarchingCubesCase::rotateFront() {
     MarchingCubesCase result;
 
-    result.swapIds(0, topBackLeft());
     result.topFrontLeft() = topBackLeft();
-
-    result.swapIds(4, topFrontLeft());
     result.bottomFrontLeft() = topFrontLeft();
-
-    result.swapIds(7, bottomFrontLeft());
     result.bottomBackLeft() = bottomFrontLeft();
-
-    result.swapIds(3, bottomBackLeft());
     result.topBackLeft() = bottomBackLeft();
-
-    result.swapIds(1, topBackRight());
     result.topFrontRight() = topBackRight();
-
-    result.swapIds(5, topFrontRight());
     result.bottomFrontRight() = topFrontRight();
-
-    result.swapIds(6, bottomFrontRight());
     result.bottomBackRight() = bottomFrontRight();
-
-    result.swapIds(2, bottomBackRight());
     result.topBackRight() = bottomBackRight();
 
     return result;
@@ -87,28 +57,13 @@ engine::MarchingCubesCase engine::MarchingCubesCase::rotateFront() {
 engine::MarchingCubesCase engine::MarchingCubesCase::rotateRollRight() {
     MarchingCubesCase result;
 
-    result.swapIds(0, bottomFrontLeft());
     result.topFrontLeft() = bottomFrontLeft();
-
-    result.swapIds(1, topFrontLeft());
     result.topFrontRight() = topFrontLeft();
-
-    result.swapIds(5, topFrontRight());
     result.bottomFrontRight() = topFrontRight();
-
-    result.swapIds(4, bottomFrontRight());
     result.bottomFrontLeft() = bottomFrontRight();
-
-    result.swapIds(3, bottomBackLeft());
     result.topBackLeft() = bottomBackLeft();
-
-    result.swapIds(2, topBackLeft());
     result.topBackRight() = topBackLeft();
-
-    result.swapIds(6, topBackRight());
     result.bottomBackRight() = topBackRight();
-
-    result.swapIds(7, bottomBackRight());
     result.bottomBackLeft() = bottomBackRight();
 
     return result;
@@ -169,120 +124,108 @@ engine::MarchingCubesVertexData engine::MarchingCubesCase::getVertexData(const g
     case (X_0_5 | Y_1_0 | Z_1_0): // 0.5 1.0 1.0 [0]
         {
             assert(topFrontLeft().isSolid != topFrontRight().isSolid);
-            assert((topFrontLeft().isSolid == true && topFrontLeft().id != -1) || (topFrontRight().isSolid == true && topFrontRight().id != -1));
+            assert((topFrontLeft().isSolid == true) || (topFrontRight().isSolid == true));
             result.direction = topFrontLeft().isSolid ? X_RIGHT : X_LEFT;
             result.id = topFrontLeft().isSolid ? TOP_FRONT_LEFT_ID : TOP_FRONT_RIGHT_ID;
-            assert(result.id != -1);
         }
         break;
     
     case (X_1_0 | Y_1_0 | Z_0_5): // 1.0 1.0 0.5 [1]
         {
             assert(topFrontRight().isSolid != topBackRight().isSolid);
-            assert((topFrontRight().isSolid == true && topFrontRight().id != -1) || (topBackRight().isSolid == true && topBackRight().id != -1));
+            assert((topFrontRight().isSolid == true) || (topBackRight().isSolid == true));
             result.direction = topFrontRight().isSolid ? Z_BACK : Z_FRONT;
             result.id = topFrontRight().isSolid ? TOP_FRONT_RIGHT_ID : TOP_BACK_RIGHT_ID;
-            assert(result.id != -1);
         }
         break;
 
     case (X_0_5 | Y_1_0 | Z_0_0): // 0.5 1.0 0.0 [2]
         {
             assert(topBackLeft().isSolid != topBackRight().isSolid);
-            assert((topBackLeft().isSolid == true && topBackLeft().id != -1) || (topBackRight().isSolid == true && topBackRight().id != -1));
+            assert((topBackLeft().isSolid == true) || (topBackRight().isSolid == true));
             result.direction = topBackLeft().isSolid ? X_RIGHT : X_LEFT;
             result.id = topBackLeft().isSolid ? TOP_BACK_LEFT_ID : TOP_BACK_RIGHT_ID;
-            assert(result.id != -1);
         }
         break;
 
     case (X_0_0 | Y_1_0 | Z_0_5): // 0.0 1.0 0.5 [3]
         {
             assert(topFrontLeft().isSolid != topBackLeft().isSolid);
-            assert((topFrontLeft().isSolid == true && topFrontLeft().id != -1) || (topBackLeft().isSolid == true && topBackLeft().id != -1));
+            assert((topFrontLeft().isSolid == true) || (topBackLeft().isSolid == true));
             result.direction = topBackLeft().isSolid ? Z_FRONT : Z_BACK;
             result.id = topFrontLeft().isSolid ? TOP_FRONT_LEFT_ID : TOP_BACK_LEFT_ID;
-            assert(result.id != -1);
         }
         break;
 
     case (X_0_0 | Y_0_5 | Z_1_0): // 0.0 0.5 1.0 [4]
         {
             assert(bottomFrontLeft().isSolid != topFrontLeft().isSolid);
-            assert((bottomFrontLeft().isSolid == true && bottomFrontLeft().id != -1) || (topFrontLeft().isSolid == true && topFrontLeft().id != -1));
+            assert((bottomFrontLeft().isSolid == true) || (topFrontLeft().isSolid == true));
             result.direction = bottomFrontLeft().isSolid ? Y_UP : Y_DOWN;
             result.id = bottomFrontLeft().isSolid ? BOTTOM_FRONT_LEFT_ID : TOP_FRONT_LEFT_ID;
-            assert(result.id != -1);
         }
         break;
 
     case (X_1_0 | Y_0_5 | Z_1_0): // 1.0 0.5 1.0 [5]
         {
             assert(bottomFrontRight().isSolid != topFrontRight().isSolid);
-            assert((bottomFrontRight().isSolid == true && bottomFrontRight().id != -1) || (topFrontRight().isSolid == true && topFrontRight().id != -1));
+            assert((bottomFrontRight().isSolid == true) || (topFrontRight().isSolid == true));
             result.direction = bottomFrontRight().isSolid ? Y_UP : Y_DOWN;
             result.id = bottomFrontRight().isSolid ? BOTTOM_FRONT_RIGHT_ID : TOP_FRONT_RIGHT_ID;
-            assert(result.id != -1);
         }
         break;
 
     case (X_1_0 | Y_0_5 | Z_0_0): // 1.0 0.5 0.0 [6]
         {
             assert(bottomBackRight().isSolid != topBackRight().isSolid);
-            assert((bottomBackRight().isSolid == true && bottomBackRight().id != -1) || (topBackRight().isSolid == true && topBackRight().id != -1));
+            assert((bottomBackRight().isSolid == true) || (topBackRight().isSolid == true));
             result.direction = bottomBackRight().isSolid ? Y_UP : Y_DOWN;
             result.id = bottomBackRight().isSolid ? BOTTOM_BACK_RIGHT_ID : TOP_BACK_RIGHT_ID;
-            assert(result.id != -1);
         }
         break;
 
     case (X_0_0 | Y_0_5 | Z_0_0): // 0.0 0.5 0.0 [7]
         {
             assert(bottomBackLeft().isSolid != topBackLeft().isSolid);
-            assert((bottomBackLeft().isSolid == true && bottomBackLeft().id != -1) || (topBackLeft().isSolid == true && topBackLeft().id != -1));
+            assert((bottomBackLeft().isSolid == true) || (topBackLeft().isSolid == true));
             result.direction = bottomBackLeft().isSolid ? Y_UP : Y_DOWN;
             result.id = bottomBackLeft().isSolid ? BOTTOM_BACK_LEFT_ID : TOP_BACK_LEFT_ID;
-            assert(result.id != -1);
         }
         break;
 
     case (X_0_5 | Y_0_0 | Z_1_0): // 0.5 0.0 1.0 [8]
         {
             assert(bottomFrontLeft().isSolid != bottomFrontRight().isSolid);
-            assert((bottomFrontLeft().isSolid == true && bottomFrontLeft().id != -1) || (bottomFrontRight().isSolid == true && bottomFrontRight().id != -1));
+            assert((bottomFrontLeft().isSolid == true) || (bottomFrontRight().isSolid == true));
             result.direction = bottomFrontLeft().isSolid ? X_RIGHT : X_LEFT;
             result.id = bottomFrontLeft().isSolid ? BOTTOM_FRONT_LEFT_ID : BOTTOM_FRONT_RIGHT_ID;
-            assert(result.id != -1);
         }
         break;
     
     case (X_1_0 | Y_0_0 | Z_0_5): // 1.0 0.0 0.5 [9]
         {
             assert(bottomFrontRight().isSolid != bottomBackRight().isSolid);
-            assert((bottomFrontRight().isSolid == true && bottomFrontRight().id != -1) || (bottomBackRight().isSolid == true && bottomBackRight().id != -1));
+            assert((bottomFrontRight().isSolid == true) || (bottomBackRight().isSolid == true));
             result.direction = bottomFrontRight().isSolid ? Z_BACK : Z_FRONT;
             result.id = bottomFrontRight().isSolid ? BOTTOM_FRONT_RIGHT_ID : BOTTOM_BACK_RIGHT_ID;
-            assert(result.id != -1);
         }
         break;
 
     case (X_0_5 | Y_0_0 | Z_0_0): // 0.5 0.0 0.0 [10]
         {
             assert(bottomBackLeft().isSolid != bottomBackRight().isSolid);
-            assert((bottomBackLeft().isSolid == true && bottomBackLeft().id != -1) || (bottomBackRight().isSolid == true && bottomBackRight().id != -1));
+            assert((bottomBackLeft().isSolid == true) || (bottomBackRight().isSolid == true));
             result.direction = bottomBackLeft().isSolid ? X_RIGHT : X_LEFT;
             result.id = bottomBackLeft().isSolid ? BOTTOM_BACK_LEFT_ID : BOTTOM_BACK_RIGHT_ID;
-            assert(result.id != -1);
         }
         break;
 
     case (X_0_0 | Y_0_0 | Z_0_5): // 0.0 0.0 0.5 [11]
         {
             assert(bottomFrontLeft().isSolid != bottomBackLeft().isSolid);
-            assert((bottomFrontLeft().isSolid == true && bottomFrontLeft().id != -1) || (bottomBackLeft().isSolid == true && bottomBackLeft().id != -1));
+            assert((bottomFrontLeft().isSolid == true) || (bottomBackLeft().isSolid == true));
             result.direction = bottomBackLeft().isSolid ? Z_FRONT : Z_BACK;
             result.id = bottomFrontLeft().isSolid ? BOTTOM_FRONT_LEFT_ID : BOTTOM_BACK_LEFT_ID;
-            assert(result.id != -1);
         }
         break;
     
@@ -293,18 +236,4 @@ engine::MarchingCubesVertexData engine::MarchingCubesCase::getVertexData(const g
     }
     
     return result;
-}
-
-void engine::MarchingCubesCase::setVertexId(int id, int index) {
-    assert(index >= 0 && index < 8);
-    assert(id >= 0 && id < (int)std::size(vertecesId.ids));
-    vertecesId.ids[id] = index;
-    vertices[index].id = id;
-}
-
-void engine::MarchingCubesCase::swapIds(int aIndex, const CaseVertex &b) {
-    if (b.id >= 0 && b.id < (int)std::size(vertecesId.ids)) {
-        int id = b.id;
-        setVertexId(id, aIndex);
-    } 
 }

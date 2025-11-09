@@ -40,11 +40,7 @@ engine::MarchingCubes::MarchingCubes() {
         // CASE 01000000 = 64  | MIRRORED CASE 10111111 = 191
         // CASE 10000000 = 128 | MIRRORED CASE 01111111 = 127
         MarchingCubesCase currentCase = baseCase;
-        currentCase.setVertexId(0, 0);
         MarchingCubesCase currentCaseMirrired = baseCase.mirror();
-        currentCaseMirrired.setVertexId(0, 1);
-        currentCaseMirrired.setVertexId(1, 3);
-        currentCaseMirrired.setVertexId(2, 4);
         for (size_t j = 0; j < 2; j++) {
             for (size_t i = 0; i < 4; i++) {
                 glm::vec3 v0current = roundVector(rotateYaw[i] * glm::vec4(v0, 1.0f));
@@ -58,7 +54,6 @@ engine::MarchingCubes::MarchingCubes() {
                 command.count = vetrexCount;
                 int caseId = currentCase.resolve();
                 m_caseDrawCommand[caseId] = command;
-                m_caseVertecesIds[caseId] = currentCase.copyVertecesId();
 
                 baseVertex += vetrexCount;
                 currentCase = currentCase.rotateRight();
@@ -70,7 +65,6 @@ engine::MarchingCubes::MarchingCubes() {
                 command.count = vetrexCount;
                 caseId = currentCaseMirrired.resolve();
                 m_caseDrawCommand[caseId] = command;
-                m_caseVertecesIds[caseId] = currentCaseMirrired.copyVertecesId();
 
                 baseVertex += vetrexCount;
                 currentCaseMirrired = currentCaseMirrired.rotateRight();
@@ -109,13 +103,7 @@ engine::MarchingCubes::MarchingCubes() {
         // CASE 11000000 = 192 | MIRRORED CASE 00111111 = 63
         // CASE 10010000 = 144 | MIRRORED CASE 01101111 = 111
         MarchingCubesCase currentCase = baseCase;
-        currentCase.setVertexId(0, 0);
-        currentCase.setVertexId(1, 1);
         MarchingCubesCase currentCaseMirrired = baseCase.mirror();
-        currentCaseMirrired.setVertexId(0, 3);
-        currentCaseMirrired.setVertexId(1, 2);
-        currentCaseMirrired.setVertexId(2, 4);
-        currentCaseMirrired.setVertexId(3, 5);
 
         for (size_t j = 0; j < 3; j++) {
             for (size_t i = 0; i < 4; i++) {
@@ -132,7 +120,6 @@ engine::MarchingCubes::MarchingCubes() {
                 command.count = vetrexCount;
                 int caseId = currentCase.resolve();
                 m_caseDrawCommand[caseId] = command;
-                m_caseVertecesIds[caseId] = currentCase.copyVertecesId();
 
                 baseVertex += vetrexCount;
                 currentCase = currentCase.rotateRight();
@@ -145,7 +132,6 @@ engine::MarchingCubes::MarchingCubes() {
                 command.count = vetrexCount;
                 caseId = currentCaseMirrired.resolve();
                 m_caseDrawCommand[caseId] = command;
-                m_caseVertecesIds[caseId] = currentCaseMirrired.copyVertecesId();
 
                 baseVertex += vetrexCount;
                 currentCaseMirrired = currentCaseMirrired.rotateRight();
@@ -188,8 +174,6 @@ engine::MarchingCubes::MarchingCubes() {
         // CASE 10000100 = 132
         // CASE 00011000 = 24
         MarchingCubesCase currentCase = baseCase;
-        currentCase.setVertexId(0, 0);
-        currentCase.setVertexId(1, 2);
 
         for (size_t j = 0; j < 2; j++) {
             for (int i = 0; i < 2; ++i) {
@@ -208,7 +192,6 @@ engine::MarchingCubes::MarchingCubes() {
                 command.count = vetrexCount;
                 int caseId = currentCase.resolve();
                 m_caseDrawCommand[caseId] = command;
-                m_caseVertecesIds[caseId] = currentCase.copyVertecesId();
 
                 baseVertex += vetrexCount;
                 currentCase = currentCase.rotateRight();
@@ -247,7 +230,6 @@ engine::MarchingCubes::MarchingCubes() {
                 int caseId = currentCase.resolve();
                 assert(m_caseDrawCommand[caseId].count == 0);
                 m_caseDrawCommand[caseId] = command;
-                m_caseVertecesIds[caseId] = currentCase.copyVertecesId();
 
                 baseVertex += vetrexCount;
                 currentCase = currentCase.rotateRight();
@@ -304,14 +286,7 @@ engine::MarchingCubes::MarchingCubes() {
         // CASE 00000111 = 200  | MIRRORED CASE 00000111 = 55
         // CASE 00000111 = 145  | MIRRORED CASE 00000111 = 110
         MarchingCubesCase currentCase = baseCase;
-        currentCase.setVertexId(0, 7);
-        currentCase.setVertexId(1, 6);
-        currentCase.setVertexId(2, 5);
         MarchingCubesCase currentCaseMirrired = baseCase.mirror();
-        currentCaseMirrired.setVertexId(0, 4);
-        currentCaseMirrired.setVertexId(1, 3);
-        currentCaseMirrired.setVertexId(2, 2);
-        currentCaseMirrired.setVertexId(3, 1);
 
         for (int j = 0; j < 6; j++) {
             for (int i = 0; i < 4; i++) {
@@ -331,7 +306,6 @@ engine::MarchingCubes::MarchingCubes() {
                 int caseId = currentCase.resolve();
                 assert(m_caseDrawCommand[caseId].count == 0);
                 m_caseDrawCommand[caseId] = command;
-                m_caseVertecesIds[caseId] = currentCase.copyVertecesId();
 
                 baseVertex += vetrexCount;
                 currentCase = currentCase.rotateRight();
@@ -346,7 +320,6 @@ engine::MarchingCubes::MarchingCubes() {
                 caseId = currentCaseMirrired.resolve();
                 assert(m_caseDrawCommand[caseId].count == 0);
                 m_caseDrawCommand[caseId] = command;
-                m_caseVertecesIds[caseId] = currentCaseMirrired.copyVertecesId();
 
                 baseVertex += vetrexCount;
                 currentCaseMirrired = currentCaseMirrired.rotateRight();
@@ -395,15 +368,7 @@ engine::MarchingCubes::MarchingCubes() {
         // RIGHT CASE  10011001 = 153 | LEFT CASE   01100110 = 102
         // BACK CASE   00110011 = 51  | FRONT CASE  11001100 = 204
         MarchingCubesCase currentCase = baseCase;
-        currentCase.setVertexId(0, 7);
-        currentCase.setVertexId(1, 6);
-        currentCase.setVertexId(2, 5);
-        currentCase.setVertexId(3, 4);
         MarchingCubesCase currentCaseMirrired = baseCase.mirror();
-        currentCaseMirrired.setVertexId(0, 0);
-        currentCaseMirrired.setVertexId(1, 1);
-        currentCaseMirrired.setVertexId(2, 2);
-        currentCaseMirrired.setVertexId(3, 3);
 
         for (size_t i = 0; i < 3; i++) {
             addTriangle(v0, v1, v2, currentCase);
@@ -415,7 +380,6 @@ engine::MarchingCubes::MarchingCubes() {
             int caseId = currentCase.resolve();
             assert(m_caseDrawCommand[caseId].count == 0);
             m_caseDrawCommand[caseId] = command;
-            m_caseVertecesIds[caseId] = currentCase.copyVertecesId();
 
             baseVertex += vetrexCount;
 
@@ -428,7 +392,6 @@ engine::MarchingCubes::MarchingCubes() {
             caseId = currentCaseMirrired.resolve();
             assert(m_caseDrawCommand[caseId].count == 0);
             m_caseDrawCommand[caseId] = command;
-            m_caseVertecesIds[caseId] = currentCaseMirrired.copyVertecesId();
 
             baseVertex += vetrexCount;
 
@@ -494,15 +457,7 @@ engine::MarchingCubes::MarchingCubes() {
         // CASE 11100001 = 225 | MIRRORED CASE 00011110 = 30
         // CASE 11100001 = 225 | MIRRORED CASE 00011110 = 30
         MarchingCubesCase currentCase = baseCase;
-        currentCase.setVertexId(0, 7);
-        currentCase.setVertexId(1, 6);
-        currentCase.setVertexId(2, 5);
-        currentCase.setVertexId(3, 0);
         MarchingCubesCase currentCaseMirrired = baseCase.mirror();
-        currentCaseMirrired.setVertexId(0, 4);
-        currentCaseMirrired.setVertexId(1, 3);
-        currentCaseMirrired.setVertexId(2, 2);
-        currentCaseMirrired.setVertexId(3, 1);
 
         for (int j = 0; j < 6; j++) { // если 3, то закоментируй условие для зеркального случая, если 4 то убрать
             for (int i = 0; i < 4; i++) {
@@ -526,7 +481,6 @@ engine::MarchingCubes::MarchingCubes() {
                 int caseId = currentCase.resolve();
                 assert(m_caseDrawCommand[caseId].count == 0);
                 m_caseDrawCommand[caseId] = command;
-                m_caseVertecesIds[caseId] = currentCase.copyVertecesId();
 
                 baseVertex += vetrexCount;
                 currentCase = currentCase.rotateRight();
@@ -543,7 +497,6 @@ engine::MarchingCubes::MarchingCubes() {
                     caseId = currentCaseMirrired.resolve();
                     assert(m_caseDrawCommand[caseId].count == 0);
                     m_caseDrawCommand[caseId] = command;
-                    m_caseVertecesIds[caseId] = currentCaseMirrired.copyVertecesId();
 
                     baseVertex += vetrexCount;
                     currentCaseMirrired = currentCaseMirrired.rotateRight();
@@ -593,15 +546,7 @@ engine::MarchingCubes::MarchingCubes() {
         // CASE 01000001 = 65  | MIRRORED CASE 10111110 = 190
         // CASE 10000010 = 130 | MIRRORED CASE 01111101 = 125
         MarchingCubesCase currentCase = baseCase;
-        currentCase.setVertexId(0, 2);
-        currentCase.setVertexId(1, 4);
         MarchingCubesCase currentCaseMirrired = baseCase.mirror();
-        currentCaseMirrired.setVertexId(4, 0);
-        currentCaseMirrired.setVertexId(5, 6);
-        currentCaseMirrired.setVertexId(0, 5);
-        currentCaseMirrired.setVertexId(1, 3);
-        currentCaseMirrired.setVertexId(2, 7);
-        currentCaseMirrired.setVertexId(3, 1);
 
         for (int i = 0; i < 4; i++) {
             glm::vec3 v0c = roundVector(rotateYaw[i] * glm::vec4(v0, 1.0f));
@@ -620,7 +565,6 @@ engine::MarchingCubes::MarchingCubes() {
             int caseId = currentCase.resolve();
             assert(m_caseDrawCommand[caseId].count == 0);
             m_caseDrawCommand[caseId] = command;
-            m_caseVertecesIds[caseId] = currentCase.copyVertecesId();
 
             baseVertex += vetrexCount;
             currentCase = currentCase.rotateRight();
@@ -634,7 +578,6 @@ engine::MarchingCubes::MarchingCubes() {
             caseId = currentCaseMirrired.resolve();
             assert(m_caseDrawCommand[caseId].count == 0);
             m_caseDrawCommand[caseId] = command;
-            m_caseVertecesIds[caseId] = currentCaseMirrired.copyVertecesId();
 
             baseVertex += vetrexCount;
             currentCaseMirrired = currentCaseMirrired.rotateRight();
@@ -670,9 +613,6 @@ engine::MarchingCubes::MarchingCubes() {
         // CASE 00000011 = 194
         // CASE 00000011 = 148
         MarchingCubesCase currentCase = baseCase;
-        currentCase.setVertexId(0, 0);
-        currentCase.setVertexId(1, 1);
-        currentCase.setVertexId(2, 6);
 
         for (size_t j = 0; j < 3; j++) {
             for (size_t i = 0; i < 4; i++) {
@@ -694,7 +634,6 @@ engine::MarchingCubes::MarchingCubes() {
                 int caseId = currentCase.resolve();
                 assert(m_caseDrawCommand[caseId].count == 0);
                 m_caseDrawCommand[caseId] = command;
-                m_caseVertecesIds[caseId] = currentCase.copyVertecesId();
 
                 baseVertex += vetrexCount;
                 currentCase = currentCase.rotateRight();
@@ -740,9 +679,6 @@ engine::MarchingCubes::MarchingCubes() {
         // CASE 00000011 = 193
         // CASE 00000011 = 146
         MarchingCubesCase currentCase = baseCase;
-        currentCase.setVertexId(0, 0);
-        currentCase.setVertexId(1, 1);
-        currentCase.setVertexId(2, 7);
 
         for (size_t j = 0; j < 3; j++) {
             for (size_t i = 0; i < 4; i++) {
@@ -764,7 +700,6 @@ engine::MarchingCubes::MarchingCubes() {
                 int caseId = currentCase.resolve();
                 assert(m_caseDrawCommand[caseId].count == 0);
                 m_caseDrawCommand[caseId] = command;
-                m_caseVertecesIds[caseId] = currentCase.copyVertecesId();
 
                 baseVertex += vetrexCount;
                 currentCase = currentCase.rotateRight();
@@ -806,9 +741,6 @@ engine::MarchingCubes::MarchingCubes() {
         // CASE 00000000 = 88
         // CASE 00000000 = 161
         MarchingCubesCase currentCase = baseCase;
-        currentCase.setVertexId(0, 0);
-        currentCase.setVertexId(1, 2);
-        currentCase.setVertexId(2, 5);
 
         for (int j = 0; j < 2; j++) {
             for (size_t i = 0; i < 4; i++) {
@@ -832,7 +764,6 @@ engine::MarchingCubes::MarchingCubes() {
                 int caseId = currentCase.resolve();
                 assert(m_caseDrawCommand[caseId].count == 0);
                 m_caseDrawCommand[caseId] = command;
-                m_caseVertecesIds[caseId] = currentCase.copyVertecesId();
 
                 baseVertex += vetrexCount;
                 currentCase = currentCase.rotateRight();
@@ -873,10 +804,6 @@ engine::MarchingCubes::MarchingCubes() {
         // CASE 01010101 = 60
         // CASE 01010101 = 105
         MarchingCubesCase currentCase = baseCase;
-        currentCase.setVertexId(0, 0);
-        currentCase.setVertexId(1, 2);
-        currentCase.setVertexId(2, 4);
-        currentCase.setVertexId(3, 6);
 
         for (size_t j = 0; j < 2; j++) {
             for (size_t i = 0; i < 4; i++) {
@@ -902,7 +829,6 @@ engine::MarchingCubes::MarchingCubes() {
                 int caseId = currentCase.resolve();
                 assert(m_caseDrawCommand[caseId].count == 0);
                 m_caseDrawCommand[caseId] = command;
-                m_caseVertecesIds[caseId] = currentCase.copyVertecesId();
 
                 baseVertex += vetrexCount;
                 currentCase = currentCase.rotateRight();
@@ -942,15 +868,7 @@ engine::MarchingCubes::MarchingCubes() {
         // CASE 11010100 = 201 | MIRRORED CASE 11101011 = 54
         // CASE 11010100 = 147 | MIRRORED CASE 11101011 = 108
         MarchingCubesCase currentCase = baseCase;
-        currentCase.setVertexId(0, 2);
-        currentCase.setVertexId(1, 4);
-        currentCase.setVertexId(2, 6);
-        currentCase.setVertexId(3, 7);
         MarchingCubesCase currentCaseMirrired = baseCase.mirror();
-        currentCaseMirrired.setVertexId(0, 0);
-        currentCaseMirrired.setVertexId(1, 1);
-        currentCaseMirrired.setVertexId(2, 3);
-        currentCaseMirrired.setVertexId(3, 5);
 
         for (size_t j = 0; j < 2; j++) {
             for (size_t i = 0; i < 4; i++) {
@@ -974,7 +892,6 @@ engine::MarchingCubes::MarchingCubes() {
                 int caseId = currentCase.resolve();
                 assert(m_caseDrawCommand[caseId].count == 0);
                 m_caseDrawCommand[caseId] = command;
-                m_caseVertecesIds[caseId] = currentCase.copyVertecesId();
 
                 baseVertex += vetrexCount;
                 currentCase = currentCase.rotateRight();
@@ -990,7 +907,6 @@ engine::MarchingCubes::MarchingCubes() {
                 caseId = currentCaseMirrired.resolve();
                 assert(m_caseDrawCommand[caseId].count == 0);
                 m_caseDrawCommand[caseId] = command;
-                m_caseVertecesIds[caseId] = currentCaseMirrired.copyVertecesId();
 
                 baseVertex += vetrexCount;
                 currentCaseMirrired = currentCaseMirrired.rotateRight();
@@ -1030,15 +946,7 @@ engine::MarchingCubes::MarchingCubes() {
         // CASES
         // CASE 01011010 = 90 | MIRRORED CASE 0b01011010 = 165
         MarchingCubesCase currentCase = baseCase;
-        currentCase.setVertexId(0, 1);
-        currentCase.setVertexId(1, 3);
-        currentCase.setVertexId(2, 4);
-        currentCase.setVertexId(3, 6);
         MarchingCubesCase currentCaseMirrired = baseCase.mirror();
-        currentCaseMirrired.setVertexId(0, 0);
-        currentCaseMirrired.setVertexId(1, 2);
-        currentCaseMirrired.setVertexId(2, 5);
-        currentCaseMirrired.setVertexId(3, 7);
 
         {
 
@@ -1053,7 +961,6 @@ engine::MarchingCubes::MarchingCubes() {
             int caseId = currentCase.resolve();
             assert(m_caseDrawCommand[caseId].count == 0);
             m_caseDrawCommand[caseId] = command;
-            m_caseVertecesIds[caseId] = currentCase.copyVertecesId();
             
             baseVertex += vetrexCount;
             currentCase = currentCase.rotateRight();
@@ -1087,7 +994,6 @@ engine::MarchingCubes::MarchingCubes() {
             caseId = currentCaseMirrired.resolve();
             assert(m_caseDrawCommand[caseId].count == 0);
             m_caseDrawCommand[caseId] = command;
-            m_caseVertecesIds[caseId] = currentCaseMirrired.copyVertecesId();
 
             baseVertex += vetrexCount;
             currentCaseMirrired = currentCaseMirrired.rotateRight();
@@ -1111,15 +1017,7 @@ engine::MarchingCubes::MarchingCubes() {
         // CASE 11011000 = 114 | MIRRORED CASE 11011000 = 141
         // CASE 11011000 = 228 | MIRRORED CASE 11011000 = 27
         MarchingCubesCase currentCase = baseCase;
-        currentCase.setVertexId(0, 3);
-        currentCase.setVertexId(1, 4);
-        currentCase.setVertexId(2, 6);
-        currentCase.setVertexId(3, 7);
         MarchingCubesCase currentCaseMirrired = baseCase.mirror();
-        currentCaseMirrired.setVertexId(0, 0);
-        currentCaseMirrired.setVertexId(1, 1);
-        currentCaseMirrired.setVertexId(2, 2);
-        currentCaseMirrired.setVertexId(3, 5);
 
         for (size_t i = 0; i < 4; i++) {
             glm::vec3 v0c = roundVector(rotateYaw[i] * glm::vec4(v0, 1.0f));
@@ -1140,7 +1038,6 @@ engine::MarchingCubes::MarchingCubes() {
             int caseId = currentCase.resolve();
             assert(m_caseDrawCommand[caseId].count == 0);
             m_caseDrawCommand[caseId] = command;
-            m_caseVertecesIds[caseId] = currentCase.copyVertecesId();
 
             baseVertex += vetrexCount;
             currentCase = currentCase.rotateRight();
@@ -1156,7 +1053,6 @@ engine::MarchingCubes::MarchingCubes() {
             caseId = currentCaseMirrired.resolve();
             assert(m_caseDrawCommand[caseId].count == 0);
             m_caseDrawCommand[caseId] = command;
-            m_caseVertecesIds[caseId] = currentCaseMirrired.copyVertecesId();
 
             baseVertex += vetrexCount;
             currentCaseMirrired = currentCaseMirrired.rotateRight();
@@ -1183,15 +1079,7 @@ engine::MarchingCubes::MarchingCubes() {
         // CASE 11101000 = 156 | MIRRORED CASE 00010111 = 99
         // CASE 11101000 = 57  | MIRRORED CASE 00010111 = 198
         MarchingCubesCase currentCase = baseCase;
-        currentCase.setVertexId(0, 3);
-        currentCase.setVertexId(1, 5);
-        currentCase.setVertexId(2, 6);
-        currentCase.setVertexId(3, 7);
         MarchingCubesCase currentCaseMirrired = baseCase.mirror();
-        currentCaseMirrired.setVertexId(0, 0);
-        currentCaseMirrired.setVertexId(1, 1);
-        currentCaseMirrired.setVertexId(2, 2);
-        currentCaseMirrired.setVertexId(3, 4);
 
         for (size_t j = 0; j < 2; j++) {
             for (size_t i = 0; i < 4; i++) {
@@ -1215,7 +1103,6 @@ engine::MarchingCubes::MarchingCubes() {
                 int caseId = currentCase.resolve();
                 assert(m_caseDrawCommand[caseId].count == 0);
                 m_caseDrawCommand[caseId] = command;
-                m_caseVertecesIds[caseId] = currentCase.copyVertecesId();
 
                 baseVertex += vetrexCount;
                 currentCase = currentCase.rotateRight();
@@ -1235,7 +1122,6 @@ engine::MarchingCubes::MarchingCubes() {
                 caseId = currentCaseMirrired.resolve();
                 assert(m_caseDrawCommand[caseId].count == 0);
                 m_caseDrawCommand[caseId] = command;
-                m_caseVertecesIds[caseId] = currentCaseMirrired.copyVertecesId();
 
                 baseVertex += vetrexCount;
                 currentCaseMirrired = currentCaseMirrired.rotateRight();
@@ -1276,10 +1162,6 @@ engine::MarchingCubes::MarchingCubes() {
         // CASE 11011010 = 167
         // CASE 11011010 = 94
         MarchingCubesCase currentCase = baseCase;
-        currentCase.setVertexId(0, 1);
-        currentCase.setVertexId(1, 3);
-        currentCase.setVertexId(2, 4);
-        currentCase.setVertexId(3, 6);
 
         for (size_t j = 0; j < 2; j++) {
             for (size_t i = 0; i < 4; i++) {
@@ -1305,7 +1187,6 @@ engine::MarchingCubes::MarchingCubes() {
                 int caseId = currentCase.resolve();
                 assert(m_caseDrawCommand[caseId].count == 0);
                 m_caseDrawCommand[caseId] = command;
-                m_caseVertecesIds[caseId] = currentCase.copyVertecesId();
 
                 baseVertex += vetrexCount;
                 currentCase = currentCase.rotateRight();
@@ -1352,11 +1233,6 @@ engine::MarchingCubes::MarchingCubes() {
         // CASE 11001011 = 211
         // CASE 11001011 = 182
         MarchingCubesCase currentCase = baseCase;
-        currentCase.setVertexId(0, 0);
-        currentCase.setVertexId(1, 1);
-        currentCase.setVertexId(2, 6);
-        currentCase.setVertexId(3, 7);
-        currentCase.setVertexId(4, 3);
 
         for (size_t j = 0; j < 3; j++) {
             for (size_t i = 0; i < 4; i++) {
@@ -1380,7 +1256,6 @@ engine::MarchingCubes::MarchingCubes() {
                 int caseId = currentCase.resolve();
                 assert(m_caseDrawCommand[caseId].count == 0);
                 m_caseDrawCommand[caseId] = command;
-                m_caseVertecesIds[caseId] = currentCase.copyVertecesId();
 
                 baseVertex += vetrexCount;
                 currentCase = currentCase.rotateRight();
@@ -1426,11 +1301,6 @@ engine::MarchingCubes::MarchingCubes() {
         // CASE 11000111 = 227
         // CASE 11000111 = 214
         MarchingCubesCase currentCase = baseCase;
-        currentCase.setVertexId(0, 0);
-        currentCase.setVertexId(1, 1);
-        currentCase.setVertexId(2, 6);
-        currentCase.setVertexId(3, 7);
-        currentCase.setVertexId(4, 2);
 
         for (size_t j = 0; j < 3; j++) {
             for (size_t i = 0; i < 4; i++) {
@@ -1454,7 +1324,6 @@ engine::MarchingCubes::MarchingCubes() {
                 int caseId = currentCase.resolve();
                 assert(m_caseDrawCommand[caseId].count == 0);
                 m_caseDrawCommand[caseId] = command;
-                m_caseVertecesIds[caseId] = currentCase.copyVertecesId();
 
                 baseVertex += vetrexCount;
                 currentCase = currentCase.rotateRight();
@@ -1499,10 +1368,6 @@ engine::MarchingCubes::MarchingCubes() {
         // CASE 11101101 = 123
         // CASE 11101101 = 231
         MarchingCubesCase currentCase = baseCase;
-        currentCase.setVertexId(0, 0);
-        currentCase.setVertexId(1, 2);
-        currentCase.setVertexId(2, 5);
-        currentCase.setVertexId(3, 7);
 
         for (size_t j = 0; j < 4; j++) {
             for (size_t i = 0; i < 4; i++) {
@@ -1526,7 +1391,6 @@ engine::MarchingCubes::MarchingCubes() {
                 int caseId = currentCase.resolve();
                 assert(m_caseDrawCommand[caseId].count == 0);
                 m_caseDrawCommand[caseId] = command;
-                m_caseVertecesIds[caseId] = currentCase.copyVertecesId();
 
                 baseVertex += vetrexCount;
                 currentCase = currentCase.rotateRight();

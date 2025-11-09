@@ -4,11 +4,6 @@
 #include "../stdafx.h"
 
 namespace engine {
-    struct MarchingCubesVertecesIds {
-        //int ids[6] = { -1, -1, -1, -1, -1, -1 };
-        int ids[6] = { 0, 0, 0, 0, 0, 0 };
-    };
-
     struct MarchingCubesVertexData {
         int direction = -1;
         int id = -1;
@@ -36,15 +31,9 @@ namespace engine {
         MarchingCubesCase rotateRollRight();
         MarchingCubesCase mirror();
         MarchingCubesVertexData getVertexData(const glm::vec3& position);
-        /// @brief Установить id для вершины по индексу
-        /// @param id Устанавливаемый id. Значение от 0 до 4
-        /// @param index Индекс вершины угла марширующего куба. Значение от 0 до 7
-        void setVertexId(int id, int index);
-        MarchingCubesVertecesIds copyVertecesId() { return vertecesId; }
 
         struct CaseVertex {
             bool isSolid{ false };
-            int id{ -1 };
         };
         
         CaseVertex vertices[8];
@@ -66,10 +55,6 @@ namespace engine {
         static constexpr int BOTTOM_FRONT_RIGHT_ID = 5;
         static constexpr int BOTTOM_BACK_RIGHT_ID = 6;
         static constexpr int BOTTOM_BACK_LEFT_ID = 7;
-
-        MarchingCubesVertecesIds vertecesId;
-
-        void swapIds(int aIndex, const CaseVertex& b);
     };
 }
 

@@ -105,7 +105,7 @@ void engine::MarchingCubesSolver::addMarchingCube(MarchingCubes& marchingCubes, 
     uint8_t caseId = getCaseIndex(voxels);
     if (caseId == 0 || caseId == 255) return;
 
-    auto verticesIds = marchingCubes.getVertecesIds(caseId);
+    /*auto verticesIds = marchingCubes.getVertecesIds(caseId);
     // vId - индекс вершины в массиве voxels[]
     int offsets[6] = { 0, 0, 0, 0, 0, 0 };
     for (int i = 0; i < 6; i++) {
@@ -116,9 +116,9 @@ void engine::MarchingCubesSolver::addMarchingCube(MarchingCubes& marchingCubes, 
     for (int i = 0; i < 4; i++) {
         //int vId = verticesIds.ids[i];
         //textures[i] = voxels[vId].getSolidId();
-    }
+    }*/
 
-    glm::ivec2 caseData = packData(x, y, z, offsets, textures);
+    glm::ivec2 caseData = packData(x, y, z);
     m_caseData[caseId].push_back(caseData);
     m_cubesCount++;
 }
@@ -135,23 +135,24 @@ uint8_t engine::MarchingCubesSolver::getCaseIndex(std::array<Voxel, 8>& voxels) 
     return caseId;
 }
 
-glm::ivec2 engine::MarchingCubesSolver::packData(int x, int y, int z, int offset[6], int textureId[4]) {
+glm::ivec2 engine::MarchingCubesSolver::packData(int x, int y, int z) {
     int left = x;
     left <<= 5;
     left |= y;
     left <<= 5;
     left |= z;
+    // TODO: Закоментированный код и лишние сдвиги удалить в отдельном коммите вместе с изменением упаковки/распаковки данных в шейдере
     left <<= 3;
-    left |= offset[0]; // 1
+    //left |= offset[0]; // 1
     left <<= 3;
-    left |= offset[1]; // 2
+    //left |= offset[1]; // 2
     left <<= 3;
-    left |= offset[2]; // 3
+    //left |= offset[2]; // 3
     left <<= 3;
-    left |= offset[3]; // 4
+    //left |= offset[3]; // 4
     left <<= 3;
-    left |= offset[4]; // 5
-    int right = offset[5]; // 6
+    //left |= offset[4]; // 5
+    /*int right = offset[5]; // 6
     right <<= 7;
     right |= textureId[0] & 0b1111111; // 1
     right <<= 7;
@@ -159,7 +160,7 @@ glm::ivec2 engine::MarchingCubesSolver::packData(int x, int y, int z, int offset
     right <<= 7;
     right |= textureId[2] & 0b1111111; // 3
     right <<= 7;
-    right |= textureId[3] & 0b1111111; // 4
+    right |= textureId[3] & 0b1111111; // 4*/
 
-    return glm::ivec2(left, right);
+    return glm::ivec2(left, 0);
 }
