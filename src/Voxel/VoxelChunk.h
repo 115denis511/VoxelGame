@@ -20,9 +20,10 @@ namespace engine {
 
         void setInUpdateQueueFlag(bool flag) { m_isInUpdateQueue = flag; };
         void setInUseFlag(bool flag) { m_isInUse = flag; };
-        void bindSSBO(GLuint blockId) { m_ssbo.bind(blockId); }
-        ShaderStorageBuffer<glm::ivec2>& getSSBO() { return m_ssbo; };
+        void bindCubesToDrawSSBO(GLuint blockId) { m_ssbo.cubesToDraw.bind(blockId); }
+        void bindVoxelGridSSBO(GLuint blockId) { m_ssbo.voxelGrid.bind(blockId); }
         const GLuint getIdInSSBO() { return m_idInSSBO; };
+        void pushDataInSSBO(std::vector<GLuint>& casesData);
         void addDrawCommand(const DrawArraysIndirectCommand& command);
         const std::array<DrawArraysIndirectCommand, 254>& getDrawCommands() { return m_drawCommands; }
         const int getDrawCommandsCount() { return m_drawCount; };
@@ -41,12 +42,15 @@ namespace engine {
         bool m_isInUse{ false };
         ChunkVisibilityState m_visibilityStates[ChunkVisibilityState::getSidesCount() + 1];
         union {
-            ShaderStorageBuffer<glm::ivec2> m_ssbo;
+            struct {
+                ShaderStorageBuffer<GLuint> cubesToDraw;
+                ShaderStorageBuffer<GLuint> voxelGrid;
+            } m_ssbo;
             GLuint m_idInSSBO;
         };
 
-        void initSSBO() { m_ssbo.init(MARCHING_CUBES_COUNT, BufferUsage::DYNAMIC_DRAW); }
-        void freeSSBO() { m_ssbo.~ShaderStorageBuffer<glm::ivec2>(); }
+        void initSSBO();
+        void freeSSBO();
         void setIdInSSBO(GLuint start) { m_idInSSBO = start; }
         bool isPositionInsideChunk(short x, short y, short z) { 
             return x >= 0 && x < (short)VOXEL_CHUNK_SIZE && 

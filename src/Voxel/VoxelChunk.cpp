@@ -4,6 +4,11 @@ engine::VoxelChunk::VoxelChunk() {}
 
 engine::VoxelChunk::~VoxelChunk() {}
 
+void engine::VoxelChunk::pushDataInSSBO(std::vector<GLuint> &casesData) {
+    m_ssbo.cubesToDraw.pushData(&casesData[0], casesData.size());
+    m_ssbo.voxelGrid.pushData(m_voxels.getDataPtr(), m_voxels.getSize());
+}
+
 void engine::VoxelChunk::addDrawCommand(const engine::DrawArraysIndirectCommand &command) {
     assert(m_drawCount < static_cast<int>(m_drawCommands.size()) && "ASSERT ERROR! - Adding more commands in chunk buffer than it can store!");
     m_drawCommands[m_drawCount] = command;
@@ -37,6 +42,16 @@ void engine::VoxelChunk::clearVisibilityStatesForEmptyChunk() {
     for (size_t i = 0; i < SIDES_AND_NONE; i++) { 
         m_visibilityStates[i].setAllVisible(); 
     }
+}
+
+void engine::VoxelChunk::initSSBO() {
+    m_ssbo.cubesToDraw.init(MARCHING_CUBES_COUNT, BufferUsage::DYNAMIC_DRAW);
+    m_ssbo.voxelGrid.init(GRID_VOXEL_COUNT, BufferUsage::DYNAMIC_DRAW);
+}
+
+void engine::VoxelChunk::freeSSBO() {
+    m_ssbo.cubesToDraw.~ShaderStorageBuffer<GLuint>();
+    m_ssbo.voxelGrid.~ShaderStorageBuffer<GLuint>();
 }
 
 /*

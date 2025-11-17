@@ -199,7 +199,8 @@ void engine::MarchingCubesManager::drawBatches(const CameraVars& cameraVars, Fru
                     m_drawCommands[drawCount + i] = chunkDrawCommands[i];
                     m_drawBufferRefs[drawCount + i] = bufferIndex;
                 }
-                chunk.bindSSBO(bufferIndex);
+                chunk.bindCubesToDrawSSBO(bufferIndex * 2);
+                chunk.bindVoxelGridSSBO(bufferIndex * 2 + 1);
                 bufferIndex++;
                 drawCount += chunkDrawCount;
 

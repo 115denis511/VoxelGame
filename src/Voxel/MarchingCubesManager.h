@@ -38,7 +38,7 @@ namespace engine {
         static constexpr GLuint SSBO_BLOCK__CHUNK_POSITIONS = 13;
         static constexpr GLuint SSBO_BLOCK__VOXEL_VERTECES_DATA_IDS = 14;
         static constexpr GLuint SSBO_BLOCK__DRAW_ID_TO_CHUNK = 15;
-        static constexpr GLuint CHUNK_BATCH_MAX_SIZE = 14;
+        static constexpr GLuint CHUNK_BATCH_MAX_SIZE = 7;
 
         bool isPositionHasSolidVoxel(const glm::vec3& position);
         bool raycastVoxel(const glm::vec3& position, const glm::vec3& direction, float maxDistance, glm::ivec3& hitPosition, glm::ivec3& hitFace);

@@ -46,7 +46,7 @@ void engine::MarchingCubesSolver::regenerateChunk(
         globalChunkGridsSSBO.pushData(storage.getDataPtr(), storage.getSize(), gridOffset);
     }
     else {
-        chunk.getSSBO().pushData(&dataBuffer[0], dataBuffer.size());
+        chunk.pushDataInSSBO(dataBuffer);
     }
 
     int errors = 0;
