@@ -19,6 +19,7 @@
 #include "ChunkGridBounds.h"
 #include "ChunkGridChanger.h"
 #include "ChunkGridVisibility.h"
+#include "ChunkGridVoxelEditor.h"
 
 namespace engine {
     class Core;
@@ -70,6 +71,7 @@ namespace engine {
         ChunkGridVisibility m_gridVisibility;
         ChunkGrid m_grid{ m_gridBounds, m_chunkPositionsSSBO, m_converter };
         ChunkGridChanger m_gridChanger{ m_grid };
+        ChunkGridVoxelEditor m_editor{ m_grid, m_gridBounds, m_gridChanger, m_converter };
         std::vector<glm::ivec2> m_toGenerateQueue; 
         VoxelTextures m_textures;
         GLuint m_commandBuffer;
