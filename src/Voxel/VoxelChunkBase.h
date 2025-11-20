@@ -19,7 +19,7 @@ namespace engine {
         static constexpr GLsizeiptr MARCHING_CUBES_BYTE_SIZE = MARCHING_CUBES_COUNT * sizeof(GLuint);
         static constexpr GLsizeiptr GRID_BYTE_SIZE = GRID_VOXEL_COUNT * sizeof(Voxel);
 
-        void setVoxel(short x, short y, short z, uint8_t id, uint8_t size = 3);
+        void setVoxel(short x, short y, short z, uint8_t id, uint8_t size = 3, Voxel::Type type = Voxel::Type::SOLID);
         void setVoxel(short x, short y, short z, const Voxel& voxel);
         Voxel getVoxel(short x, short y, short z);
         bool isVoxelSolid(short x, short y, short z);

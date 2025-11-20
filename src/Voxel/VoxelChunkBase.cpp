@@ -4,8 +4,8 @@ engine::VoxelChunkBase::VoxelChunkBase() {}
 
 engine::VoxelChunkBase::~VoxelChunkBase() {}
 
-void engine::VoxelChunkBase::setVoxel(short x, short y, short z, uint8_t id, uint8_t size) {
-    m_voxels(x, y, z).setSolidVoxel(id, size);
+void engine::VoxelChunkBase::setVoxel(short x, short y, short z, uint8_t id, uint8_t size, Voxel::Type type) {
+    m_voxels(x, y, z).setVoxel(type, id, size);
 }
 
 void engine::VoxelChunkBase::setVoxel(short x, short y, short z, const Voxel& voxel) {

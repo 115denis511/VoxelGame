@@ -66,7 +66,19 @@ void SceneTest::update(engine::Camera& camera, engine::SceneResources &resources
             glm::vec3 cameraPos = camera.getPosition(), cameraTarget = camera.getFront();
             glm::ivec3 hit, face;
             if (marching->raycastVoxel(cameraPos, cameraTarget, 100.f, hit, face)) {
-                if (engine::Controls::isKeyPressed(GLFW_KEY_LEFT_CONTROL)) {
+                if (engine::Controls::isKeyPressed(GLFW_KEY_LEFT_CONTROL) && engine::Controls::isKeyPressed(GLFW_KEY_LEFT_ALT)) {
+                    auto voxel = marching->getVoxel(hit);
+                    if (voxel.getWaterSize() > 0 && voxel.getWaterSize() > voxel.getSolidSize() + 1) {
+                        std::cout << "Water voxel size decreased at " << hit.x << " " << hit.y << " " << hit.z << "\n";
+                        marching->setVoxel(hit, voxel.getWaterId(), voxel.getWaterSize() - 1, engine::Voxel::Type::WATER);
+                    }
+                }
+                else if (engine::Controls::isKeyPressed(GLFW_KEY_LEFT_ALT)) {
+                    glm::ivec3 local = engine::VoxelPositionConverter::worldPositionToLocalVoxelPosition(hit, 32);
+                    std::cout << "Break water voxel at " << hit.x << " " << hit.y << " " << hit.z << " | Local: " << local.x << " " << local.y << " " << local.z << "\n";
+                    marching->setVoxel(hit, 255, 0, engine::Voxel::Type::WATER); 
+                }
+                else if (engine::Controls::isKeyPressed(GLFW_KEY_LEFT_CONTROL)) {
                     auto voxel = marching->getVoxel(hit);
                     if (voxel.getSolidSize() > 0) {
                         std::cout << "Voxel size decreased at " << hit.x << " " << hit.y << " " << hit.z << "\n";
@@ -84,10 +96,22 @@ void SceneTest::update(engine::Camera& camera, engine::SceneResources &resources
             glm::vec3 cameraPos = camera.getPosition(), cameraTarget = camera.getFront();
             glm::ivec3 hit, face;
             if (marching->raycastVoxel(cameraPos, cameraTarget, 100.f, hit, face)) {
-                if (engine::Controls::isKeyPressed(GLFW_KEY_LEFT_CONTROL)) {
+                if (engine::Controls::isKeyPressed(GLFW_KEY_LEFT_CONTROL) && engine::Controls::isKeyPressed(GLFW_KEY_LEFT_ALT)) {
                     auto voxel = marching->getVoxel(hit);
-                    std::cout << "Voxel size increased at " << hit.x << " " << hit.y << " " << hit.z << "\n";
-                    marching->setVoxel(hit, voxel.getSolidId(), voxel.getSolidSize() + 1);
+                    if (voxel.getWaterSize() != 7) {
+                        std::cout << "Water voxel size increased at " << hit.x << " " << hit.y << " " << hit.z << "\n";
+                        marching->setVoxel(hit, voxel.getSolidId(), voxel.getWaterSize() + 1, engine::Voxel::Type::WATER);
+                    }
+                }
+                else if (engine::Controls::isKeyPressed(GLFW_KEY_LEFT_ALT)) {
+                    marching->setVoxel(hit + face, 1, 0, engine::Voxel::Type::WATER);
+                }
+                else if (engine::Controls::isKeyPressed(GLFW_KEY_LEFT_CONTROL)) {
+                    auto voxel = marching->getVoxel(hit);
+                    if (voxel.getSolidSize() != 7) {
+                        std::cout << "Voxel size increased at " << hit.x << " " << hit.y << " " << hit.z << "\n";
+                        marching->setVoxel(hit, voxel.getSolidId(), voxel.getSolidSize() + 1);
+                    }
                 }
                 else {
                     marching->setVoxel(hit + face, 1, 0);
