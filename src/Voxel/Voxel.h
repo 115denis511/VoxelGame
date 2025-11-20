@@ -35,6 +35,22 @@ namespace engine {
         uint8_t getWaterSize() { return m_waterSize & SIZE_MASK; }
         void deleteWater() { m_waterId = NO_VOXEL; }
 
+        enum class Type {
+            SOLID = 0,
+            WATER = 2
+        };
+        void setId(Type type, uint8_t id) { m_fieldsArray[static_cast<int>(type)] = id; }
+        void setSize(Type type, uint8_t size) {
+            int field = static_cast<int>(type) + 1;
+            m_fieldsArray[field] = (m_fieldsArray[field] & (~SIZE_MASK)) | (size & SIZE_MASK);
+        }
+        void setVoxel(Type type, uint8_t id, uint8_t size) {
+            setId(type, id);
+            setSize(type, size);
+        }
+        uint8_t getId(Type field) { return m_fieldsArray[static_cast<int>(field)]; }
+        uint8_t getSize(Type field) { return m_fieldsArray[static_cast<int>(field) + 1] & SIZE_MASK; }
+
         uint32_t dbg_getRaw() { return m_raw; }
         uint8_t dbg_getSolidIdFromRaw() { return m_raw & 0xFF; }
         uint8_t dbg_getSolidSizeFromRaw() { return (m_raw >> 8) & 0b111; }
@@ -52,6 +68,7 @@ namespace engine {
                 uint8_t m_waterId;
                 uint8_t m_waterSize;
             };
+            uint8_t m_fieldsArray[4];
             uint32_t m_raw;
         };
     };
