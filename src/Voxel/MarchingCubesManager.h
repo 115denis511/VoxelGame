@@ -3,14 +3,13 @@
 
 #include "../stdafx.h"
 #include "../Render/Shader.h"
-#include "../Render/ShaderStorageManager.h"
-#include "../Render/ShaderStorageBuffer.h"
 #include "../Render/UniformManager.h"
 #include "../Collisions/AABB.h"
 #include "../Collisions/Frustum.h"
 #include "../Scene/Camera.h"
 #include "MarchingCubes.h"
 #include "MarchingCubesSolver.h"
+#include "MarchingCubesSSBOs.h"
 #include "VoxelChunk.h"
 #include "VoxelPositionConverter.h"
 #include "VoxelRaycast.h"
@@ -65,11 +64,12 @@ namespace engine {
 
         MarchingCubes m_marchingCubes;
         MarchingCubesSolver m_solver;
+        MarchingCubesSSBOs m_ssbos;
         VoxelPositionConverter m_converter;
         unsigned int m_renderChunkRadius{ 0 };
         ChunkGridBounds m_gridBounds;
         ChunkGridVisibility m_gridVisibility;
-        ChunkGrid m_grid{ m_gridBounds, m_chunkPositionsSSBO, m_converter };
+        ChunkGrid m_grid{ m_gridBounds, m_ssbos.chunkPositionsSSBO, m_converter };
         ChunkGridChanger m_gridChanger{ m_grid };
         ChunkGridVoxelEditor m_editor{ m_grid, m_gridBounds, m_gridChanger, m_converter };
         std::vector<glm::ivec2> m_toGenerateQueue; 
@@ -79,10 +79,6 @@ namespace engine {
         std::vector<GLuint> m_drawBufferRefs;
         std::vector<glm::vec4> m_drawChunkPositions;
         bool m_usingGlobalChunkSSBO;
-        ShaderStorageBuffer<glm::ivec4> m_chunkPositionsSSBO;
-        ShaderStorageBuffer<GLuint> m_globalChunkSSBO;
-        ShaderStorageBuffer<Voxel> m_globalChunkGridsSSBO;
-        ShaderStorageBuffer<GLuint> m_drawIdToDataSSBO;
         Shader* m_shader;
 
         static bool init();

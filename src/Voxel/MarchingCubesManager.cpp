@@ -32,7 +32,7 @@ void engine::MarchingCubesManager::freeResources() {
 
 void engine::MarchingCubesManager::updateChunks(size_t maxCount) {
     m_gridChanger.generateChunks(m_usingGlobalChunkSSBO, 1);
-    m_gridChanger.updateChunks(m_marchingCubes, m_globalChunkSSBO, m_globalChunkGridsSSBO, 8);
+    m_gridChanger.updateChunks(m_marchingCubes, m_ssbos.globalChunkSSBO, m_ssbos.globalChunkGridsSSBO, 8);
 }
 
 bool engine::MarchingCubesManager::setVoxelTexture(int layer, unsigned char *rawImage, int width, int height, int nrComponents) {
@@ -72,7 +72,7 @@ engine::MarchingCubesManager::MarchingCubesManager() {
         m_drawBufferRefs.resize(254 * CHUNK_BATCH_MAX_SIZE);
         m_drawChunkPositions.resize(CHUNK_BATCH_MAX_SIZE);
 
-        m_drawIdToDataSSBO.init(254 * CHUNK_BATCH_MAX_SIZE, BufferUsage::DYNAMIC_DRAW);
+        m_ssbos.drawIdToDataSSBO.init(254 * CHUNK_BATCH_MAX_SIZE, BufferUsage::DYNAMIC_DRAW);
 
         m_shader = new Shader("Shader/marchingCubes.vert", "Shader/marchingCubes.frag");
 
@@ -88,10 +88,10 @@ engine::MarchingCubesManager::MarchingCubesManager() {
         m_drawCommands.resize(254 * ChunkGridBounds::CHUNK_COUNT);
         m_drawBufferRefs.resize(254 * ChunkGridBounds::CHUNK_COUNT);
         
-        m_chunkPositionsSSBO.init(ChunkGridBounds::CHUNK_COUNT, BufferUsage::DYNAMIC_DRAW);
-        m_globalChunkSSBO.init(VoxelChunk::MARCHING_CUBES_COUNT * ChunkGridBounds::CHUNK_COUNT, BufferUsage::DYNAMIC_DRAW);
-        m_globalChunkGridsSSBO.init(VoxelChunk::GRID_VOXEL_COUNT * ChunkGridBounds::CHUNK_COUNT, BufferUsage::DYNAMIC_DRAW);
-        m_drawIdToDataSSBO.init(254 * ChunkGridBounds::CHUNK_COUNT, BufferUsage::DYNAMIC_DRAW);
+        m_ssbos.chunkPositionsSSBO.init(ChunkGridBounds::CHUNK_COUNT, BufferUsage::DYNAMIC_DRAW);
+        m_ssbos.globalChunkSSBO.init(VoxelChunk::MARCHING_CUBES_COUNT * ChunkGridBounds::CHUNK_COUNT, BufferUsage::DYNAMIC_DRAW);
+        m_ssbos.globalChunkGridsSSBO.init(VoxelChunk::GRID_VOXEL_COUNT * ChunkGridBounds::CHUNK_COUNT, BufferUsage::DYNAMIC_DRAW);
+        m_ssbos.drawIdToDataSSBO.init(254 * ChunkGridBounds::CHUNK_COUNT, BufferUsage::DYNAMIC_DRAW);
 
         m_shader = new Shader("Shader/marchingCubesAllInOne.vert", "Shader/marchingCubes.frag");
         
@@ -116,11 +116,11 @@ void engine::MarchingCubesManager::drawAllInOne(const CameraVars &cameraVars, Fr
     m_shader->use();
     m_textures.use();
 
-    m_globalChunkGridsSSBO.bind(SSBO_BLOCK__GLOBAL_CHUNK_GRIDS_STORAGE);
-    m_globalChunkSSBO.bind(SSBO_BLOCK__GLOBAL_CHUNK_STORAGE);
-    m_chunkPositionsSSBO.bind(SSBO_BLOCK__CHUNK_POSITIONS);
+    m_ssbos.globalChunkGridsSSBO.bind(SSBO_BLOCK__GLOBAL_CHUNK_GRIDS_STORAGE);
+    m_ssbos.globalChunkSSBO.bind(SSBO_BLOCK__GLOBAL_CHUNK_STORAGE);
+    m_ssbos.chunkPositionsSSBO.bind(SSBO_BLOCK__CHUNK_POSITIONS);
     m_marchingCubes.bindSSBO(SSBO_BLOCK__VOXEL_VERTECES_DATA_IDS);
-    m_drawIdToDataSSBO.bind(SSBO_BLOCK__DRAW_ID_TO_CHUNK);
+    m_ssbos.drawIdToDataSSBO.bind(SSBO_BLOCK__DRAW_ID_TO_CHUNK);
 
     m_gridVisibility.clearResults();
     m_gridVisibility.checkVisibility(
@@ -151,7 +151,7 @@ void engine::MarchingCubesManager::drawAllInOne(const CameraVars &cameraVars, Fr
     }
     int commandBufferSize = drawCount * sizeof(DrawArraysIndirectCommand);
     glNamedBufferSubData(m_commandBuffer, 0, commandBufferSize, &m_drawCommands[0]);
-    m_drawIdToDataSSBO.pushData(&m_drawBufferRefs[0], drawCount);
+    m_ssbos.drawIdToDataSSBO.pushData(&m_drawBufferRefs[0], drawCount);
     m_marchingCubes.draw(drawCount);
 }
 
@@ -160,7 +160,7 @@ void engine::MarchingCubesManager::drawBatches(const CameraVars& cameraVars, Fru
     m_textures.use();
 
     m_marchingCubes.bindSSBO(SSBO_BLOCK__VOXEL_VERTECES_DATA_IDS);
-    m_drawIdToDataSSBO.bind(SSBO_BLOCK__DRAW_ID_TO_CHUNK);
+    m_ssbos.drawIdToDataSSBO.bind(SSBO_BLOCK__DRAW_ID_TO_CHUNK);
 
     //glm::vec3 debugCameraPos = cameraVars.cameraPosition; debugCameraPos.y = 1.f;
     m_gridVisibility.clearResults();
@@ -220,7 +220,7 @@ void engine::MarchingCubesManager::drawAccumulatedBatches(GLsizei drawCount) {
     int commandBufferSize = drawCount * sizeof(DrawArraysIndirectCommand);
     glNamedBufferSubData(m_commandBuffer, 0, commandBufferSize, &m_drawCommands[0]);
 
-    m_drawIdToDataSSBO.pushData(&m_drawBufferRefs[0], drawCount);
+    m_ssbos.drawIdToDataSSBO.pushData(&m_drawBufferRefs[0], drawCount);
     UniformManager::setChunkPositions(m_drawChunkPositions);
 
     m_marchingCubes.draw(drawCount);
@@ -259,5 +259,5 @@ void engine::MarchingCubesManager::setRenderChunkRadius(int radius) {
     m_renderChunkRadius = uRadius;
     m_gridBounds.currentOriginChunk = glm::ivec2(m_gridBounds.currentCenterChunk.x - radius, m_gridBounds.currentCenterChunk.y - radius);
 
-    m_gridChanger.resizeGrid(m_chunkPositionsSSBO, m_usingGlobalChunkSSBO, uRadius * 2);
+    m_gridChanger.resizeGrid(m_ssbos.chunkPositionsSSBO, m_usingGlobalChunkSSBO, uRadius * 2);
 }
