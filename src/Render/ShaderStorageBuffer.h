@@ -18,13 +18,13 @@ namespace engine {
             assert(dataCount > 0 && "Data count value can't be zero");
             
             if (m_dataCount == 0) {
+                m_dataCount = dataCount;
+                
                 glCreateBuffers(1, &m_ssbo);
                 GLsizeiptr byteSize = sizeof(DataType) * dataCount;
                 GLenum usageVal = static_cast<GLenum>(usage);
                 glNamedBufferData(m_ssbo, byteSize, NULL, usageVal);
             }
-
-            m_dataCount = dataCount;
         }
         bool isInited() { return m_dataCount != 0; }
         const GLuint getSSBO() const { return m_ssbo; }
