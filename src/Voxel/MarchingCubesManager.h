@@ -8,12 +8,14 @@
 #include "../Collisions/Frustum.h"
 #include "../Scene/Camera.h"
 #include "MarchingCubes.h"
+#include "MarchingCubesRenderBase.h"
+#include "MarchingCubesRenderBigBuffer.h"
+#include "MarchingCubesRenderSmallBuffers.h"
 #include "MarchingCubesSolver.h"
 #include "MarchingCubesSSBOs.h"
 #include "VoxelChunk.h"
 #include "VoxelPositionConverter.h"
 #include "VoxelRaycast.h"
-#include "VoxelTextures.h"
 #include "ChunkGrid.h"
 #include "ChunkGridBounds.h"
 #include "ChunkGridChanger.h"
@@ -32,13 +34,6 @@ namespace engine {
         ~MarchingCubesManager();
 
         static MarchingCubesManager* getInstance();
-
-        static constexpr GLuint SSBO_BLOCK__GLOBAL_CHUNK_GRIDS_STORAGE = 11;
-        static constexpr GLuint SSBO_BLOCK__GLOBAL_CHUNK_STORAGE = 12;
-        static constexpr GLuint SSBO_BLOCK__CHUNK_POSITIONS = 13;
-        static constexpr GLuint SSBO_BLOCK__VOXEL_VERTECES_DATA_IDS = 14;
-        static constexpr GLuint SSBO_BLOCK__DRAW_ID_TO_CHUNK = 15;
-        static constexpr GLuint CHUNK_BATCH_MAX_SIZE = 7;
 
         bool isPositionHasSolidVoxel(const glm::vec3& position);
         bool raycastVoxel(const glm::vec3& position, const glm::vec3& direction, float maxDistance, glm::ivec3& hitPosition, glm::ivec3& hitFace);
@@ -63,30 +58,21 @@ namespace engine {
         static MarchingCubesManager* g_instance;
 
         MarchingCubes m_marchingCubes;
+        MarchingCubesRenderBase* m_render{ nullptr };
         MarchingCubesSolver m_solver;
         MarchingCubesSSBOs m_ssbos;
         VoxelPositionConverter m_converter;
-        unsigned int m_renderChunkRadius{ 0 };
         ChunkGridBounds m_gridBounds;
         ChunkGridVisibility m_gridVisibility;
         ChunkGrid m_grid{ m_gridBounds, m_ssbos.chunkPositionsSSBO, m_converter };
         ChunkGridChanger m_gridChanger{ m_grid };
         ChunkGridVoxelEditor m_editor{ m_grid, m_gridBounds, m_gridChanger, m_converter };
-        std::vector<glm::ivec2> m_toGenerateQueue; 
-        VoxelTextures m_textures;
-        GLuint m_commandBuffer;
-        std::vector<DrawArraysIndirectCommand> m_drawCommands;
-        std::vector<GLuint> m_drawBufferRefs;
-        std::vector<glm::vec4> m_drawChunkPositions;
+        unsigned int m_renderChunkRadius{ 0 };
         bool m_usingGlobalChunkSSBO;
-        Shader* m_shader;
 
         static bool init();
         static void freeResources();
         void draw(const CameraVars& cameraVars, Frustum frustum);
-        void drawAllInOne(const CameraVars& cameraVars, Frustum frustum);
-        void drawBatches(const CameraVars& cameraVars, Frustum frustum);
-        void drawAccumulatedBatches(GLsizei drawCount);
         void updateChunks(size_t maxCount = 8);
         bool setVoxelTexture(int layer, unsigned char *rawImage, int width, int height, int nrComponents);
         bool setVoxelTexture(int layer, std::string path);

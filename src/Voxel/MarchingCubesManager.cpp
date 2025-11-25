@@ -3,9 +3,7 @@
 engine::MarchingCubesManager* engine::MarchingCubesManager::g_instance{ nullptr };
 
 engine::MarchingCubesManager::~MarchingCubesManager() {
-    glDeleteBuffers(1, &m_commandBuffer);
-
-    delete m_shader;
+    if (m_render != nullptr) delete m_render;
 
     if (!m_usingGlobalChunkSSBO) {
         m_grid.freeChunksSSBO();
@@ -36,194 +34,54 @@ void engine::MarchingCubesManager::updateChunks(size_t maxCount) {
 }
 
 bool engine::MarchingCubesManager::setVoxelTexture(int layer, unsigned char *rawImage, int width, int height, int nrComponents) {
-    return m_textures.setTexture(layer, rawImage, width, height, nrComponents);
+    return m_render->setVoxelTexture(layer, rawImage, width, height, nrComponents);
 }
 
 bool engine::MarchingCubesManager::setVoxelTexture(int layer, std::string path) {
-    return m_textures.setTexture(layer, path);
+    return m_render->setVoxelTexture(layer, path);
 }
 
 bool engine::MarchingCubesManager::setVoxelTexture(int layer, glm::vec4 color) {
-    return m_textures.setTexture(layer, color);
+    return m_render->setVoxelTexture(layer, color);
 }
 
 void engine::MarchingCubesManager::startTextureEditing() {
-    if (m_textures.isResident())
-        m_textures.makeNonResident();
+    m_render->startTextureEditing();
 }
 
 void engine::MarchingCubesManager::endTextureEditing() {
-    if (!m_textures.isResident()) {
-        m_textures.updateMipmap();
-        m_textures.makeResident();
-    }
+    m_render->endTextureEditing();
 }
 
 engine::MarchingCubesManager::MarchingCubesManager() {
-    GLint size;
-    glGetIntegerv(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, &size);
-    constexpr GLsizeiptr CHUNK_BUFFER_SIZE = VoxelChunk::MARCHING_CUBES_BYTE_SIZE * ChunkGridBounds::CHUNK_COUNT;
+    GLint ssboMaxSize;
+    glGetIntegerv(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, &ssboMaxSize);
+    constexpr GLsizeiptr REQUIRED_SSBO_SIZE_SUPPORT = std::max(
+        VoxelChunk::MARCHING_CUBES_BYTE_SIZE * ChunkGridBounds::CHUNK_COUNT, 
+        VoxelChunk::GRID_BYTE_SIZE * ChunkGridBounds::CHUNK_COUNT
+    );
 
     //if (true) {
-    if (size < CHUNK_BUFFER_SIZE) { 
+    if (ssboMaxSize < REQUIRED_SSBO_SIZE_SUPPORT) { 
         m_usingGlobalChunkSSBO = false;
 
-        m_drawCommands.resize(254 * CHUNK_BATCH_MAX_SIZE);
-        m_drawBufferRefs.resize(254 * CHUNK_BATCH_MAX_SIZE);
-        m_drawChunkPositions.resize(CHUNK_BATCH_MAX_SIZE);
-
-        m_ssbos.drawIdToDataSSBO.init(254 * CHUNK_BATCH_MAX_SIZE, BufferUsage::DYNAMIC_DRAW);
-
-        m_shader = new Shader("Shader/marchingCubes.vert", "Shader/marchingCubes.frag");
-
-        glCreateBuffers(1, &m_commandBuffer);
-        constexpr GLuint byteSize = sizeof(engine::DrawArraysIndirectCommand) * 254 * CHUNK_BATCH_MAX_SIZE;
-        glNamedBufferData(m_commandBuffer, byteSize, NULL, GL_DYNAMIC_DRAW);
+        m_render = new MarchingCubesRenderSmallBuffers(m_grid, m_gridBounds, m_gridVisibility, m_ssbos);
+        m_render->initSSBOs(m_ssbos);
 
         m_grid.initChunksSSBO();
     }
     else {
         m_usingGlobalChunkSSBO = true;
 
-        m_drawCommands.resize(254 * ChunkGridBounds::CHUNK_COUNT);
-        m_drawBufferRefs.resize(254 * ChunkGridBounds::CHUNK_COUNT);
-        
-        m_ssbos.chunkPositionsSSBO.init(ChunkGridBounds::CHUNK_COUNT, BufferUsage::DYNAMIC_DRAW);
-        m_ssbos.globalChunkSSBO.init(VoxelChunk::MARCHING_CUBES_COUNT * ChunkGridBounds::CHUNK_COUNT, BufferUsage::DYNAMIC_DRAW);
-        m_ssbos.globalChunkGridsSSBO.init(VoxelChunk::GRID_VOXEL_COUNT * ChunkGridBounds::CHUNK_COUNT, BufferUsage::DYNAMIC_DRAW);
-        m_ssbos.drawIdToDataSSBO.init(254 * ChunkGridBounds::CHUNK_COUNT, BufferUsage::DYNAMIC_DRAW);
-
-        m_shader = new Shader("Shader/marchingCubesAllInOne.vert", "Shader/marchingCubes.frag");
-        
-        glCreateBuffers(1, &m_commandBuffer);
-        constexpr GLuint byteSize = sizeof(engine::DrawArraysIndirectCommand) * 254 * ChunkGridBounds::CHUNK_COUNT;
-        glNamedBufferData(m_commandBuffer, byteSize, NULL, GL_DYNAMIC_DRAW);
+        m_render = new MarchingCubesRenderBigBuffer(m_grid, m_gridBounds, m_gridVisibility, m_ssbos);
+        m_render->initSSBOs(m_ssbos);
 
         m_grid.initChunkLocationsInSSBO();
     }
 }
 
 void engine::MarchingCubesManager::draw(const CameraVars &cameraVars, Frustum frustum) {
-    if (m_usingGlobalChunkSSBO) {
-        drawAllInOne(cameraVars, frustum);
-    }
-    else {
-        drawBatches(cameraVars, frustum);
-    }
-}
-
-void engine::MarchingCubesManager::drawAllInOne(const CameraVars &cameraVars, Frustum frustum) {
-    m_shader->use();
-    m_textures.use();
-
-    m_ssbos.globalChunkGridsSSBO.bind(SSBO_BLOCK__GLOBAL_CHUNK_GRIDS_STORAGE);
-    m_ssbos.globalChunkSSBO.bind(SSBO_BLOCK__GLOBAL_CHUNK_STORAGE);
-    m_ssbos.chunkPositionsSSBO.bind(SSBO_BLOCK__CHUNK_POSITIONS);
-    m_marchingCubes.bindSSBO(SSBO_BLOCK__VOXEL_VERTECES_DATA_IDS);
-    m_ssbos.drawIdToDataSSBO.bind(SSBO_BLOCK__DRAW_ID_TO_CHUNK);
-
-    m_gridVisibility.clearResults();
-    m_gridVisibility.checkVisibility(
-        cameraVars.cameraPosition, cameraVars.cameraTarget, frustum, ChunkGridVisibility::VisabilityType::CAMERA, m_grid
-    );
-
-    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_commandBuffer);
-    GLsizei drawCount = 0;
-    unsigned int gridWidth = m_gridBounds.usedChunkGridWidth;
-    for (size_t z = 0; z < gridWidth; z++){
-        for (size_t x = 0; x < gridWidth; x++){
-            for (size_t y = 0; y < m_gridBounds.CHUNK_MAX_Y_SIZE; y++){
-                VoxelChunk& chunk = m_grid.getChunk(x, y, z);
-
-                if (chunk.getDrawCommandsCount() == 0 || !m_grid.isHaveChunk(x, y, z)) continue;
-                if (!m_gridVisibility.isVisible(x, y, z, ChunkGridVisibility::VisabilityType::CAMERA)) continue;
-
-                auto& chunkDrawCommands = chunk.getDrawCommands();
-                GLsizei chunkDrawCount = chunk.getDrawCommandsCount();
-                for (int i = 0; i < chunkDrawCount; i++) {
-                    m_drawCommands[drawCount + i] = chunkDrawCommands[i];
-                    GLuint chunkId = chunk.getIdInSSBO();
-                    m_drawBufferRefs[drawCount + i] = chunkId;
-                }
-                drawCount += chunkDrawCount;
-            }
-        }
-    }
-    int commandBufferSize = drawCount * sizeof(DrawArraysIndirectCommand);
-    glNamedBufferSubData(m_commandBuffer, 0, commandBufferSize, &m_drawCommands[0]);
-    m_ssbos.drawIdToDataSSBO.pushData(&m_drawBufferRefs[0], drawCount);
-    m_marchingCubes.draw(drawCount);
-}
-
-void engine::MarchingCubesManager::drawBatches(const CameraVars& cameraVars, Frustum frustum) {
-    m_shader->use();
-    m_textures.use();
-
-    m_marchingCubes.bindSSBO(SSBO_BLOCK__VOXEL_VERTECES_DATA_IDS);
-    m_ssbos.drawIdToDataSSBO.bind(SSBO_BLOCK__DRAW_ID_TO_CHUNK);
-
-    //glm::vec3 debugCameraPos = cameraVars.cameraPosition; debugCameraPos.y = 1.f;
-    m_gridVisibility.clearResults();
-    m_gridVisibility.checkVisibility(
-        cameraVars.cameraPosition, cameraVars.cameraTarget, frustum, ChunkGridVisibility::VisabilityType::CAMERA, m_grid
-    );
-    /*m_gridVisibility.checkVisibility(
-        debugCameraPos, cameraVars.cameraTarget, frustum, ChunkGridVisibility::VisabilityType::CAMERA, m_grid
-    );*/
-
-    unsigned int gridWidth = m_gridBounds.usedChunkGridWidth;
-
-    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_commandBuffer);
-    GLuint bufferIndex = 0;
-    GLsizei drawCount = 0;
-    for (size_t z = 0; z < gridWidth; z++){
-        for (size_t x = 0; x < gridWidth; x++){
-            for (size_t y = 0; y < m_gridBounds.CHUNK_MAX_Y_SIZE; y++){
-                VoxelChunk& chunk = m_grid.getChunk(x, y, z);
-
-                if (chunk.getDrawCommandsCount() == 0 || !m_grid.isHaveChunk(x, y, z)) continue;
-                if (!m_gridVisibility.isVisible(x, y, z, ChunkGridVisibility::VisabilityType::CAMERA)) continue;
-
-                glm::ivec2 worldChunkPos = m_converter.localChunkToWorldChunkPosition(x, z, m_gridBounds.currentOriginChunk.x, m_gridBounds.currentOriginChunk.y);
-                unsigned int height = y * m_gridBounds.CHUNCK_DIMENSION_SIZE;
-                m_drawChunkPositions[bufferIndex] = glm::vec4(
-                    worldChunkPos.x * m_gridBounds.CHUNCK_DIMENSION_SIZE, 
-                    height, 
-                    worldChunkPos.y * m_gridBounds.CHUNCK_DIMENSION_SIZE,
-                    0
-                );
-
-                auto& chunkDrawCommands = chunk.getDrawCommands();
-                GLsizei chunkDrawCount = chunk.getDrawCommandsCount();
-                for (int i = 0; i < chunkDrawCount; i++) {
-                    m_drawCommands[drawCount + i] = chunkDrawCommands[i];
-                    m_drawBufferRefs[drawCount + i] = bufferIndex;
-                }
-                chunk.bindCubesToDrawSSBO(bufferIndex * 2);
-                chunk.bindVoxelGridSSBO(bufferIndex * 2 + 1);
-                bufferIndex++;
-                drawCount += chunkDrawCount;
-
-                if (bufferIndex >= CHUNK_BATCH_MAX_SIZE) {
-                    drawAccumulatedBatches(drawCount);
-
-                    bufferIndex = 0;
-                    drawCount = 0;
-                }
-            }
-        }
-    }
-    drawAccumulatedBatches(drawCount);
-}
-
-void engine::MarchingCubesManager::drawAccumulatedBatches(GLsizei drawCount) {
-    int commandBufferSize = drawCount * sizeof(DrawArraysIndirectCommand);
-    glNamedBufferSubData(m_commandBuffer, 0, commandBufferSize, &m_drawCommands[0]);
-
-    m_ssbos.drawIdToDataSSBO.pushData(&m_drawBufferRefs[0], drawCount);
-    UniformManager::setChunkPositions(m_drawChunkPositions);
-
-    m_marchingCubes.draw(drawCount);
+    m_render->drawSolid(cameraVars, frustum, m_marchingCubes);
 }
 
 bool engine::MarchingCubesManager::raycastVoxel(const glm::vec3& position, const glm::vec3& direction, float maxDistance, glm::ivec3& hitPosition, glm::ivec3& hitFace) {
