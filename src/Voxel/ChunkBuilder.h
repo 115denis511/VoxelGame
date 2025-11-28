@@ -11,9 +11,9 @@
 #include "VoxelPositionConverter.h"
 
 namespace engine {
-    class MarchingCubesSolver {
+    class ChunkBuilder {
     public:
-        MarchingCubesSolver();
+        ChunkBuilder();
 
         void regenerateChunk(
             MarchingCubes& marchingCubes, 

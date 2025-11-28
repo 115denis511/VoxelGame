@@ -11,7 +11,6 @@
 #include "MarchingCubesRenderBase.h"
 #include "MarchingCubesRenderBigBuffer.h"
 #include "MarchingCubesRenderSmallBuffers.h"
-#include "MarchingCubesSolver.h"
 #include "MarchingCubesSSBOs.h"
 #include "VoxelChunk.h"
 #include "VoxelPositionConverter.h"
@@ -59,7 +58,6 @@ namespace engine {
 
         MarchingCubes m_marchingCubes;
         MarchingCubesRenderBase* m_render{ nullptr };
-        MarchingCubesSolver m_solver;
         MarchingCubesSSBOs m_ssbos;
         VoxelPositionConverter m_converter;
         ChunkGridBounds m_gridBounds;

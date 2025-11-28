@@ -61,7 +61,7 @@ void engine::ChunkGridChanger::updateChunks(
         VoxelChunk& chunk = m_grid.getChunk(id);
         if (!chunk.isInUse()) { continue; }
 
-        m_solver.regenerateChunk(marchingCubes, m_grid, chunk, globalChunkSSBO, globalChunkGridsSSBO);
+        m_chunkBuilder.regenerateChunk(marchingCubes, m_grid, chunk, globalChunkSSBO, globalChunkGridsSSBO);
     }
 }
 

@@ -3,11 +3,11 @@
 
 #include "../stdafx.h"
 #include "../Render/ShaderStorageBuffer.h"
+#include "ChunkBuilder.h"
 #include "ChunkGrid.h"
 #include "ChunkGridBounds.h"
 #include "IChunkLoader.h"
 #include "MarchingCubes.h"
-#include "MarchingCubesSolver.h"
 #include "VoxelChunk.h"
 #include "VoxelPositionConverter.h"
 
@@ -35,7 +35,7 @@ namespace engine {
         std::vector<size_t> m_toUpdateQueue;
         bool m_isToUpdateQueueNeedSort{ false };
         std::vector<glm::ivec2> m_toGenerateQueue;
-        MarchingCubesSolver m_solver;
+        ChunkBuilder m_chunkBuilder;
         IChunkLoader* m_loader{ new NullChunkLoader() };
 
         void refineChunkBorders(ChunkGridBounds& gridBounds, glm::ivec2 localPos);

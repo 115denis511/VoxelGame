@@ -1,10 +1,10 @@
-#include "MarchingCubesSolver.h"
+#include "ChunkBuilder.h"
 
-engine::MarchingCubesSolver::MarchingCubesSolver() {
+engine::ChunkBuilder::ChunkBuilder() {
     clear();
 }
 
-void engine::MarchingCubesSolver::regenerateChunk(
+void engine::ChunkBuilder::regenerateChunk(
     MarchingCubes &marchingCubes, 
     ChunkGrid& grid,
     VoxelChunk &chunk, 
@@ -63,13 +63,13 @@ void engine::MarchingCubesSolver::regenerateChunk(
         case GL_OUT_OF_MEMORY:                 error = "OUT_OF_MEMORY"; break;
         case GL_INVALID_FRAMEBUFFER_OPERATION: error = "INVALID_FRAMEBUFFER_OPERATION"; break;
         }
-        std::cout << "MarchingCubesSolver: " << error << std::endl;
+        std::cout << "ChunkBuilder: " << error << std::endl;
     }
 
     clear();
 }
 
-void engine::MarchingCubesSolver::accumulateCases(MarchingCubes &marchingCubes, ChunkGrid &grid, VoxelChunk &chunk) {
+void engine::ChunkBuilder::accumulateCases(MarchingCubes &marchingCubes, ChunkGrid &grid, VoxelChunk &chunk) {
     constexpr int MARCHING_CUBES_COUNT = 32;
 
     // Определение количества отрисовок для каждой из фигур марширующих кубов и
@@ -93,7 +93,7 @@ void engine::MarchingCubesSolver::accumulateCases(MarchingCubes &marchingCubes, 
     }
 }
 
-void engine::MarchingCubesSolver::clear() {
+void engine::ChunkBuilder::clear() {
     m_cubesCount = 0;
 
     for (std::vector<GLuint>& caseBuffer : m_caseData) {
@@ -101,7 +101,7 @@ void engine::MarchingCubesSolver::clear() {
     }
 }
 
-void engine::MarchingCubesSolver::addMarchingCube(MarchingCubes& marchingCubes, std::array<Voxel, 8> &voxels, int x, int y, int z) {
+void engine::ChunkBuilder::addMarchingCube(MarchingCubes& marchingCubes, std::array<Voxel, 8> &voxels, int x, int y, int z) {
     uint8_t caseId = getCaseIndex(voxels);
     if (caseId == 0 || caseId == 255) return;
 
@@ -110,7 +110,7 @@ void engine::MarchingCubesSolver::addMarchingCube(MarchingCubes& marchingCubes, 
     m_cubesCount++;
 }
 
-uint8_t engine::MarchingCubesSolver::getCaseIndex(std::array<Voxel, 8>& voxels) {
+uint8_t engine::ChunkBuilder::getCaseIndex(std::array<Voxel, 8>& voxels) {
     uint8_t caseId = voxels[0].isHaveSolid();
     caseId |= voxels[1].isHaveSolid() << 1;
     caseId |= voxels[2].isHaveSolid() << 2;
@@ -122,7 +122,7 @@ uint8_t engine::MarchingCubesSolver::getCaseIndex(std::array<Voxel, 8>& voxels) 
     return caseId;
 }
 
-GLuint engine::MarchingCubesSolver::packData(int x, int y, int z) {
+GLuint engine::ChunkBuilder::packData(int x, int y, int z) {
     int left = x;
     left <<= 5;
     left |= y;
