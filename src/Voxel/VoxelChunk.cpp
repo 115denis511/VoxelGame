@@ -15,6 +15,12 @@ void engine::VoxelChunk::addDrawCommand(const engine::DrawArraysIndirectCommand 
     m_drawCount++;
 }
 
+void engine::VoxelChunk::addLiquidsDrawCommand(const DrawArraysIndirectCommand &command) {
+    assert(m_liquidsDrawCount < static_cast<int>(m_drawCommands.size()) && "ASSERT ERROR! - Adding more commands than liquid cubes draw commands buffer can store!");
+    m_liquidsDrawCommands[m_liquidsDrawCount] = command;
+    m_liquidsDrawCount++;
+}
+
 void engine::VoxelChunk::saveVisibilityStates(ChunkVisibilityState& visibilityStates) {
     constexpr uint32_t sidesCount = ChunkVisibilityState::getSidesCount();
     for (uint32_t i = 0; i < sidesCount; i++) {

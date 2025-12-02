@@ -80,6 +80,13 @@ void engine::Core::start(ISceneLogic* sceneLogic) {
     marching->setVoxelTexture(1, "bricksx64.png");
     marching->setVoxelTexture(2, glm::vec4(1.f, 0.3f, 0.2f, 1.f));
     marching->setVoxelTexture(3, "seamless_rock.png");
+    // Water test
+    marching->setVoxelTexture(4, "water_a.png");
+    marching->setVoxelTexture(5, glm::vec4(1.f, 0.0f, 0.0f, 1.f));
+    marching->setVoxelTexture(6, glm::vec4(0.f, 1.0f, 0.0f, 1.f));
+    marching->setVoxelTexture(7, glm::vec4(0.f, 0.0f, 1.0f, 1.f));
+    marching->setVoxelTexture(8, glm::vec4(1.f, 0.0f, 1.0f, 1.f));
+    marching->setVoxelTexture(9, glm::vec4(0.f, 1.0f, 1.0f, 1.f));
     marching->endTextureEditing();
 
     int errors = 0;

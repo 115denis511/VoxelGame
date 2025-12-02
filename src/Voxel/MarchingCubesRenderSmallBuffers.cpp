@@ -9,7 +9,9 @@ engine::MarchingCubesRenderSmallBuffers::MarchingCubesRenderSmallBuffers(
     MarchingCubesRenderBase(
         CHUNK_BATCH_MAX_SIZE,
         "Shader/marchingCubes.vert",
-        "Shader/marchingCubes.frag"
+        "Shader/marchingCubes.frag",
+        "PLACEHOLDER",
+        "Shader/marchingCubesLiquid.frag"
     ), 
     m_grid(grid), 
     m_gridBounds(gridBounds), 

@@ -15,17 +15,42 @@ void engine::ChunkBuilder::regenerateChunk(
 
     // Сборка коммандного буфера
     chunk.clearDrawCommands();
-    std::vector<GLuint> dataBuffer;
-    dataBuffer.reserve(m_cubesCount);
+    std::vector<GLuint> dataBuffer(std::max(m_solidCubesCount, m_liquidCubesCount)); // TODO: Данный буфер не должен пересоздаваться каждый вызов методв
+
+    // Твёрдые воксели
     int baseIndex = 0;
+    int dataIndex = 0;
     for (int i = 1; i < 255; i++) {
-        if (m_caseData[i].size() == 0) continue;
-        dataBuffer.insert(dataBuffer.end(), m_caseData[i].begin(), m_caseData[i].end());
+        if (m_solidCaseData[i].size() == 0) continue;
+
+        for (GLuint caseData : m_solidCaseData[i]) {
+            dataBuffer[dataIndex] = caseData;
+            dataIndex++;
+        }
+
         DrawArraysIndirectCommand command = marchingCubes.getCommandTemplate(i);
-        command.instanceCount = m_caseData[i].size();
+        command.instanceCount = m_solidCaseData[i].size();
         command.baseInstance = baseIndex;
-        baseIndex += m_caseData[i].size();
+        baseIndex += m_solidCaseData[i].size();
         chunk.addDrawCommand(command);
+    }
+
+    // Жидкие воксели
+    baseIndex = 0;
+    dataIndex = 0;
+    for (int i = 1; i < 255; i++) {
+        if (m_liquidCaseData[i].size() == 0) continue;
+
+        for (GLuint caseData : m_liquidCaseData[i]) {
+            dataBuffer[dataIndex] |= (caseData << 15);
+            dataIndex++;
+        }
+
+        DrawArraysIndirectCommand command = marchingCubes.getCommandTemplate(i);
+        command.instanceCount = m_liquidCaseData[i].size();
+        command.baseInstance = baseIndex;
+        baseIndex += m_liquidCaseData[i].size();
+        chunk.addLiquidsDrawCommand(command);
     }
 
     if (chunk.getDrawCommandsCount() != 0) {
@@ -94,23 +119,32 @@ void engine::ChunkBuilder::accumulateCases(MarchingCubes &marchingCubes, ChunkGr
 }
 
 void engine::ChunkBuilder::clear() {
-    m_cubesCount = 0;
+    m_solidCubesCount = 0;
+    m_liquidCubesCount = 0;
 
-    for (std::vector<GLuint>& caseBuffer : m_caseData) {
-        caseBuffer.clear();
+    for (int i = 0; i < CASE_COUNT; i++) {
+        m_solidCaseData[i].clear();
+        m_liquidCaseData[i].clear();
     }
 }
 
 void engine::ChunkBuilder::addMarchingCube(MarchingCubes& marchingCubes, std::array<Voxel, 8> &voxels, int x, int y, int z) {
-    uint8_t caseId = getCaseIndex(voxels);
-    if (caseId == 0 || caseId == 255) return;
+    uint8_t caseId = getSolidCaseIndex(voxels);
+    if (caseId != 0 || caseId != 255) {
+        GLuint caseData = packData(x, y, z);
+        m_solidCaseData[caseId].push_back(caseData);
+        m_solidCubesCount++;
+    }
 
-    GLuint caseData = packData(x, y, z);
-    m_caseData[caseId].push_back(caseData);
-    m_cubesCount++;
+    uint8_t liquidCaseId = getLiquidCaseIndex(voxels);
+    if (liquidCaseId != 0 || liquidCaseId != 255) {
+        GLuint caseData = packData(x, y, z);
+        m_liquidCaseData[liquidCaseId].push_back(caseData);
+        m_liquidCubesCount++;
+    }
 }
 
-uint8_t engine::ChunkBuilder::getCaseIndex(std::array<Voxel, 8>& voxels) {
+uint8_t engine::ChunkBuilder::getSolidCaseIndex(std::array<Voxel, 8>& voxels) {
     uint8_t caseId = voxels[0].isHaveSolid();
     caseId |= voxels[1].isHaveSolid() << 1;
     caseId |= voxels[2].isHaveSolid() << 2;
@@ -119,6 +153,33 @@ uint8_t engine::ChunkBuilder::getCaseIndex(std::array<Voxel, 8>& voxels) {
     caseId |= voxels[5].isHaveSolid() << 5;
     caseId |= voxels[6].isHaveSolid() << 6;
     caseId |= voxels[7].isHaveSolid() << 7;
+    return caseId;
+}
+
+uint8_t engine::ChunkBuilder::getLiquidCaseIndex(std::array<Voxel,8>& voxels) {
+    bool cube[8] = { 
+        voxels[0].isHaveWater() , voxels[1].isHaveWater(), voxels[2].isHaveWater(), voxels[3].isHaveWater(), 
+        voxels[4].isHaveWater() , voxels[5].isHaveWater(), voxels[6].isHaveWater(), voxels[7].isHaveWater()
+    };
+    
+    if (voxels[0].isHaveSolid()) cube[0] |= voxels[1].isHaveWater() || voxels[3].isHaveWater();
+    if (voxels[1].isHaveSolid()) cube[1] |= voxels[0].isHaveWater() || voxels[2].isHaveWater();
+    if (voxels[2].isHaveSolid()) cube[2] |= voxels[1].isHaveWater() || voxels[3].isHaveWater();
+    if (voxels[3].isHaveSolid()) cube[3] |= voxels[0].isHaveWater() || voxels[2].isHaveWater();
+
+    if (voxels[4].isHaveSolid()) cube[4] |= voxels[5].isHaveWater() || voxels[7].isHaveWater();
+    if (voxels[5].isHaveSolid()) cube[5] |= voxels[4].isHaveWater() || voxels[6].isHaveWater();
+    if (voxels[6].isHaveSolid()) cube[6] |= voxels[5].isHaveWater() || voxels[7].isHaveWater();
+    if (voxels[7].isHaveSolid()) cube[7] |= voxels[4].isHaveWater() || voxels[6].isHaveWater();
+
+    uint8_t caseId = cube[0];
+    caseId |= cube[1] << 1;
+    caseId |= cube[2] << 2;
+    caseId |= cube[3] << 3;
+    caseId |= cube[4] << 4;
+    caseId |= cube[5] << 5;
+    caseId |= cube[6] << 6;
+    caseId |= cube[7] << 7;
     return caseId;
 }
 

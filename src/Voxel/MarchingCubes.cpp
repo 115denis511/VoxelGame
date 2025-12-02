@@ -1558,7 +1558,16 @@ inline void engine::MarchingCubes::addTriangle(const glm::vec3 &v0, const glm::v
             }
         }
     }
-    triangleData.figureIds = glm::uvec4((unsigned int)v0data.id, (unsigned int)v1data.id, (unsigned int)v2data.id, 0);
+    
+    unsigned int v0DirDown = v0data.direction == 3;
+    unsigned int v1DirDown = (v1data.direction == 3) << 1;
+    unsigned int v2DirDown = (v2data.direction == 3) << 2;
+    triangleData.figureIds = glm::uvec4(
+        (unsigned int)v0data.id, 
+        (unsigned int)v1data.id, 
+        (unsigned int)v2data.id, 
+        v0DirDown | v1DirDown | v2DirDown
+    );
 
     m_trianglesData.emplace_back(triangleData);
 }

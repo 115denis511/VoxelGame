@@ -8,8 +8,8 @@
 class ExampleWorldGenerator : public engine::IChunkLoader {
 public:
     virtual void load(const glm::ivec2& worldChunkPosition, std::array<engine::VoxelChunkBase*, 8>& chunkSlice) override {
-        //makeTestTerrain(worldChunkPosition, chunkSlice);
-        makePerlinNoiseTerrain(worldChunkPosition, chunkSlice);
+        makeTestTerrain(worldChunkPosition, chunkSlice);
+        //makePerlinNoiseTerrain(worldChunkPosition, chunkSlice);
     }
 
     void makePerlinNoiseTerrain(const glm::ivec2& worldChunkPosition, std::array<engine::VoxelChunkBase*, 8>& chunkSlice) {
@@ -59,6 +59,24 @@ public:
             for (size_t y = 0; y < 32; y++) {
                 for (size_t z = 0; z < 32; z++) {
                     chunkSlice[0]->setVoxel(25,y,z, 1);
+                }
+            }
+        }
+        else if (worldChunkPosition.x == 2 && worldChunkPosition.y == -3) {
+            for (int y = 2; y < 10; y++) chunkSlice[0]->setVoxel(10,y,10, 1);
+            for (int x = 8; x < 10; x++) {
+                chunkSlice[0]->setVoxel(x,5,10, 5, 2, engine::Voxel::Type::WATER);
+                chunkSlice[0]->setVoxel(x + 3,5,10, 6, 2, engine::Voxel::Type::WATER);
+
+                chunkSlice[0]->setVoxel(10,5,x, 7, 2, engine::Voxel::Type::WATER);
+                chunkSlice[0]->setVoxel(10,5,x + 3, 6, 2, engine::Voxel::Type::WATER);
+
+                for (int z = 8; z < 10; z++) {
+                    chunkSlice[0]->setVoxel(x,5,z, 8, 2, engine::Voxel::Type::WATER);
+                    chunkSlice[0]->setVoxel(x + 3,5,z, 8, 2, engine::Voxel::Type::WATER);
+
+                    chunkSlice[0]->setVoxel(x,5,z + 3, 9, 2, engine::Voxel::Type::WATER);
+                    chunkSlice[0]->setVoxel(x + 3,5,z + 3, 9, 2, engine::Voxel::Type::WATER);
                 }
             }
         }

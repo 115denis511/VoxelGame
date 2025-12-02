@@ -24,10 +24,16 @@ namespace engine {
         void bindVoxelGridSSBO(GLuint blockId) { m_ssbo.voxelGrid.bind(blockId); }
         const GLuint getIdInSSBO() { return m_idInSSBO; };
         void pushDataInSSBO(std::vector<GLuint>& casesData);
-        void addDrawCommand(const DrawArraysIndirectCommand& command);
+        void addDrawCommand(const DrawArraysIndirectCommand& command); // rename it
+        void addLiquidsDrawCommand(const DrawArraysIndirectCommand& command);
         const std::array<DrawArraysIndirectCommand, 254>& getDrawCommands() { return m_drawCommands; }
+        const std::array<DrawArraysIndirectCommand, 254>& getLiquidsDrawCommands() { return m_liquidsDrawCommands; }
         const int getDrawCommandsCount() { return m_drawCount; };
-        void clearDrawCommands() { m_drawCount = 0; };
+        const int getLiquidsDrawCommandsCount() { return m_liquidsDrawCount; };
+        void clearDrawCommands() { 
+            m_drawCount = 0; 
+            m_liquidsDrawCount = 0;
+        };
         bool isInUpdateQueue() { return m_isInUpdateQueue; };
         bool isInUse() { return m_isInUse; };
         bool isVisibleThrough(ChunkVisibilityState::Side from, ChunkVisibilityState::Side to) { return m_visibilityStates[static_cast<int>(from)].isVisible(to); };
@@ -37,7 +43,9 @@ namespace engine {
 
     private:
         std::array<DrawArraysIndirectCommand, 254> m_drawCommands;
+        std::array<DrawArraysIndirectCommand, 254> m_liquidsDrawCommands;
         int m_drawCount{ 0 };
+        int m_liquidsDrawCount{ 0 };
         bool m_isInUpdateQueue{ false };
         bool m_isInUse{ false };
         ChunkVisibilityState m_visibilityStates[ChunkVisibilityState::getSidesCount() + 1];
