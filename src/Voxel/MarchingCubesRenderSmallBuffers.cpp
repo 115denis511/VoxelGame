@@ -26,7 +26,7 @@ void engine::MarchingCubesRenderSmallBuffers::initSSBOs(MarchingCubesSSBOs &ssbo
 }
 
 void engine::MarchingCubesRenderSmallBuffers::drawSolid(const CameraVars &cameraVars, Frustum frustum, MarchingCubes &marchingCubes) {
-    m_shaderSolid->use();
+    m_shaderSolids->use();
     m_textures.use();
 
     marchingCubes.bindSSBO(SSBO_BLOCK__VOXEL_VERTECES_DATA_IDS);
@@ -63,8 +63,8 @@ void engine::MarchingCubesRenderSmallBuffers::drawSolid(const CameraVars &camera
                 auto& chunkDrawCommands = chunk.getDrawCommands();
                 GLsizei chunkDrawCount = chunk.getDrawCommandsCount();
                 for (int i = 0; i < chunkDrawCount; i++) {
-                    m_drawCommands[drawCount + i] = chunkDrawCommands[i];
-                    m_drawBufferRefs[drawCount + i] = bufferIndex;
+                    m_solidsDrawCommands[drawCount + i] = chunkDrawCommands[i];
+                    m_solidsDrawBufferRefs[drawCount + i] = bufferIndex;
                 }
                 chunk.bindCubesToDrawSSBO(bufferIndex * 2);
                 chunk.bindVoxelGridSSBO(bufferIndex * 2 + 1);
@@ -85,9 +85,9 @@ void engine::MarchingCubesRenderSmallBuffers::drawSolid(const CameraVars &camera
 
 void engine::MarchingCubesRenderSmallBuffers::drawAccumulatedBatches(MarchingCubes &marchingCubes, GLsizei drawCount) {
     int commandBufferSize = drawCount * sizeof(DrawArraysIndirectCommand);
-    glNamedBufferSubData(m_commandBuffer, 0, commandBufferSize, &m_drawCommands[0]);
+    glNamedBufferSubData(m_commandBuffer, 0, commandBufferSize, &m_solidsDrawCommands[0]);
 
-    m_ssbos.drawIdToDataSSBO.pushData(&m_drawBufferRefs[0], drawCount);
+    m_ssbos.drawIdToDataSSBO.pushData(&m_solidsDrawBufferRefs[0], drawCount);
     UniformManager::setChunkPositions(m_drawChunkPositions);
 
     marchingCubes.draw(drawCount);

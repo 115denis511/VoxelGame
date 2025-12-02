@@ -27,18 +27,18 @@ namespace engine {
     protected:
         MarchingCubesRenderBase(
             GLuint maxChunksPerDraw,
-            const GLchar* shaderSolidVertPath, 
-            const GLchar* shaderSolidFragPath,
-            const GLchar* shaderLiquidVertPath, 
-            const GLchar* shaderLiquidFragPath
+            const GLchar* shaderSolidsVertPath, 
+            const GLchar* shaderSolidsFragPath,
+            const GLchar* shaderLiquidsVertPath, 
+            const GLchar* shaderLiquidsFragPath
         );
 
-        std::vector<DrawArraysIndirectCommand> m_drawCommands;
+        std::vector<DrawArraysIndirectCommand> m_solidsDrawCommands;
         std::vector<DrawArraysIndirectCommand> m_liquidsDrawCommands;
-        std::vector<GLuint> m_drawBufferRefs;
+        std::vector<GLuint> m_solidsDrawBufferRefs;
         std::vector<GLuint> m_liquidsDrawBufferRefs;
-        Shader* m_shaderSolid{ nullptr };
-        Shader* m_shaderLiquid{ nullptr };
+        Shader* m_shaderSolids{ nullptr };
+        Shader* m_shaderLiquids{ nullptr };
         VoxelTextures m_textures;
         GLuint m_commandBuffer;
     };

@@ -3,28 +3,28 @@
 engine::MarchingCubesRenderBase::~MarchingCubesRenderBase() {
     glDeleteBuffers(1, &m_commandBuffer);
 
-    if (m_shaderSolid != nullptr) delete m_shaderSolid;
-    if (m_shaderLiquid != nullptr) delete m_shaderLiquid;
+    if (m_shaderSolids != nullptr) delete m_shaderSolids;
+    if (m_shaderLiquids != nullptr) delete m_shaderLiquids;
 }
 
 engine::MarchingCubesRenderBase::MarchingCubesRenderBase(
     GLuint maxChunksPerDraw,
-    const GLchar* shaderSolidVertPath, 
-    const GLchar* shaderSolidFragPath,
-    const GLchar* shaderLiquidVertPath, 
-    const GLchar* shaderLiquidFragPath
+    const GLchar* shaderSolidsVertPath, 
+    const GLchar* shaderSolidsFragPath,
+    const GLchar* shaderLiquidsVertPath, 
+    const GLchar* shaderLiquidsFragPath
 ) {
-    m_drawCommands.resize(254 * maxChunksPerDraw);
+    m_solidsDrawCommands.resize(254 * maxChunksPerDraw);
     m_liquidsDrawCommands.resize(254 * maxChunksPerDraw);
-    m_drawBufferRefs.resize(254 * maxChunksPerDraw);
+    m_solidsDrawBufferRefs.resize(254 * maxChunksPerDraw);
     m_liquidsDrawBufferRefs.resize(254 * maxChunksPerDraw);
 
     glCreateBuffers(1, &m_commandBuffer);
     GLuint byteSize = sizeof(engine::DrawArraysIndirectCommand) * 254 * maxChunksPerDraw;
     glNamedBufferData(m_commandBuffer, byteSize, NULL, GL_DYNAMIC_DRAW);
 
-    m_shaderSolid = new Shader(shaderSolidVertPath, shaderSolidFragPath);
-    m_shaderLiquid = new Shader(shaderLiquidVertPath, shaderLiquidFragPath);
+    m_shaderSolids = new Shader(shaderSolidsVertPath, shaderSolidsFragPath);
+    m_shaderLiquids = new Shader(shaderLiquidsVertPath, shaderLiquidsFragPath);
 }
 
 bool engine::MarchingCubesRenderBase::setVoxelTexture(int layer, unsigned char *rawImage, int width, int height, int nrComponents) {

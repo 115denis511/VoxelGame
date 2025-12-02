@@ -41,7 +41,7 @@ void engine::MarchingCubesRenderBigBuffer::drawSolid(const CameraVars &cameraVar
     );
     
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_commandBuffer);
-    GLsizei drawCount = 0;
+    GLsizei solidsDrawCount = 0;
     GLsizei liquidsDrawCount = 0;
     unsigned int gridWidth = m_gridBounds.usedChunkGridWidth;
     for (size_t z = 0; z < gridWidth; z++){
@@ -53,18 +53,18 @@ void engine::MarchingCubesRenderBigBuffer::drawSolid(const CameraVars &cameraVar
                 if (!m_gridVisibility.isVisible(x, y, z, ChunkGridVisibility::VisabilityType::CAMERA)) continue;
                 
                 auto& chunkDrawCommands = chunk.getDrawCommands();
-                GLsizei chunkDrawCount = chunk.getDrawCommandsCount();
-                for (int i = 0; i < chunkDrawCount; i++) {
-                    m_drawCommands[drawCount + i] = chunkDrawCommands[i];
+                GLsizei chunkSolidsDrawCount = chunk.getDrawCommandsCount();
+                for (int i = 0; i < chunkSolidsDrawCount; i++) {
+                    m_solidsDrawCommands[solidsDrawCount + i] = chunkDrawCommands[i];
                     GLuint chunkId = chunk.getIdInSSBO();
-                    m_drawBufferRefs[drawCount + i] = chunkId;
+                    m_solidsDrawBufferRefs[solidsDrawCount + i] = chunkId;
                 }
-                drawCount += chunkDrawCount;
+                solidsDrawCount += chunkSolidsDrawCount;
                 
-                auto& chunkLiquidDrawCommand = chunk.getLiquidsDrawCommands();
+                auto& chunkLiquidDrawCommands = chunk.getLiquidsDrawCommands();
                 GLsizei chunkLiquidsDrawCount = chunk.getLiquidsDrawCommandsCount();
                 for (int i = 0; i < chunkLiquidsDrawCount; i++) {
-                    m_liquidsDrawCommands[liquidsDrawCount + i] = chunkLiquidDrawCommand[i];
+                    m_liquidsDrawCommands[liquidsDrawCount + i] = chunkLiquidDrawCommands[i];
                     GLuint chunkId = chunk.getIdInSSBO();
                     m_liquidsDrawBufferRefs[liquidsDrawCount + i] = chunkId;
                 }
@@ -73,13 +73,13 @@ void engine::MarchingCubesRenderBigBuffer::drawSolid(const CameraVars &cameraVar
         }
     }
 
-    m_shaderSolid->use();
-    int commandBufferSize = drawCount * sizeof(DrawArraysIndirectCommand);
-    glNamedBufferSubData(m_commandBuffer, 0, commandBufferSize, &m_drawCommands[0]);
-    m_ssbos.drawIdToDataSSBO.pushData(&m_drawBufferRefs[0], drawCount);
-    marchingCubes.draw(drawCount);
+    m_shaderSolids->use();
+    int commandBufferSize = solidsDrawCount * sizeof(DrawArraysIndirectCommand);
+    glNamedBufferSubData(m_commandBuffer, 0, commandBufferSize, &m_solidsDrawCommands[0]);
+    m_ssbos.drawIdToDataSSBO.pushData(&m_solidsDrawBufferRefs[0], solidsDrawCount);
+    marchingCubes.draw(solidsDrawCount);
     
-    m_shaderLiquid->use();
+    m_shaderLiquids->use();
     commandBufferSize = liquidsDrawCount * sizeof(DrawArraysIndirectCommand);
     glNamedBufferSubData(m_commandBuffer, 0, commandBufferSize, &m_liquidsDrawCommands[0]);
     m_ssbos.drawIdToDataSSBO.pushData(&m_liquidsDrawBufferRefs[0], liquidsDrawCount);
