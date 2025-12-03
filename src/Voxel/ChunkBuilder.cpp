@@ -32,7 +32,7 @@ void engine::ChunkBuilder::regenerateChunk(
         command.instanceCount = m_solidCaseData[i].size();
         command.baseInstance = baseIndex;
         baseIndex += m_solidCaseData[i].size();
-        chunk.addDrawCommand(command);
+        chunk.addSolidsDrawCommand(command);
     }
 
     // Жидкие воксели
@@ -53,7 +53,7 @@ void engine::ChunkBuilder::regenerateChunk(
         chunk.addLiquidsDrawCommand(command);
     }
 
-    if (chunk.getDrawCommandsCount() != 0) {
+    if (chunk.getSolidsDrawCommandsCount() != 0) {
         m_checker.updateVisibilityStates(grid, chunk);
     }
     else {

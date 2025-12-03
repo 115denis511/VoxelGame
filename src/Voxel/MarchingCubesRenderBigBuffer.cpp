@@ -49,11 +49,11 @@ void engine::MarchingCubesRenderBigBuffer::drawSolid(const CameraVars &cameraVar
             for (size_t y = 0; y < m_gridBounds.CHUNK_MAX_Y_SIZE; y++){
                 VoxelChunk& chunk = m_grid.getChunk(x, y, z);
                 
-                if (chunk.getDrawCommandsCount() == 0 || !m_grid.isHaveChunk(x, y, z)) continue;
+                if (chunk.getSolidsDrawCommandsCount() == 0 || !m_grid.isHaveChunk(x, y, z)) continue;
                 if (!m_gridVisibility.isVisible(x, y, z, ChunkGridVisibility::VisabilityType::CAMERA)) continue;
                 
-                auto& chunkDrawCommands = chunk.getDrawCommands();
-                GLsizei chunkSolidsDrawCount = chunk.getDrawCommandsCount();
+                auto& chunkDrawCommands = chunk.getSolidsDrawCommands();
+                GLsizei chunkSolidsDrawCount = chunk.getSolidsDrawCommandsCount();
                 for (int i = 0; i < chunkSolidsDrawCount; i++) {
                     m_solidsDrawCommands[solidsDrawCount + i] = chunkDrawCommands[i];
                     GLuint chunkId = chunk.getIdInSSBO();

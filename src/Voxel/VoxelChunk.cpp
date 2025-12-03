@@ -9,14 +9,14 @@ void engine::VoxelChunk::pushDataInSSBO(std::vector<GLuint> &casesData) {
     m_ssbo.voxelGrid.pushData(m_voxels.getDataPtr(), m_voxels.getSize());
 }
 
-void engine::VoxelChunk::addDrawCommand(const engine::DrawArraysIndirectCommand &command) {
-    assert(m_drawCount < static_cast<int>(m_drawCommands.size()) && "ASSERT ERROR! - Adding more commands in chunk buffer than it can store!");
-    m_drawCommands[m_drawCount] = command;
-    m_drawCount++;
+void engine::VoxelChunk::addSolidsDrawCommand(const engine::DrawArraysIndirectCommand &command) {
+    assert(m_solidsDrawCount < static_cast<int>(m_solidsDrawCommands.size()) && "ASSERT ERROR! - Adding more commands than solid cubes draw commands buffer can store!");
+    m_solidsDrawCommands[m_solidsDrawCount] = command;
+    m_solidsDrawCount++;
 }
 
 void engine::VoxelChunk::addLiquidsDrawCommand(const DrawArraysIndirectCommand &command) {
-    assert(m_liquidsDrawCount < static_cast<int>(m_drawCommands.size()) && "ASSERT ERROR! - Adding more commands than liquid cubes draw commands buffer can store!");
+    assert(m_liquidsDrawCount < static_cast<int>(m_liquidsDrawCommands.size()) && "ASSERT ERROR! - Adding more commands than liquid cubes draw commands buffer can store!");
     m_liquidsDrawCommands[m_liquidsDrawCount] = command;
     m_liquidsDrawCount++;
 }

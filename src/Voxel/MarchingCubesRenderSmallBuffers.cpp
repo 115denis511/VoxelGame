@@ -48,7 +48,7 @@ void engine::MarchingCubesRenderSmallBuffers::drawSolid(const CameraVars &camera
             for (size_t y = 0; y < m_gridBounds.CHUNK_MAX_Y_SIZE; y++){
                 VoxelChunk& chunk = m_grid.getChunk(x, y, z);
 
-                if (chunk.getDrawCommandsCount() == 0 || !m_grid.isHaveChunk(x, y, z)) continue;
+                if (chunk.getSolidsDrawCommandsCount() == 0 || !m_grid.isHaveChunk(x, y, z)) continue;
                 if (!m_gridVisibility.isVisible(x, y, z, ChunkGridVisibility::VisabilityType::CAMERA)) continue;
 
                 glm::ivec2 worldChunkPos = converter.localChunkToWorldChunkPosition(x, z, m_gridBounds.currentOriginChunk.x, m_gridBounds.currentOriginChunk.y);
@@ -60,8 +60,8 @@ void engine::MarchingCubesRenderSmallBuffers::drawSolid(const CameraVars &camera
                     0
                 );
 
-                auto& chunkDrawCommands = chunk.getDrawCommands();
-                GLsizei chunkDrawCount = chunk.getDrawCommandsCount();
+                auto& chunkDrawCommands = chunk.getSolidsDrawCommands();
+                GLsizei chunkDrawCount = chunk.getSolidsDrawCommandsCount();
                 for (int i = 0; i < chunkDrawCount; i++) {
                     m_solidsDrawCommands[drawCount + i] = chunkDrawCommands[i];
                     m_solidsDrawBufferRefs[drawCount + i] = bufferIndex;
