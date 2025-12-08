@@ -158,19 +158,19 @@ uint8_t engine::ChunkBuilder::getSolidCaseIndex(std::array<Voxel, 8>& voxels) {
 
 uint8_t engine::ChunkBuilder::getLiquidCaseIndex(std::array<Voxel,8>& voxels) {
     bool cube[8] = { 
-        voxels[0].isHaveWater() , voxels[1].isHaveWater(), voxels[2].isHaveWater(), voxels[3].isHaveWater(), 
-        voxels[4].isHaveWater() , voxels[5].isHaveWater(), voxels[6].isHaveWater(), voxels[7].isHaveWater()
+        voxels[0].isHaveLiquid() , voxels[1].isHaveLiquid(), voxels[2].isHaveLiquid(), voxels[3].isHaveLiquid(), 
+        voxels[4].isHaveLiquid() , voxels[5].isHaveLiquid(), voxels[6].isHaveLiquid(), voxels[7].isHaveLiquid()
     };
     
-    if (voxels[0].isHaveSolid()) cube[0] |= voxels[1].isHaveWater() || voxels[3].isHaveWater();
-    if (voxels[1].isHaveSolid()) cube[1] |= voxels[0].isHaveWater() || voxels[2].isHaveWater();
-    if (voxels[2].isHaveSolid()) cube[2] |= voxels[1].isHaveWater() || voxels[3].isHaveWater();
-    if (voxels[3].isHaveSolid()) cube[3] |= voxels[0].isHaveWater() || voxels[2].isHaveWater();
+    if (voxels[0].isHaveSolid()) cube[0] |= voxels[1].isHaveLiquid() || voxels[3].isHaveLiquid();
+    if (voxels[1].isHaveSolid()) cube[1] |= voxels[0].isHaveLiquid() || voxels[2].isHaveLiquid();
+    if (voxels[2].isHaveSolid()) cube[2] |= voxels[1].isHaveLiquid() || voxels[3].isHaveLiquid();
+    if (voxels[3].isHaveSolid()) cube[3] |= voxels[0].isHaveLiquid() || voxels[2].isHaveLiquid();
 
-    if (voxels[4].isHaveSolid()) cube[4] |= voxels[5].isHaveWater() || voxels[7].isHaveWater();
-    if (voxels[5].isHaveSolid()) cube[5] |= voxels[4].isHaveWater() || voxels[6].isHaveWater();
-    if (voxels[6].isHaveSolid()) cube[6] |= voxels[5].isHaveWater() || voxels[7].isHaveWater();
-    if (voxels[7].isHaveSolid()) cube[7] |= voxels[4].isHaveWater() || voxels[6].isHaveWater();
+    if (voxels[4].isHaveSolid()) cube[4] |= voxels[5].isHaveLiquid() || voxels[7].isHaveLiquid();
+    if (voxels[5].isHaveSolid()) cube[5] |= voxels[4].isHaveLiquid() || voxels[6].isHaveLiquid();
+    if (voxels[6].isHaveSolid()) cube[6] |= voxels[5].isHaveLiquid() || voxels[7].isHaveLiquid();
+    if (voxels[7].isHaveSolid()) cube[7] |= voxels[4].isHaveLiquid() || voxels[6].isHaveLiquid();
 
     uint8_t caseId = cube[0];
     caseId |= cube[1] << 1;

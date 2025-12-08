@@ -65,18 +65,18 @@ public:
         else if (worldChunkPosition.x == 2 && worldChunkPosition.y == -3) {
             for (int y = 2; y < 10; y++) chunkSlice[0]->setVoxel(10,y,10, 1);
             for (int x = 8; x < 10; x++) {
-                chunkSlice[0]->setVoxel(x,5,10, 5, 2, engine::Voxel::Type::WATER);
-                chunkSlice[0]->setVoxel(x + 3,5,10, 6, 2, engine::Voxel::Type::WATER);
+                chunkSlice[0]->setVoxel(x,5,10, 5, 2, engine::Voxel::Type::LIQUID);
+                chunkSlice[0]->setVoxel(x + 3,5,10, 6, 2, engine::Voxel::Type::LIQUID);
 
-                chunkSlice[0]->setVoxel(10,5,x, 7, 2, engine::Voxel::Type::WATER);
-                chunkSlice[0]->setVoxel(10,5,x + 3, 6, 2, engine::Voxel::Type::WATER);
+                chunkSlice[0]->setVoxel(10,5,x, 7, 2, engine::Voxel::Type::LIQUID);
+                chunkSlice[0]->setVoxel(10,5,x + 3, 6, 2, engine::Voxel::Type::LIQUID);
 
                 for (int z = 8; z < 10; z++) {
-                    chunkSlice[0]->setVoxel(x,5,z, 8, 2, engine::Voxel::Type::WATER);
-                    chunkSlice[0]->setVoxel(x + 3,5,z, 8, 2, engine::Voxel::Type::WATER);
+                    chunkSlice[0]->setVoxel(x,5,z, 8, 2, engine::Voxel::Type::LIQUID);
+                    chunkSlice[0]->setVoxel(x + 3,5,z, 8, 2, engine::Voxel::Type::LIQUID);
 
-                    chunkSlice[0]->setVoxel(x,5,z + 3, 9, 2, engine::Voxel::Type::WATER);
-                    chunkSlice[0]->setVoxel(x + 3,5,z + 3, 9, 2, engine::Voxel::Type::WATER);
+                    chunkSlice[0]->setVoxel(x,5,z + 3, 9, 2, engine::Voxel::Type::LIQUID);
+                    chunkSlice[0]->setVoxel(x + 3,5,z + 3, 9, 2, engine::Voxel::Type::LIQUID);
                 }
             }
         }
@@ -89,10 +89,10 @@ public:
 
             for (size_t x = 0; x < 10; x++) {
                 for (size_t y = 0; y < 10; y++) {
-                    chunkSlice[0]->setVoxel(5 + x,5,5 + y, 4, 3, engine::Voxel::Type::WATER);
-                    chunkSlice[0]->setVoxel(5 + x,5 + 10,5 + y, 4, 3, engine::Voxel::Type::WATER);
-                    chunkSlice[0]->setVoxel(5 + x,5 + y,5, 4, 3, engine::Voxel::Type::WATER);
-                    chunkSlice[0]->setVoxel(5 + x,5 + y,5 + 10, 4, 3, engine::Voxel::Type::WATER);
+                    chunkSlice[0]->setVoxel(5 + x,5,5 + y, 4, 3, engine::Voxel::Type::LIQUID);
+                    chunkSlice[0]->setVoxel(5 + x,5 + 10,5 + y, 4, 3, engine::Voxel::Type::LIQUID);
+                    chunkSlice[0]->setVoxel(5 + x,5 + y,5, 4, 3, engine::Voxel::Type::LIQUID);
+                    chunkSlice[0]->setVoxel(5 + x,5 + y,5 + 10, 4, 3, engine::Voxel::Type::LIQUID);
                 }
             }
         }

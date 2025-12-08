@@ -9,8 +9,8 @@ namespace engine {
         Voxel() :
             m_solidId(NO_VOXEL),
             m_solidSize(0), 
-            m_waterId(NO_VOXEL),
-            m_waterSize(0)
+            m_liquidId(NO_VOXEL),
+            m_liquidSize(0)
         {}
 
         void setSolidId(uint8_t id) { m_solidId = id; }
@@ -24,20 +24,20 @@ namespace engine {
         uint8_t getSolidSize() { return m_solidSize & SIZE_MASK; }
         void deleteSolid() { m_solidId = NO_VOXEL; }
 
-        void setWaterId(uint8_t id) { m_waterId = id; }
-        void setWaterSize(uint8_t size) { m_waterSize = (m_waterSize & (~SIZE_MASK)) | (size & SIZE_MASK); }
-        void setWaterVoxel(uint8_t id, uint8_t size) {
-            setWaterId(id);
-            setWaterSize(size);
+        void setLiquidId(uint8_t id) { m_liquidId = id; }
+        void setLiquidSize(uint8_t size) { m_liquidSize = (m_liquidSize & (~SIZE_MASK)) | (size & SIZE_MASK); }
+        void setLiquidVoxel(uint8_t id, uint8_t size) {
+            setLiquidId(id);
+            setLiquidSize(size);
         }
-        bool isHaveWater() { return m_waterId != NO_VOXEL; };
-        uint8_t getWaterId() { return m_waterId; }
-        uint8_t getWaterSize() { return m_waterSize & SIZE_MASK; }
-        void deleteWater() { m_waterId = NO_VOXEL; }
+        bool isHaveLiquid() { return m_liquidId != NO_VOXEL; };
+        uint8_t getLiquidId() { return m_liquidId; }
+        uint8_t getLiquidSize() { return m_liquidSize & SIZE_MASK; }
+        void deleteLiquid() { m_liquidId = NO_VOXEL; }
 
         enum class Type {
             SOLID = 0,
-            WATER = 2
+            LIQUID = 2
         };
         void setId(Type type, uint8_t id) { m_fieldsArray[static_cast<int>(type)] = id; }
         void setSize(Type type, uint8_t size) {
@@ -54,8 +54,8 @@ namespace engine {
         uint32_t dbg_getRaw() { return m_raw; }
         uint8_t dbg_getSolidIdFromRaw() { return m_raw & 0xFF; }
         uint8_t dbg_getSolidSizeFromRaw() { return (m_raw >> 8) & 0b111; }
-        uint8_t dbg_getWaterIdFromRaw() { return (m_raw >> 16) & 0xFF; }
-        uint8_t dbg_getWaterSizeFromRaw() { return (m_raw >> 24) & 0b111; }
+        uint8_t dbg_getLiquidIdFromRaw() { return (m_raw >> 16) & 0xFF; }
+        uint8_t dbg_getLiquidSizeFromRaw() { return (m_raw >> 24) & 0b111; }
 
     private:
         static constexpr uint8_t NO_VOXEL = 0xFF;
@@ -65,8 +65,8 @@ namespace engine {
             struct {
                 uint8_t m_solidId;
                 uint8_t m_solidSize;
-                uint8_t m_waterId;
-                uint8_t m_waterSize;
+                uint8_t m_liquidId;
+                uint8_t m_liquidSize;
             };
             uint8_t m_fieldsArray[4];
             uint32_t m_raw;

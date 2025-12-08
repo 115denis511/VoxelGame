@@ -68,15 +68,15 @@ void SceneTest::update(engine::Camera& camera, engine::SceneResources &resources
             if (marching->raycastVoxel(cameraPos, cameraTarget, 100.f, hit, face)) {
                 if (engine::Controls::isKeyPressed(GLFW_KEY_LEFT_CONTROL) && engine::Controls::isKeyPressed(GLFW_KEY_LEFT_ALT)) {
                     auto voxel = marching->getVoxel(hit);
-                    if (voxel.getWaterSize() > 0) { // && voxel.getWaterSize() > voxel.getSolidSize() + 1
+                    if (voxel.getLiquidSize() > 0) { // && voxel.getLiquidSize() > voxel.getSolidSize() + 1
                         std::cout << "Water voxel size decreased at " << hit.x << " " << hit.y << " " << hit.z << "\n";
-                        marching->setVoxel(hit, voxel.getWaterId(), voxel.getWaterSize() - 1, engine::Voxel::Type::WATER);
+                        marching->setVoxel(hit, voxel.getLiquidId(), voxel.getLiquidSize() - 1, engine::Voxel::Type::LIQUID);
                     }
                 }
                 else if (engine::Controls::isKeyPressed(GLFW_KEY_LEFT_ALT)) {
                     glm::ivec3 local = engine::VoxelPositionConverter::worldPositionToLocalVoxelPosition(hit, 32);
                     std::cout << "Break water voxel at " << hit.x << " " << hit.y << " " << hit.z << " | Local: " << local.x << " " << local.y << " " << local.z << "\n";
-                    marching->setVoxel(hit, 255, 0, engine::Voxel::Type::WATER); 
+                    marching->setVoxel(hit, 255, 0, engine::Voxel::Type::LIQUID); 
                 }
                 else if (engine::Controls::isKeyPressed(GLFW_KEY_LEFT_CONTROL)) {
                     auto voxel = marching->getVoxel(hit);
@@ -98,13 +98,13 @@ void SceneTest::update(engine::Camera& camera, engine::SceneResources &resources
             if (marching->raycastVoxel(cameraPos, cameraTarget, 100.f, hit, face)) {
                 if (engine::Controls::isKeyPressed(GLFW_KEY_LEFT_CONTROL) && engine::Controls::isKeyPressed(GLFW_KEY_LEFT_ALT)) {
                     auto voxel = marching->getVoxel(hit);
-                    if (voxel.getWaterSize() != 7) {
+                    if (voxel.getLiquidSize() != 7) {
                         std::cout << "Water voxel size increased at " << hit.x << " " << hit.y << " " << hit.z << "\n";
-                        marching->setVoxel(hit, voxel.getWaterId(), voxel.getWaterSize() + 1, engine::Voxel::Type::WATER);
+                        marching->setVoxel(hit, voxel.getLiquidId(), voxel.getLiquidSize() + 1, engine::Voxel::Type::LIQUID);
                     }
                 }
                 else if (engine::Controls::isKeyPressed(GLFW_KEY_LEFT_ALT)) {
-                    marching->setVoxel(hit, 4, 0, engine::Voxel::Type::WATER);
+                    marching->setVoxel(hit, 4, 0, engine::Voxel::Type::LIQUID);
                 }
                 else if (engine::Controls::isKeyPressed(GLFW_KEY_LEFT_CONTROL)) {
                     auto voxel = marching->getVoxel(hit);
