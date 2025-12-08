@@ -80,6 +80,22 @@ public:
                 }
             }
         }
+        else if (worldChunkPosition.x == 2 && worldChunkPosition.y == 2) {
+            for (size_t x = 0; x < 32; x++) {
+                for (size_t z = 0; z < 32; z++){
+                    chunkSlice[0]->setVoxel(x,1,z, 255);
+                }
+            }
+
+            for (size_t x = 0; x < 10; x++) {
+                for (size_t y = 0; y < 10; y++) {
+                    chunkSlice[0]->setVoxel(5 + x,5,5 + y, 4, 3, engine::Voxel::Type::WATER);
+                    chunkSlice[0]->setVoxel(5 + x,5 + 10,5 + y, 4, 3, engine::Voxel::Type::WATER);
+                    chunkSlice[0]->setVoxel(5 + x,5 + y,5, 4, 3, engine::Voxel::Type::WATER);
+                    chunkSlice[0]->setVoxel(5 + x,5 + y,5 + 10, 4, 3, engine::Voxel::Type::WATER);
+                }
+            }
+        }
 
         if (worldChunkPosition.x <= -1) { // && (std::abs(worldChunkPosition.x) + std::abs(worldChunkPosition.y) + y) % 2 != 0
             for (size_t y = 0; y < 32; y++) {

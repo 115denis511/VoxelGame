@@ -49,26 +49,30 @@ void engine::MarchingCubesRenderBigBuffer::drawSolid(const CameraVars &cameraVar
             for (size_t y = 0; y < m_gridBounds.CHUNK_MAX_Y_SIZE; y++){
                 VoxelChunk& chunk = m_grid.getChunk(x, y, z);
                 
-                if (chunk.getSolidsDrawCommandsCount() == 0 || !m_grid.isHaveChunk(x, y, z)) continue;
+                if (!m_grid.isHaveChunk(x, y, z)) continue;
                 if (!m_gridVisibility.isVisible(x, y, z, ChunkGridVisibility::VisabilityType::CAMERA)) continue;
                 
-                auto& chunkDrawCommands = chunk.getSolidsDrawCommands();
-                GLsizei chunkSolidsDrawCount = chunk.getSolidsDrawCommandsCount();
-                for (int i = 0; i < chunkSolidsDrawCount; i++) {
-                    m_solidsDrawCommands[solidsDrawCount + i] = chunkDrawCommands[i];
-                    GLuint chunkId = chunk.getIdInSSBO();
-                    m_solidsDrawBufferRefs[solidsDrawCount + i] = chunkId;
+                if (chunk.getSolidsDrawCommandsCount() != 0) {
+                    auto& chunkDrawCommands = chunk.getSolidsDrawCommands();
+                    GLsizei chunkSolidsDrawCount = chunk.getSolidsDrawCommandsCount();
+                    for (int i = 0; i < chunkSolidsDrawCount; i++) {
+                        m_solidsDrawCommands[solidsDrawCount + i] = chunkDrawCommands[i];
+                        GLuint chunkId = chunk.getIdInSSBO();
+                        m_solidsDrawBufferRefs[solidsDrawCount + i] = chunkId;
+                    }
+                    solidsDrawCount += chunkSolidsDrawCount;
                 }
-                solidsDrawCount += chunkSolidsDrawCount;
                 
-                auto& chunkLiquidDrawCommands = chunk.getLiquidsDrawCommands();
-                GLsizei chunkLiquidsDrawCount = chunk.getLiquidsDrawCommandsCount();
-                for (int i = 0; i < chunkLiquidsDrawCount; i++) {
-                    m_liquidsDrawCommands[liquidsDrawCount + i] = chunkLiquidDrawCommands[i];
-                    GLuint chunkId = chunk.getIdInSSBO();
-                    m_liquidsDrawBufferRefs[liquidsDrawCount + i] = chunkId;
+                if (chunk.getLiquidsDrawCommandsCount() != 0) {
+                    auto& chunkLiquidDrawCommands = chunk.getLiquidsDrawCommands();
+                    GLsizei chunkLiquidsDrawCount = chunk.getLiquidsDrawCommandsCount();
+                    for (int i = 0; i < chunkLiquidsDrawCount; i++) {
+                        m_liquidsDrawCommands[liquidsDrawCount + i] = chunkLiquidDrawCommands[i];
+                        GLuint chunkId = chunk.getIdInSSBO();
+                        m_liquidsDrawBufferRefs[liquidsDrawCount + i] = chunkId;
+                    }
+                    liquidsDrawCount += chunkLiquidsDrawCount;
                 }
-                liquidsDrawCount += chunkLiquidsDrawCount;
             }
         }
     }
