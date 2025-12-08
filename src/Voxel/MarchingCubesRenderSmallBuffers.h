@@ -33,9 +33,15 @@ namespace engine {
         ChunkGridVisibility& m_gridVisibility;
         MarchingCubesSSBOs& m_ssbos;
         
-        std::vector<glm::vec4> m_drawChunkPositions;
+        std::vector<glm::vec4> m_solidsDrawChunkPositions;
+        std::vector<glm::vec4> m_liquidsDrawChunkPositions;
+        std::vector<VoxelChunk*> m_solidsChunksToDraw;
+        std::vector<VoxelChunk*> m_liquidsChunksToDraw;
+        GLuint m_solidsBufferIndex{ 0 };
+        GLuint m_liquidsBufferIndex{ 0 };
 
-        void drawAccumulatedBatches(MarchingCubes &marchingCubes, GLsizei drawCount);
+        void drawSolidsAccumulatedBatches(MarchingCubes &marchingCubes, GLsizei solidsDrawCount);
+        void drawLiquidsAccumulatedBatches(MarchingCubes &marchingCubes, GLsizei liquidsDrawCount);
     };
 }
 
