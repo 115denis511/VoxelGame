@@ -37,7 +37,7 @@ void engine::ChunkGridChanger::generateChunks(bool usingGlobalChunkSSBO, size_t 
         }
         
         m_loader->load(pos, chunkSlice);
-        refineChunkBorders(gridBounds, localPos);
+        syncChunkBorders(gridBounds, localPos);
 
         maxSlices--;
     }
@@ -120,7 +120,7 @@ void engine::ChunkGridChanger::setChunkLoader(IChunkLoader* newLoader) {
     m_loader = newLoader;
 }
 
-void engine::ChunkGridChanger::refineChunkBorders(ChunkGridBounds& gridBounds, glm::ivec2 localPos) {
+void engine::ChunkGridChanger::syncChunkBorders(ChunkGridBounds& gridBounds, glm::ivec2 localPos) {
     VoxelChunk* chunks[ChunkGridBounds::CHUNK_MAX_Y_SIZE];
     for (int y = 0; y < ChunkGridBounds::CHUNK_MAX_Y_SIZE; y++) {
         chunks[y] = &m_grid.getChunk(localPos.x, y, localPos.y);

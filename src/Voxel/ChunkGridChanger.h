@@ -38,7 +38,7 @@ namespace engine {
         ChunkBuilder m_chunkBuilder;
         IChunkLoader* m_loader{ new NullChunkLoader() };
 
-        void refineChunkBorders(ChunkGridBounds& gridBounds, glm::ivec2 localPos);
+        void syncChunkBorders(ChunkGridBounds& gridBounds, glm::ivec2 localPos);
         void sortToUpdateQueue();
         void sortToGenerateQueue();
     };
