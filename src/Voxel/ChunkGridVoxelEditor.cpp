@@ -13,81 +13,155 @@ void engine::ChunkGridVoxelEditor::setVoxel(const glm::vec3 &position, uint8_t i
     VoxelChunk& chunk = m_grid.getChunk(chunkId);
     m_gridChanger.pushToUpdateQueue(chunkId);
     chunk.setVoxel(localVoxel.x, localVoxel.y, localVoxel.z, id, size, type);
+    
+    Voxel voxel = chunk.getVoxel(localVoxel.x, localVoxel.y, localVoxel.z);
+    syncChunkBorders(chunkPos, localXZ, localVoxel, voxel);
+}
 
-    if (localVoxel.x == 0) {
-        glm::ivec3 chunkX = glm::ivec3(chunkPos.x - 1, chunkPos.y, chunkPos.z);
-        if (m_gridBounds.isWorldChunkInbounds(chunkX.x, chunkX.y, chunkX.z) && m_grid.isHaveChunk(localXZ.x - 1, chunkPos.y, localXZ.y)) {
-            chunkId = m_grid.getChunkId(localXZ.x - 1, chunkPos.y, localXZ.y);
-            m_gridChanger.pushToUpdateQueue(chunkId);
+void engine::ChunkGridVoxelEditor::syncChunkBorders(const glm::ivec3 &chunkWorldPos, const glm::ivec2 &chunkLocalPos, const glm::ivec3& localVoxelPos, const Voxel &voxel) {
+    constexpr unsigned int X_BIT = 0b001;
+    constexpr unsigned int Y_BIT = 0b010;
+    constexpr unsigned int Z_BIT = 0b100;
 
-            VoxelChunk& heighbour = m_grid.getChunk(chunkId);
-            heighbour.setVoxel(32, localVoxel.y, localVoxel.z, id, size, type);
-        }
+    bool onXBorder = localVoxelPos.x == 0;
+    bool onYBorder = localVoxelPos.y == 0;
+    bool onZBorder = localVoxelPos.z == 0;
+    unsigned int bitmask = onXBorder | (onYBorder << 1) | (onZBorder << 2);
+
+    switch (bitmask) {
+    case X_BIT:
+        syncLeftChunk(chunkWorldPos, chunkLocalPos, voxel, localVoxelPos.y, localVoxelPos.z);
+        break;
+
+    case Y_BIT:
+        syncBottomChunk(chunkWorldPos, chunkLocalPos, voxel, localVoxelPos.x, localVoxelPos.z);
+        break;
+
+    case Z_BIT:
+        syncBackChunk(chunkWorldPos, chunkLocalPos, voxel, localVoxelPos.x, localVoxelPos.y);
+        break;
+
+    case X_BIT | Y_BIT:
+        syncLeftChunk(chunkWorldPos, chunkLocalPos, voxel, localVoxelPos.y, localVoxelPos.z);
+        syncBottomChunk(chunkWorldPos, chunkLocalPos, voxel, localVoxelPos.x, localVoxelPos.z);
+        syncLeftBottomChunk(chunkWorldPos, chunkLocalPos, voxel, localVoxelPos.z);
+        break;
+
+    case X_BIT | Z_BIT:
+        syncLeftChunk(chunkWorldPos, chunkLocalPos, voxel, localVoxelPos.y, localVoxelPos.z);
+        syncBackChunk(chunkWorldPos, chunkLocalPos, voxel, localVoxelPos.x, localVoxelPos.y);
+        syncLeftBackChunk(chunkWorldPos, chunkLocalPos, voxel, localVoxelPos.y);
+        break;
+
+    case Y_BIT | Z_BIT:
+        syncBottomChunk(chunkWorldPos, chunkLocalPos, voxel, localVoxelPos.x, localVoxelPos.z);
+        syncBackChunk(chunkWorldPos, chunkLocalPos, voxel, localVoxelPos.x, localVoxelPos.y);
+        syncBottomBackChunk(chunkWorldPos, chunkLocalPos, voxel, localVoxelPos.x);
+        break;
+
+    case X_BIT | Y_BIT | Z_BIT:
+        syncLeftChunk(chunkWorldPos, chunkLocalPos, voxel, localVoxelPos.y, localVoxelPos.z);
+        syncBottomChunk(chunkWorldPos, chunkLocalPos, voxel, localVoxelPos.x, localVoxelPos.z);
+        syncBackChunk(chunkWorldPos, chunkLocalPos, voxel, localVoxelPos.x, localVoxelPos.y);
+        syncLeftBottomChunk(chunkWorldPos, chunkLocalPos, voxel, localVoxelPos.z);
+        syncLeftBackChunk(chunkWorldPos, chunkLocalPos, voxel, localVoxelPos.y);
+        syncBottomBackChunk(chunkWorldPos, chunkLocalPos, voxel, localVoxelPos.x);
+        syncLeftBottomBackChunk(chunkWorldPos, chunkLocalPos, voxel);
+        break;
+    
+    default:
+        break;
     }
+}
 
-    if (localVoxel.z == 0) {
-        glm::ivec3 chunkZ = glm::ivec3(chunkPos.x, chunkPos.y, chunkPos.z - 1);
-        if (m_gridBounds.isWorldChunkInbounds(chunkZ.x, chunkZ.y, chunkZ.z) && m_grid.isHaveChunk(localXZ.x, chunkPos.y, localXZ.y - 1)) {
-            chunkId = m_grid.getChunkId(localXZ.x, chunkPos.y, localXZ.y - 1);
-            m_gridChanger.pushToUpdateQueue(chunkId);
+void engine::ChunkGridVoxelEditor::syncLeftChunk(const glm::ivec3 &chunkWorldPos, const glm::ivec2 &chunkLocalPos, const Voxel &voxel, int y, int z)
+{
+    if (
+        m_gridBounds.isWorldChunkInbounds(chunkWorldPos.x - 1, chunkWorldPos.y, chunkWorldPos.z) && 
+        m_grid.isHaveChunk(chunkLocalPos.x - 1, chunkWorldPos.y, chunkLocalPos.y)
+    ) {
+        int chunkId = m_grid.getChunkId(chunkLocalPos.x - 1, chunkWorldPos.y, chunkLocalPos.y);
+        m_gridChanger.pushToUpdateQueue(chunkId);
 
-            VoxelChunk& heighbour = m_grid.getChunk(chunkId);
-            heighbour.setVoxel(localVoxel.x, localVoxel.y, 32, id, size, type);
-        }
+        VoxelChunk& heighbour = m_grid.getChunk(chunkId);
+        heighbour.setVoxel(32, y, z, voxel);
     }
+}
 
-    if (localVoxel.y == 0) {
-        glm::ivec3 chunkY = glm::ivec3(chunkPos.x, chunkPos.y - 1, chunkPos.z);
-        if (m_gridBounds.isWorldChunkInbounds(chunkY.x, chunkY.y, chunkY.z) && m_grid.isHaveChunk(localXZ.x, chunkPos.y - 1, localXZ.y)) {
-            chunkId = m_grid.getChunkId(localXZ.x, chunkPos.y - 1, localXZ.y);
-            m_gridChanger.pushToUpdateQueue(chunkId);
+void engine::ChunkGridVoxelEditor::syncBottomChunk(const glm::ivec3 &chunkWorldPos, const glm::ivec2 &chunkLocalPos, const Voxel &voxel, int x, int z) {
+    if (
+        m_gridBounds.isWorldChunkInbounds(chunkWorldPos.x, chunkWorldPos.y - 1, chunkWorldPos.z) && 
+        m_grid.isHaveChunk(chunkLocalPos.x, chunkWorldPos.y - 1, chunkLocalPos.y)
+    ) {
+        int chunkId = m_grid.getChunkId(chunkLocalPos.x, chunkWorldPos.y - 1, chunkLocalPos.y);
+        m_gridChanger.pushToUpdateQueue(chunkId);
 
-            VoxelChunk& heighbour = m_grid.getChunk(chunkId);
-            heighbour.setVoxel(localVoxel.x, 32, localVoxel.z, id, size, type);
-        }
+        VoxelChunk& heighbour = m_grid.getChunk(chunkId);
+        heighbour.setVoxel(x, 32, z, voxel);
     }
+}
 
-    if (localVoxel.x == 0 && localVoxel.z == 0) {
-        glm::ivec3 chunkXZ = glm::ivec3(chunkPos.x - 1, chunkPos.y, chunkPos.z - 1);
-        if (m_gridBounds.isWorldChunkInbounds(chunkXZ.x, chunkXZ.y, chunkXZ.z) && m_grid.isHaveChunk(localXZ.x - 1, chunkPos.y, localXZ.y - 1)) {
-            chunkId = m_grid.getChunkId(localXZ.x - 1, chunkPos.y, localXZ.y - 1);
-            m_gridChanger.pushToUpdateQueue(chunkId);
+void engine::ChunkGridVoxelEditor::syncBackChunk(const glm::ivec3 &chunkWorldPos, const glm::ivec2 &chunkLocalPos, const Voxel &voxel, int x, int y) {
+    if (
+        m_gridBounds.isWorldChunkInbounds(chunkWorldPos.x, chunkWorldPos.y, chunkWorldPos.z - 1) && 
+        m_grid.isHaveChunk(chunkLocalPos.x, chunkWorldPos.y, chunkLocalPos.y - 1)
+    ) {
+        int chunkId = m_grid.getChunkId(chunkLocalPos.x, chunkWorldPos.y, chunkLocalPos.y - 1);
+        m_gridChanger.pushToUpdateQueue(chunkId);
 
-            VoxelChunk& heighbour = m_grid.getChunk(chunkId);
-            heighbour.setVoxel(32, localVoxel.y, 32, id, size, type);
-        }
+        VoxelChunk& heighbour = m_grid.getChunk(chunkId);
+        heighbour.setVoxel(x, y, 32, voxel);
     }
+}
 
-    if (localVoxel.x == 0 && localVoxel.y == 0) {
-        glm::ivec3 chunkXY = glm::ivec3(chunkPos.x - 1, chunkPos.y - 1, chunkPos.z);
-        if (m_gridBounds.isWorldChunkInbounds(chunkXY.x, chunkXY.y, chunkXY.z) && m_grid.isHaveChunk(localXZ.x - 1, chunkPos.y - 1, localXZ.y)) {
-            chunkId = m_grid.getChunkId(localXZ.x - 1, chunkPos.y - 1, localXZ.y);
-            m_gridChanger.pushToUpdateQueue(chunkId);
+void engine::ChunkGridVoxelEditor::syncLeftBottomChunk(const glm::ivec3 &chunkWorldPos, const glm::ivec2 &chunkLocalPos, const Voxel &voxel, int z) {
+    if (
+        m_gridBounds.isWorldChunkInbounds(chunkWorldPos.x - 1, chunkWorldPos.y - 1, chunkWorldPos.z) && 
+        m_grid.isHaveChunk(chunkLocalPos.x - 1, chunkWorldPos.y - 1, chunkLocalPos.y)
+    ) {
+        int chunkId = m_grid.getChunkId(chunkLocalPos.x - 1, chunkWorldPos.y - 1, chunkLocalPos.y);
+        m_gridChanger.pushToUpdateQueue(chunkId);
 
-            VoxelChunk& heighbour = m_grid.getChunk(chunkId);
-            heighbour.setVoxel(32, 32, localVoxel.z, id, size, type);
-        }
+        VoxelChunk& heighbour = m_grid.getChunk(chunkId);
+        heighbour.setVoxel(32, 32, z, voxel);
     }
+}
 
-    if (localVoxel.z == 0 && localVoxel.y == 0) {
-        glm::ivec3 chunkYZ = glm::ivec3(chunkPos.x, chunkPos.y - 1, chunkPos.z - 1);
-        if (m_gridBounds.isWorldChunkInbounds(chunkYZ.x, chunkYZ.y, chunkYZ.z) && m_grid.isHaveChunk(localXZ.x, chunkPos.y - 1, localXZ.y - 1)) {
-            chunkId = m_grid.getChunkId(localXZ.x, chunkPos.y - 1, localXZ.y - 1);
-            m_gridChanger.pushToUpdateQueue(chunkId);
+void engine::ChunkGridVoxelEditor::syncLeftBackChunk(const glm::ivec3 &chunkWorldPos, const glm::ivec2 &chunkLocalPos, const Voxel &voxel, int y) {
+    if (
+        m_gridBounds.isWorldChunkInbounds(chunkWorldPos.x - 1, chunkWorldPos.y, chunkWorldPos.z - 1) && 
+        m_grid.isHaveChunk(chunkLocalPos.x - 1, chunkWorldPos.y, chunkLocalPos.y - 1)
+    ) {
+        int chunkId = m_grid.getChunkId(chunkLocalPos.x - 1, chunkWorldPos.y, chunkLocalPos.y - 1);
+        m_gridChanger.pushToUpdateQueue(chunkId);
 
-            VoxelChunk& heighbour = m_grid.getChunk(chunkId);
-            heighbour.setVoxel(localVoxel.x, 32, 32, id, size, type);
-        }
+        VoxelChunk& heighbour = m_grid.getChunk(chunkId);
+        heighbour.setVoxel(32, y, 32, voxel);
     }
+}
 
-    if (localVoxel.x == 0 && localVoxel.z == 0 && localVoxel.y == 0) {
-        glm::ivec3 chunkXYZ = glm::ivec3(chunkPos.x - 1, chunkPos.y - 1, chunkPos.z - 1);
-        if (m_gridBounds.isWorldChunkInbounds(chunkXYZ.x, chunkXYZ.y, chunkXYZ.z) && m_grid.isHaveChunk(localXZ.x - 1, chunkPos.y - 1, localXZ.y - 1)) {
-            chunkId = m_grid.getChunkId(localXZ.x - 1, chunkPos.y - 1, localXZ.y - 1);
-            m_gridChanger.pushToUpdateQueue(chunkId);
+void engine::ChunkGridVoxelEditor::syncBottomBackChunk(const glm::ivec3 &chunkWorldPos, const glm::ivec2 &chunkLocalPos, const Voxel &voxel, int x) {
+    if (
+        m_gridBounds.isWorldChunkInbounds(chunkWorldPos.x, chunkWorldPos.y - 1, chunkWorldPos.z - 1) && 
+        m_grid.isHaveChunk(chunkLocalPos.x, chunkWorldPos.y - 1, chunkLocalPos.y - 1)
+    ) {
+        int chunkId = m_grid.getChunkId(chunkLocalPos.x, chunkWorldPos.y - 1, chunkLocalPos.y - 1);
+        m_gridChanger.pushToUpdateQueue(chunkId);
 
-            VoxelChunk& heighbour = m_grid.getChunk(chunkId);
-            heighbour.setVoxel(32, 32, 32, id, size, type);
-        }
+        VoxelChunk& heighbour = m_grid.getChunk(chunkId);
+        heighbour.setVoxel(x, 32, 32, voxel);
+    }
+}
+
+void engine::ChunkGridVoxelEditor::syncLeftBottomBackChunk(const glm::ivec3 &chunkWorldPos, const glm::ivec2 &chunkLocalPos, const Voxel &voxel) {
+    if (
+        m_gridBounds.isWorldChunkInbounds(chunkWorldPos.x - 1, chunkWorldPos.y - 1, chunkWorldPos.z - 1) && 
+        m_grid.isHaveChunk(chunkLocalPos.x - 1, chunkWorldPos.y - 1, chunkLocalPos.y - 1)
+    ) {
+        int chunkId = m_grid.getChunkId(chunkLocalPos.x - 1, chunkWorldPos.y - 1, chunkLocalPos.y - 1);
+        m_gridChanger.pushToUpdateQueue(chunkId);
+
+        VoxelChunk& heighbour = m_grid.getChunk(chunkId);
+        heighbour.setVoxel(32, 32, 32, voxel);
     }
 }
