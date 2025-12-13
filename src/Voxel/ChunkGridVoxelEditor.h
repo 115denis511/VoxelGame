@@ -13,7 +13,8 @@ namespace engine {
         ChunkGridVoxelEditor(ChunkGrid& grid, ChunkGridBounds& bounds, ChunkGridChanger& changer, VoxelPositionConverter& converter) 
             : m_grid(grid), m_gridBounds(bounds), m_gridChanger(changer), m_converter(converter) {}
 
-        void setVoxel(const glm::vec3& position, uint8_t id, uint8_t size = 3, Voxel::Type type = Voxel::Type::SOLID);
+        void setSolidVoxel(const glm::vec3& position, uint8_t id, uint8_t size = 3);
+        void setLiquidVoxel(const glm::vec3& position, uint8_t id, uint8_t size = 3);
 
     private:
         ChunkGrid& m_grid;

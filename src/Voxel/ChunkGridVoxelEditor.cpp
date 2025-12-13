@@ -1,6 +1,6 @@
 #include "ChunkGridVoxelEditor.h"
 
-void engine::ChunkGridVoxelEditor::setVoxel(const glm::vec3 &position, uint8_t id, uint8_t size, Voxel::Type type) {
+void engine::ChunkGridVoxelEditor::setSolidVoxel(const glm::vec3 &position, uint8_t id, uint8_t size) {
     glm::ivec3 chunkPos = m_converter.worldPositionToChunkPosition(position, m_gridBounds.CHUNCK_DIMENSION_SIZE);
     glm::ivec2 localXZ = m_converter.worldChunkToLocalChunkPosition(chunkPos.x, chunkPos.z, m_gridBounds.currentOriginChunk.x, m_gridBounds.currentOriginChunk.y);
     if (
@@ -12,7 +12,25 @@ void engine::ChunkGridVoxelEditor::setVoxel(const glm::vec3 &position, uint8_t i
     size_t chunkId = m_grid.getChunkId(localXZ.x, chunkPos.y, localXZ.y);
     VoxelChunk& chunk = m_grid.getChunk(chunkId);
     m_gridChanger.pushToUpdateQueue(chunkId);
-    chunk.setVoxel(localVoxel.x, localVoxel.y, localVoxel.z, id, size, type);
+    chunk.setSolidVoxel(localVoxel.x, localVoxel.y, localVoxel.z, id, size);
+    
+    Voxel voxel = chunk.getVoxel(localVoxel.x, localVoxel.y, localVoxel.z);
+    syncChunkBorders(chunkPos, localXZ, localVoxel, voxel);
+}
+
+void engine::ChunkGridVoxelEditor::setLiquidVoxel(const glm::vec3 &position, uint8_t id, uint8_t size) {
+    glm::ivec3 chunkPos = m_converter.worldPositionToChunkPosition(position, m_gridBounds.CHUNCK_DIMENSION_SIZE);
+    glm::ivec2 localXZ = m_converter.worldChunkToLocalChunkPosition(chunkPos.x, chunkPos.z, m_gridBounds.currentOriginChunk.x, m_gridBounds.currentOriginChunk.y);
+    if (
+        !m_gridBounds.isWorldChunkInbounds(chunkPos.x, chunkPos.y, chunkPos.z) ||
+        !m_grid.isHaveChunk(localXZ.x, chunkPos.y, localXZ.y)
+    ) return;
+    glm::ivec3 localVoxel = m_converter.worldPositionToLocalVoxelPosition(position, m_gridBounds.CHUNCK_DIMENSION_SIZE);
+
+    size_t chunkId = m_grid.getChunkId(localXZ.x, chunkPos.y, localXZ.y);
+    VoxelChunk& chunk = m_grid.getChunk(chunkId);
+    m_gridChanger.pushToUpdateQueue(chunkId);
+    chunk.setLiquidVoxel(localVoxel.x, localVoxel.y, localVoxel.z, id, size);
     
     Voxel voxel = chunk.getVoxel(localVoxel.x, localVoxel.y, localVoxel.z);
     syncChunkBorders(chunkPos, localXZ, localVoxel, voxel);

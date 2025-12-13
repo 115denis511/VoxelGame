@@ -89,8 +89,12 @@ bool engine::MarchingCubesManager::raycastVoxel(const glm::vec3& position, const
     return VoxelRaycast::raycastVoxel(m_grid, m_gridBounds, voxelPosition, direction, maxDistance, hitPosition, hitFace);
 }
 
-void engine::MarchingCubesManager::setVoxel(const glm::vec3 &position, uint8_t id, uint8_t size, Voxel::Type type) {
-    m_editor.setVoxel(position, id, size, type);
+void engine::MarchingCubesManager::setSolidVoxel(const glm::vec3 &position, uint8_t id, uint8_t size) {
+    m_editor.setSolidVoxel(position, id, size);
+}
+
+void engine::MarchingCubesManager::setLiquidVoxel(const glm::vec3 &position, uint8_t id, uint8_t size) {
+    m_editor.setLiquidVoxel(position, id, size);
 }
 
 engine::Voxel engine::MarchingCubesManager::getVoxel(const glm::vec3 &position) {
