@@ -15,6 +15,8 @@ namespace engine {
 
         void setSolidVoxel(const glm::vec3& position, uint8_t id, uint8_t size = 3);
         void setLiquidVoxel(const glm::vec3& position, uint8_t id, uint8_t size = 3);
+        void deleteSolidVoxel(const glm::vec3& position);
+        void deleteLiquidVoxel(const glm::vec3& position);
 
     private:
         ChunkGrid& m_grid;

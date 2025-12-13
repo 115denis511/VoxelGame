@@ -22,6 +22,8 @@ namespace engine {
         void setVoxel(short x, short y, short z, const Voxel& voxel);
         void setSolidVoxel(short x, short y, short z, uint8_t id, uint8_t size = 3);
         void setLiquidVoxel(short x, short y, short z, uint8_t id, uint8_t size = 3);
+        void deleteSolidVoxel(short x, short y, short z);
+        void deleteLiquidVoxel(short x, short y, short z);
         Voxel getVoxel(short x, short y, short z);
         bool isVoxelSolid(short x, short y, short z);
         void clear();

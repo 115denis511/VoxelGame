@@ -16,6 +16,14 @@ void engine::VoxelChunkBase::setLiquidVoxel(short x, short y, short z, uint8_t i
     m_voxels(x, y, z).setLiquidVoxel(id, size);
 }
 
+void engine::VoxelChunkBase::deleteSolidVoxel(short x, short y, short z) {
+    m_voxels(x, y, z).deleteSolid();
+}
+
+void engine::VoxelChunkBase::deleteLiquidVoxel(short x, short y, short z) {
+    m_voxels(x, y, z).deleteLiquid();
+}
+
 engine::Voxel engine::VoxelChunkBase::getVoxel(short x, short y, short z) {
     return m_voxels(x, y, z);
 }

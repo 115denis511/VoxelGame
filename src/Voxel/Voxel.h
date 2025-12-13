@@ -5,13 +5,15 @@
 
 namespace engine {
     class Voxel {
-    public:
+        public:
         Voxel() :
-            m_solidId(NO_VOXEL),
-            m_solidSize(0), 
-            m_liquidId(NO_VOXEL),
-            m_liquidSize(0)
+        m_solidId(NO_VOXEL),
+        m_solidSize(0), 
+        m_liquidId(NO_VOXEL),
+        m_liquidSize(0)
         {}
+        
+        static constexpr uint8_t NO_VOXEL = 0xFF;
 
         void setSolidId(uint8_t id) { m_solidId = id; }
         void setSolidSize(uint8_t size) { m_solidSize = (m_solidSize & (~SIZE_MASK)) | (size & SIZE_MASK); }
@@ -22,7 +24,10 @@ namespace engine {
         bool isHaveSolid() { return m_solidId != NO_VOXEL; };
         uint8_t getSolidId() { return m_solidId; }
         uint8_t getSolidSize() { return m_solidSize & SIZE_MASK; }
-        void deleteSolid() { m_solidId = NO_VOXEL; }
+        void deleteSolid() { 
+            m_solidId = NO_VOXEL; 
+            m_solidSize = 0;
+        }
 
         void setLiquidId(uint8_t id) { m_liquidId = id; }
         void setLiquidSize(uint8_t size) { m_liquidSize = (m_liquidSize & (~SIZE_MASK)) | (size & SIZE_MASK); }
@@ -33,7 +38,10 @@ namespace engine {
         bool isHaveLiquid() { return m_liquidId != NO_VOXEL; };
         uint8_t getLiquidId() { return m_liquidId; }
         uint8_t getLiquidSize() { return m_liquidSize & SIZE_MASK; }
-        void deleteLiquid() { m_liquidId = NO_VOXEL; }
+        void deleteLiquid() { 
+            m_liquidId = NO_VOXEL; 
+            m_liquidSize = 0;
+        }
 
         enum class Type {
             SOLID = 0,
@@ -58,7 +66,6 @@ namespace engine {
         uint8_t dbg_getLiquidSizeFromRaw() { return (m_raw >> 24) & 0b111; }
 
     private:
-        static constexpr uint8_t NO_VOXEL = 0xFF;
         static constexpr uint8_t SIZE_MASK = 0b111;
         
         union {

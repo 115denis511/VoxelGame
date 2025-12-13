@@ -36,6 +36,42 @@ void engine::ChunkGridVoxelEditor::setLiquidVoxel(const glm::vec3 &position, uin
     syncChunkBorders(chunkPos, localXZ, localVoxel, voxel);
 }
 
+void engine::ChunkGridVoxelEditor::deleteSolidVoxel(const glm::vec3 &position) {
+    glm::ivec3 chunkPos = m_converter.worldPositionToChunkPosition(position, m_gridBounds.CHUNCK_DIMENSION_SIZE);
+    glm::ivec2 localXZ = m_converter.worldChunkToLocalChunkPosition(chunkPos.x, chunkPos.z, m_gridBounds.currentOriginChunk.x, m_gridBounds.currentOriginChunk.y);
+    if (
+        !m_gridBounds.isWorldChunkInbounds(chunkPos.x, chunkPos.y, chunkPos.z) ||
+        !m_grid.isHaveChunk(localXZ.x, chunkPos.y, localXZ.y)
+    ) return;
+    glm::ivec3 localVoxel = m_converter.worldPositionToLocalVoxelPosition(position, m_gridBounds.CHUNCK_DIMENSION_SIZE);
+
+    size_t chunkId = m_grid.getChunkId(localXZ.x, chunkPos.y, localXZ.y);
+    VoxelChunk& chunk = m_grid.getChunk(chunkId);
+    m_gridChanger.pushToUpdateQueue(chunkId);
+    chunk.deleteSolidVoxel(localVoxel.x, localVoxel.y, localVoxel.z);
+    
+    Voxel voxel = chunk.getVoxel(localVoxel.x, localVoxel.y, localVoxel.z);
+    syncChunkBorders(chunkPos, localXZ, localVoxel, voxel);
+}
+
+void engine::ChunkGridVoxelEditor::deleteLiquidVoxel(const glm::vec3 &position) {
+    glm::ivec3 chunkPos = m_converter.worldPositionToChunkPosition(position, m_gridBounds.CHUNCK_DIMENSION_SIZE);
+    glm::ivec2 localXZ = m_converter.worldChunkToLocalChunkPosition(chunkPos.x, chunkPos.z, m_gridBounds.currentOriginChunk.x, m_gridBounds.currentOriginChunk.y);
+    if (
+        !m_gridBounds.isWorldChunkInbounds(chunkPos.x, chunkPos.y, chunkPos.z) ||
+        !m_grid.isHaveChunk(localXZ.x, chunkPos.y, localXZ.y)
+    ) return;
+    glm::ivec3 localVoxel = m_converter.worldPositionToLocalVoxelPosition(position, m_gridBounds.CHUNCK_DIMENSION_SIZE);
+
+    size_t chunkId = m_grid.getChunkId(localXZ.x, chunkPos.y, localXZ.y);
+    VoxelChunk& chunk = m_grid.getChunk(chunkId);
+    m_gridChanger.pushToUpdateQueue(chunkId);
+    chunk.deleteLiquidVoxel(localVoxel.x, localVoxel.y, localVoxel.z);
+    
+    Voxel voxel = chunk.getVoxel(localVoxel.x, localVoxel.y, localVoxel.z);
+    syncChunkBorders(chunkPos, localXZ, localVoxel, voxel);
+}
+
 void engine::ChunkGridVoxelEditor::syncChunkBorders(const glm::ivec3 &chunkWorldPos, const glm::ivec2 &chunkLocalPos, const glm::ivec3& localVoxelPos, const Voxel &voxel) {
     constexpr unsigned int X_BIT = 0b001;
     constexpr unsigned int Y_BIT = 0b010;

@@ -97,6 +97,14 @@ void engine::MarchingCubesManager::setLiquidVoxel(const glm::vec3 &position, uin
     m_editor.setLiquidVoxel(position, id, size);
 }
 
+void engine::MarchingCubesManager::deleteSolidVoxel(const glm::vec3& position) {
+    m_editor.deleteSolidVoxel(position);
+}
+
+void engine::MarchingCubesManager::deleteLiquidVoxel(const glm::vec3& position) {
+    m_editor.deleteLiquidVoxel(position);
+}
+
 engine::Voxel engine::MarchingCubesManager::getVoxel(const glm::vec3 &position) {
     glm::ivec3 chunkPos = m_converter.worldPositionToChunkPosition(position, m_gridBounds.CHUNCK_DIMENSION_SIZE);
     if (!m_gridBounds.isWorldChunkInbounds(chunkPos.x, chunkPos.y, chunkPos.z)) {
