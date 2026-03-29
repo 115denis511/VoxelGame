@@ -12,6 +12,10 @@ public:
     SceneTest() {}
 
     void update(engine::Camera& camera, engine::SceneResources& resources) override;
+
+    int select = 0;
+    int selectedSolid[3] = { 1, 2, 3 };
+    int selectedLiquid[3] = { 4, 5, 6 };
 };
 
 #endif

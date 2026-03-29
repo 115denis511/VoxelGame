@@ -137,7 +137,8 @@ void engine::ChunkBuilder::addMarchingCube(MarchingCubes& marchingCubes, std::ar
     }
 
     uint8_t liquidCaseId = getLiquidCaseIndex(voxels);
-    if (liquidCaseId != 0 || liquidCaseId != 255) {
+    if (liquidCaseId != 0 && liquidCaseId != 255) {
+        liquidCaseId |= caseId;
         GLuint caseData = packData(x, y, z);
         m_liquidCaseData[liquidCaseId].push_back(caseData);
         m_liquidCubesCount++;
@@ -157,29 +158,14 @@ uint8_t engine::ChunkBuilder::getSolidCaseIndex(std::array<Voxel, 8>& voxels) {
 }
 
 uint8_t engine::ChunkBuilder::getLiquidCaseIndex(std::array<Voxel,8>& voxels) {
-    bool cube[8] = { 
-        voxels[0].isHaveLiquid() , voxels[1].isHaveLiquid(), voxels[2].isHaveLiquid(), voxels[3].isHaveLiquid(), 
-        voxels[4].isHaveLiquid() , voxels[5].isHaveLiquid(), voxels[6].isHaveLiquid(), voxels[7].isHaveLiquid()
-    };
-    
-    if (voxels[0].isHaveSolid()) cube[0] |= voxels[1].isHaveLiquid() || voxels[3].isHaveLiquid();
-    if (voxels[1].isHaveSolid()) cube[1] |= voxels[0].isHaveLiquid() || voxels[2].isHaveLiquid();
-    if (voxels[2].isHaveSolid()) cube[2] |= voxels[1].isHaveLiquid() || voxels[3].isHaveLiquid();
-    if (voxels[3].isHaveSolid()) cube[3] |= voxels[0].isHaveLiquid() || voxels[2].isHaveLiquid();
-
-    if (voxels[4].isHaveSolid()) cube[4] |= voxels[5].isHaveLiquid() || voxels[7].isHaveLiquid();
-    if (voxels[5].isHaveSolid()) cube[5] |= voxels[4].isHaveLiquid() || voxels[6].isHaveLiquid();
-    if (voxels[6].isHaveSolid()) cube[6] |= voxels[5].isHaveLiquid() || voxels[7].isHaveLiquid();
-    if (voxels[7].isHaveSolid()) cube[7] |= voxels[4].isHaveLiquid() || voxels[6].isHaveLiquid();
-
-    uint8_t caseId = cube[0];
-    caseId |= cube[1] << 1;
-    caseId |= cube[2] << 2;
-    caseId |= cube[3] << 3;
-    caseId |= cube[4] << 4;
-    caseId |= cube[5] << 5;
-    caseId |= cube[6] << 6;
-    caseId |= cube[7] << 7;
+    uint8_t caseId = voxels[0].isHaveLiquid();
+    caseId |= voxels[1].isHaveLiquid() << 1;
+    caseId |= voxels[2].isHaveLiquid() << 2;
+    caseId |= voxels[3].isHaveLiquid() << 3;
+    caseId |= voxels[4].isHaveLiquid() << 4;
+    caseId |= voxels[5].isHaveLiquid() << 5;
+    caseId |= voxels[6].isHaveLiquid() << 6;
+    caseId |= voxels[7].isHaveLiquid() << 7;
     return caseId;
 }
 

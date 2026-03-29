@@ -146,6 +146,11 @@ void engine::MarchingCubesRenderSmallBuffers::drawLiquidsAccumulatedBatches(Marc
     m_ssbos.drawIdToDataSSBO.pushData(&m_liquidsDrawBufferRefs[0], liquidsDrawCount);
     UniformManager::setChunkPositions(m_liquidsDrawChunkPositions);
 
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    glPolygonOffset(1.0f, 1.0f);
+
     m_shaderLiquids->use();
     marchingCubes.draw(liquidsDrawCount);
+
+    glDisable(GL_POLYGON_OFFSET_FILL);
 };

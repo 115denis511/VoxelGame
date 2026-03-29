@@ -83,9 +83,14 @@ void engine::MarchingCubesRenderBigBuffer::drawSolid(const CameraVars &cameraVar
     m_ssbos.drawIdToDataSSBO.pushData(&m_solidsDrawBufferRefs[0], solidsDrawCount);
     marchingCubes.draw(solidsDrawCount);
     
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    glPolygonOffset(1.0f, 1.0f);
+
     m_shaderLiquids->use();
     commandBufferSize = liquidsDrawCount * sizeof(DrawArraysIndirectCommand);
     glNamedBufferSubData(m_commandBuffer, 0, commandBufferSize, &m_liquidsDrawCommands[0]);
     m_ssbos.drawIdToDataSSBO.pushData(&m_liquidsDrawBufferRefs[0], liquidsDrawCount);
     marchingCubes.draw(liquidsDrawCount);
+    
+    glDisable(GL_POLYGON_OFFSET_FILL);
 }

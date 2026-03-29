@@ -65,25 +65,58 @@ public:
         else if (worldChunkPosition.x == 2 && worldChunkPosition.y == -3) {
             for (int y = 2; y < 10; y++) chunkSlice[0]->setSolidVoxel(10,y,10, 1);
             for (int x = 8; x < 10; x++) {
-                chunkSlice[0]->setLiquidVoxel(x,5,10, 5, 2);
-                chunkSlice[0]->setLiquidVoxel(x + 3,5,10, 6, 2);
+                constexpr uint8_t EXPAND = 7;
 
-                chunkSlice[0]->setLiquidVoxel(10,5,x, 7, 2);
-                chunkSlice[0]->setLiquidVoxel(10,5,x + 3, 6, 2);
+                chunkSlice[0]->setLiquidVoxel(x,5,10, 5, EXPAND);
+                chunkSlice[0]->setLiquidVoxel(x + 3,5,10, 6, EXPAND);
+
+                chunkSlice[0]->setLiquidVoxel(10,5,x, 7, EXPAND);
+                chunkSlice[0]->setLiquidVoxel(10,5,x + 3, 6, EXPAND);
 
                 for (int z = 8; z < 10; z++) {
-                    chunkSlice[0]->setLiquidVoxel(x,5,z, 8, 2);
-                    chunkSlice[0]->setLiquidVoxel(x + 3,5,z, 8, 2);
+                    chunkSlice[0]->setLiquidVoxel(x,5,z, 8, EXPAND);
+                    chunkSlice[0]->setLiquidVoxel(x + 3,5,z, 8, EXPAND);
 
-                    chunkSlice[0]->setLiquidVoxel(x,5,z + 3, 9, 2);
-                    chunkSlice[0]->setLiquidVoxel(x + 3,5,z + 3, 9, 2);
+                    chunkSlice[0]->setLiquidVoxel(x,5,z + 3, 9, EXPAND);
+                    chunkSlice[0]->setLiquidVoxel(x + 3,5,z + 3, 9, EXPAND);
                 }
             }
+
+            chunkSlice[0]->setLiquidVoxel(8,3,4, 4, 2);
+            chunkSlice[0]->setLiquidVoxel(7,3,4, 4, 2);
+            chunkSlice[0]->setSolidVoxel(8,3,3, 1, 0);
+            chunkSlice[0]->setSolidVoxel(7,3,3, 1, 0);
+
+            chunkSlice[0]->setLiquidVoxel(8,4,4, 4, 2);
+            chunkSlice[0]->setLiquidVoxel(8,4,3, 4, 2);
+
+            chunkSlice[0]->setLiquidVoxel(8,5,4, 4, 2);
+            chunkSlice[0]->setLiquidVoxel(7,5,4, 4, 2);
+            chunkSlice[0]->setSolidVoxel(8,5,3, 1, 0);
+            chunkSlice[0]->setSolidVoxel(7,5,3, 1, 0);
+
+            for (int y = 2; y < 8; y++) {
+                chunkSlice[0]->setSolidVoxel(15,y,3, 1, 2);
+                chunkSlice[0]->setSolidVoxel(15,y,5, 1, 2);
+                chunkSlice[0]->setSolidVoxel(14,y,4, 1, 2);
+                chunkSlice[0]->setSolidVoxel(16,y,4, 1, 2);
+                chunkSlice[0]->setLiquidVoxel(15,y,4, 4, 7);
+            }
+
+            for (int y = 2; y < 8; y++) {
+                chunkSlice[0]->setSolidVoxel(19,y,4, 1, 2);
+                chunkSlice[0]->setSolidVoxel(19,y,5, 1, 2);
+                chunkSlice[0]->setLiquidVoxel(20,y,4, 4, 7);
+                chunkSlice[0]->setLiquidVoxel(20,y,5, 4, 7);
+            }
+            chunkSlice[0]->setSolidVoxel(19,8,4, 1, 2);
+            chunkSlice[0]->setSolidVoxel(19,8,5, 1, 2);
+
         }
         else if (worldChunkPosition.x == 2 && worldChunkPosition.y == 2) {
             for (size_t x = 0; x < 32; x++) {
                 for (size_t z = 0; z < 32; z++){
-                    chunkSlice[0]->setSolidVoxel(x,1,z, 255);
+                    chunkSlice[0]->deleteSolidVoxel(x,1,z);
                 }
             }
 

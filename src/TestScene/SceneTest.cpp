@@ -24,6 +24,21 @@ void SceneTest::update(engine::Camera& camera, engine::SceneResources &resources
             marching->setRenderChunkRadius(renderChunkRadius + 1);
         }
         break;
+
+        case GLFW_KEY_1: {
+            select = 0;
+        }
+        break;
+
+        case GLFW_KEY_2: {
+            select = 1;
+        }
+        break;
+
+        case GLFW_KEY_3: {
+            select = 2;
+        }
+        break;
         
         default:
             break;
@@ -104,7 +119,7 @@ void SceneTest::update(engine::Camera& camera, engine::SceneResources &resources
                     }
                 }
                 else if (engine::Controls::isKeyPressed(GLFW_KEY_LEFT_ALT)) {
-                    marching->setLiquidVoxel(hit, 4, 0);
+                    marching->setLiquidVoxel(hit, selectedLiquid[select], 0);
                 }
                 else if (engine::Controls::isKeyPressed(GLFW_KEY_LEFT_CONTROL)) {
                     auto voxel = marching->getVoxel(hit);
@@ -114,7 +129,7 @@ void SceneTest::update(engine::Camera& camera, engine::SceneResources &resources
                     }
                 }
                 else {
-                    marching->setSolidVoxel(hit + face, 1, 0);
+                    marching->setSolidVoxel(hit + face, selectedSolid[select], 0);
                 }
             }
         }

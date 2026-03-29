@@ -45,10 +45,6 @@ const uvec3 idOffset[8] = {
     uvec3(0, 1, 1), uvec3(1, 1, 1), uvec3(1, 1, 0), uvec3(0, 1, 0),
     uvec3(0, 0, 1), uvec3(1, 0, 1), uvec3(1, 0, 0), uvec3(0, 0, 0)
 };
-const uvec2 replaceMap[8] = {
-    uvec2(1, 3), uvec2(0, 2), uvec2(1, 3), uvec2(0, 2),
-    uvec2(5, 7), uvec2(4, 6), uvec2(5, 7), uvec2(4, 6)
-};
 
 UnpackedData unpackData(uint data);
 UnpackedVoxel unpackVoxel(uint raw);
@@ -107,14 +103,47 @@ void main()
         triangleData[globalTriangleId].variants[variantId].pos_TBN_tex[texId + 1].w
     );
 
-    uint v0Replacer = (cube[replaceMap[v0Id].x].id == 255u) ? cube[replaceMap[v0Id].y].id : cube[replaceMap[v0Id].x].id;
-    uint v1Replacer = (cube[replaceMap[v1Id].x].id == 255u) ? cube[replaceMap[v1Id].y].id : cube[replaceMap[v1Id].x].id;
-    uint v2Replacer = (cube[replaceMap[v2Id].x].id == 255u) ? cube[replaceMap[v2Id].y].id : cube[replaceMap[v2Id].x].id;
-    uint allInvalidId = (cube[v0Id].id == 255u) && (cube[v1Id].id == 255u) && (cube[v2Id].id == 255u) ? 1 : 0;
-    uint allInvalidIdInv = (allInvalidId + 1) & 1;
-    cube[v0Id].id = cube[v0Id].id * allInvalidIdInv + v0Replacer * allInvalidId;
-    cube[v1Id].id = cube[v1Id].id * allInvalidIdInv + v1Replacer * allInvalidId;
-    cube[v2Id].id = cube[v2Id].id * allInvalidIdInv + v2Replacer * allInvalidId;
+    // При объединении слоёв для жидкостей и твердых вокселей у итоговой фигуры слоя жидкостей
+    // появляется проблема, когда вершины фигуры принадлежат вершинам куба с пустым значением 
+    // id для жидкости. В таком случае для вершины выбирается некорректная чёрная текстура.
+    // Существует 3 варианта данной проблемы - когда в треугольнике отсутствует id у 1, 2 или
+    // в худшем случае всех 3-х вершин.
+    //
+    // Следующий блок кода решает худший случай, когда отсутсвуют id для всех 3-х вершин.
+    // Данный случай возникает, когда при объединении в кубе присутствует одна вершина с жидкостью
+    // или таких вершин 2, но вторая вершина с водой лежит в противоположном от первой вершины углу куба.
+    // Ещё в случае с 2 вершинами, эти вершины принадлежат двум несвязанным друг с другом группам 
+    // треугольников (Такие группы не соединяются в единую, неприрывную фигуру).
+    // В остальных случаях если вершины c отсутствующим id и присутствуют, то треугольники, которым
+    // они принадлежат, скрыты за геометрией фигуры твёрдого слоя и следовательно невидимы.
+    //
+    // В соотвествии с особенностями данная проблема решается поиском первой попавшейся вершины с 
+    // наличием id путём обхода всех вершин куба относительно позиции одной из вершин треугольника 
+    // (в данном случае берётся вершина v0Id) в следующем порядке:
+    // 1. Паралельные осям соседи. 2. Диагональные по плоскостям вершины. 3. Противоположный угол куба.
+    // После данной операции проблема переходит в случай отсутствия 2 вершин, что уже решается в 
+    // функции adjustBlendValues().
+    if ((cube[v0Id].id == 255u) && (cube[v1Id].id == 255u) && (cube[v2Id].id == 255u)) {
+        const int replaceMap[56] = {
+            1, 3, 4, 2, 5, 7, 6, // v0Id == 0
+            0, 2, 5, 3, 4, 6, 7, // v0Id == 1
+            1, 3, 6, 0, 5, 7, 4, // v0Id == 2
+            0, 2, 7, 1, 4, 6, 5, // v0Id == 3
+            5, 7, 0, 6, 1, 3, 2, // v0Id == 4
+            4, 6, 1, 7, 0, 2, 3, // v0Id == 5
+            5, 7, 2, 4, 3, 1, 0, // v0Id == 6
+            4, 6, 3, 5, 0, 2, 1  // v0Id == 7
+        };
+
+        uint rId = v0Id * 7;
+        if (cube[replaceMap[rId]].id != 255u) cube[v0Id].id = cube[replaceMap[rId]].id;
+        else if (cube[replaceMap[rId + 1]].id != 255u) cube[v0Id].id = cube[replaceMap[rId + 1]].id;
+        else if (cube[replaceMap[rId + 2]].id != 255u) cube[v0Id].id = cube[replaceMap[rId + 2]].id;
+        else if (cube[replaceMap[rId + 3]].id != 255u) cube[v0Id].id = cube[replaceMap[rId + 3]].id;
+        else if (cube[replaceMap[rId + 4]].id != 255u) cube[v0Id].id = cube[replaceMap[rId + 4]].id;
+        else if (cube[replaceMap[rId + 5]].id != 255u) cube[v0Id].id = cube[replaceMap[rId + 5]].id;
+        else cube[v0Id].id = cube[replaceMap[rId + 6]].id;
+    } 
 
     vertexTextureWeights = adjustBlendValues(localTriangleVertexId, cube[v0Id].id, cube[v1Id].id, cube[v2Id].id);
 
