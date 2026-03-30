@@ -44,6 +44,17 @@ const uvec3 idOffset[8] = {
     uvec3(0, 1, 1), uvec3(1, 1, 1), uvec3(1, 1, 0), uvec3(0, 1, 0),
     uvec3(0, 0, 1), uvec3(1, 0, 1), uvec3(1, 0, 0), uvec3(0, 0, 0)
 };
+// Voxel grid sizes
+const uint gridDimensionSize = 33;
+const uint gridSliceSize = gridDimensionSize * gridDimensionSize;
+const uint gridChunkSize = gridDimensionSize * gridDimensionSize * gridDimensionSize;
+// Packed data sizes
+const uint dataDimensionSize = 32;
+const uint dataSliceSize = dataDimensionSize * dataDimensionSize;
+const uint dataChunkSize = dataDimensionSize * dataDimensionSize * dataDimensionSize;
+// Vertex position offsets count
+const uint maxOffset = 8;
+const uint twoOffsetCombinations = maxOffset * maxOffset;
 
 UnpackedData unpackData(uint data);
 UnpackedVoxel unpackVoxel(uint raw);
@@ -52,7 +63,7 @@ void main()
 {
     int currentInstance = gl_BaseInstance + gl_InstanceID;
     uint chunkId = chunkRefs[gl_DrawID];
-    uint dataLocation = (chunkId * 32768) + currentInstance; // 32768 = 32 * 32 * 32
+    uint dataLocation = (chunkId * dataChunkSize) + currentInstance;
     UnpackedData data = unpackData(packedData[dataLocation]); 
 
     int localTriangleVertexId = gl_VertexID % 3;
@@ -63,12 +74,11 @@ void main()
     uint v1Id = triangleData[globalTriangleId].vertexVoxelIds[1];
     uint v2Id = triangleData[globalTriangleId].vertexVoxelIds[2];
 
-    // 33 * 33 = 1089
-    uint v0FlatArrayId = ((data.z + idOffset[v0Id].z) * 1089) + ((data.y + idOffset[v0Id].y) * 33) + (data.x + idOffset[v0Id].x);
-    uint v1FlatArrayId = ((data.z + idOffset[v1Id].z) * 1089) + ((data.y + idOffset[v1Id].y) * 33) + (data.x + idOffset[v1Id].x);
-    uint v2FlatArrayId = ((data.z + idOffset[v2Id].z) * 1089) + ((data.y + idOffset[v2Id].y) * 33) + (data.x + idOffset[v2Id].x);
+    uint v0FlatArrayId = ((data.z + idOffset[v0Id].z) * gridSliceSize) + ((data.y + idOffset[v0Id].y) * gridDimensionSize) + (data.x + idOffset[v0Id].x);
+    uint v1FlatArrayId = ((data.z + idOffset[v1Id].z) * gridSliceSize) + ((data.y + idOffset[v1Id].y) * gridDimensionSize) + (data.x + idOffset[v1Id].x);
+    uint v2FlatArrayId = ((data.z + idOffset[v2Id].z) * gridSliceSize) + ((data.y + idOffset[v2Id].y) * gridDimensionSize) + (data.x + idOffset[v2Id].x);
 
-    uint gridLocation = chunkId * 35937; // 35937 = 33 * 33 * 33
+    uint gridLocation = chunkId * gridChunkSize;
     uint v0Raw = voxelGrid[gridLocation + v0FlatArrayId];
     uint v1Raw = voxelGrid[gridLocation + v1FlatArrayId];
     uint v2Raw = voxelGrid[gridLocation + v2FlatArrayId];
@@ -81,8 +91,7 @@ void main()
     uint vertexOffsetY = v1.size;
     uint vertexOffsetZ = v2.size;
 
-    // 8 * 8 = 64
-    uint variantId = vertexOffsetZ * 64 + vertexOffsetY * 8 + vertexOffsetX;
+    uint variantId = (vertexOffsetZ * twoOffsetCombinations) + (vertexOffsetY * maxOffset) + vertexOffsetX;
     vec3 chunkPosition = chunkPositions[chunkId].xyz;
 
     vec4 localPosition = vec4(

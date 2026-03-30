@@ -64,6 +64,13 @@ const uvec3 idOffset[8] = {
     uvec3(0, 1, 1), uvec3(1, 1, 1), uvec3(1, 1, 0), uvec3(0, 1, 0),
     uvec3(0, 0, 1), uvec3(1, 0, 1), uvec3(1, 0, 0), uvec3(0, 0, 0)
 };
+// Voxel grid sizes
+const uint gridDimensionSize = 33;
+const uint gridSliceSize = gridDimensionSize * gridDimensionSize;
+const uint gridChunkSize = gridDimensionSize * gridDimensionSize * gridDimensionSize;
+// Vertex position offsets count
+const uint maxOffset = 8;
+const uint twoOffsetCombinations = maxOffset * maxOffset;
 
 UnpackedData unpackData(uint data);
 UnpackedVoxel unpackVoxel(uint raw);
@@ -88,9 +95,9 @@ void main()
         case 0:
             data = unpackData(packedData_0[currentInstance]);
 
-            v0FlatArrayId = ((data.z + idOffset[v0Id].z) * 1089) + ((data.y + idOffset[v0Id].y) * 33) + (data.x + idOffset[v0Id].x);
-            v1FlatArrayId = ((data.z + idOffset[v1Id].z) * 1089) + ((data.y + idOffset[v1Id].y) * 33) + (data.x + idOffset[v1Id].x);
-            v2FlatArrayId = ((data.z + idOffset[v2Id].z) * 1089) + ((data.y + idOffset[v2Id].y) * 33) + (data.x + idOffset[v2Id].x);
+            v0FlatArrayId = ((data.z + idOffset[v0Id].z) * gridSliceSize) + ((data.y + idOffset[v0Id].y) * gridDimensionSize) + (data.x + idOffset[v0Id].x);
+            v1FlatArrayId = ((data.z + idOffset[v1Id].z) * gridSliceSize) + ((data.y + idOffset[v1Id].y) * gridDimensionSize) + (data.x + idOffset[v1Id].x);
+            v2FlatArrayId = ((data.z + idOffset[v2Id].z) * gridSliceSize) + ((data.y + idOffset[v2Id].y) * gridDimensionSize) + (data.x + idOffset[v2Id].x);
 
             v0 = unpackVoxel(voxelGrid_1[v0FlatArrayId]);
             v1 = unpackVoxel(voxelGrid_1[v1FlatArrayId]);
@@ -99,9 +106,9 @@ void main()
         case 1:
             data = unpackData(packedData_2[currentInstance]);
             
-            v0FlatArrayId = ((data.z + idOffset[v0Id].z) * 1089) + ((data.y + idOffset[v0Id].y) * 33) + (data.x + idOffset[v0Id].x);
-            v1FlatArrayId = ((data.z + idOffset[v1Id].z) * 1089) + ((data.y + idOffset[v1Id].y) * 33) + (data.x + idOffset[v1Id].x);
-            v2FlatArrayId = ((data.z + idOffset[v2Id].z) * 1089) + ((data.y + idOffset[v2Id].y) * 33) + (data.x + idOffset[v2Id].x);
+            v0FlatArrayId = ((data.z + idOffset[v0Id].z) * gridSliceSize) + ((data.y + idOffset[v0Id].y) * gridDimensionSize) + (data.x + idOffset[v0Id].x);
+            v1FlatArrayId = ((data.z + idOffset[v1Id].z) * gridSliceSize) + ((data.y + idOffset[v1Id].y) * gridDimensionSize) + (data.x + idOffset[v1Id].x);
+            v2FlatArrayId = ((data.z + idOffset[v2Id].z) * gridSliceSize) + ((data.y + idOffset[v2Id].y) * gridDimensionSize) + (data.x + idOffset[v2Id].x);
 
             v0 = unpackVoxel(voxelGrid_3[v0FlatArrayId]);
             v1 = unpackVoxel(voxelGrid_3[v1FlatArrayId]);
@@ -110,9 +117,9 @@ void main()
         case 2:
             data = unpackData(packedData_4[currentInstance]);
             
-            v0FlatArrayId = ((data.z + idOffset[v0Id].z) * 1089) + ((data.y + idOffset[v0Id].y) * 33) + (data.x + idOffset[v0Id].x);
-            v1FlatArrayId = ((data.z + idOffset[v1Id].z) * 1089) + ((data.y + idOffset[v1Id].y) * 33) + (data.x + idOffset[v1Id].x);
-            v2FlatArrayId = ((data.z + idOffset[v2Id].z) * 1089) + ((data.y + idOffset[v2Id].y) * 33) + (data.x + idOffset[v2Id].x);
+            v0FlatArrayId = ((data.z + idOffset[v0Id].z) * gridSliceSize) + ((data.y + idOffset[v0Id].y) * gridDimensionSize) + (data.x + idOffset[v0Id].x);
+            v1FlatArrayId = ((data.z + idOffset[v1Id].z) * gridSliceSize) + ((data.y + idOffset[v1Id].y) * gridDimensionSize) + (data.x + idOffset[v1Id].x);
+            v2FlatArrayId = ((data.z + idOffset[v2Id].z) * gridSliceSize) + ((data.y + idOffset[v2Id].y) * gridDimensionSize) + (data.x + idOffset[v2Id].x);
 
             v0 = unpackVoxel(voxelGrid_5[v0FlatArrayId]);
             v1 = unpackVoxel(voxelGrid_5[v1FlatArrayId]);
@@ -121,9 +128,9 @@ void main()
         case 3:
             data = unpackData(packedData_6[currentInstance]);
             
-            v0FlatArrayId = ((data.z + idOffset[v0Id].z) * 1089) + ((data.y + idOffset[v0Id].y) * 33) + (data.x + idOffset[v0Id].x);
-            v1FlatArrayId = ((data.z + idOffset[v1Id].z) * 1089) + ((data.y + idOffset[v1Id].y) * 33) + (data.x + idOffset[v1Id].x);
-            v2FlatArrayId = ((data.z + idOffset[v2Id].z) * 1089) + ((data.y + idOffset[v2Id].y) * 33) + (data.x + idOffset[v2Id].x);
+            v0FlatArrayId = ((data.z + idOffset[v0Id].z) * gridSliceSize) + ((data.y + idOffset[v0Id].y) * gridDimensionSize) + (data.x + idOffset[v0Id].x);
+            v1FlatArrayId = ((data.z + idOffset[v1Id].z) * gridSliceSize) + ((data.y + idOffset[v1Id].y) * gridDimensionSize) + (data.x + idOffset[v1Id].x);
+            v2FlatArrayId = ((data.z + idOffset[v2Id].z) * gridSliceSize) + ((data.y + idOffset[v2Id].y) * gridDimensionSize) + (data.x + idOffset[v2Id].x);
 
             v0 = unpackVoxel(voxelGrid_7[v0FlatArrayId]);
             v1 = unpackVoxel(voxelGrid_7[v1FlatArrayId]);
@@ -132,9 +139,9 @@ void main()
         case 4:
             data = unpackData(packedData_8[currentInstance]);
             
-            v0FlatArrayId = ((data.z + idOffset[v0Id].z) * 1089) + ((data.y + idOffset[v0Id].y) * 33) + (data.x + idOffset[v0Id].x);
-            v1FlatArrayId = ((data.z + idOffset[v1Id].z) * 1089) + ((data.y + idOffset[v1Id].y) * 33) + (data.x + idOffset[v1Id].x);
-            v2FlatArrayId = ((data.z + idOffset[v2Id].z) * 1089) + ((data.y + idOffset[v2Id].y) * 33) + (data.x + idOffset[v2Id].x);
+            v0FlatArrayId = ((data.z + idOffset[v0Id].z) * gridSliceSize) + ((data.y + idOffset[v0Id].y) * gridDimensionSize) + (data.x + idOffset[v0Id].x);
+            v1FlatArrayId = ((data.z + idOffset[v1Id].z) * gridSliceSize) + ((data.y + idOffset[v1Id].y) * gridDimensionSize) + (data.x + idOffset[v1Id].x);
+            v2FlatArrayId = ((data.z + idOffset[v2Id].z) * gridSliceSize) + ((data.y + idOffset[v2Id].y) * gridDimensionSize) + (data.x + idOffset[v2Id].x);
 
             v0 = unpackVoxel(voxelGrid_9[v0FlatArrayId]);
             v1 = unpackVoxel(voxelGrid_9[v1FlatArrayId]);
@@ -143,9 +150,9 @@ void main()
         case 5:
             data = unpackData(packedData_10[currentInstance]);
             
-            v0FlatArrayId = ((data.z + idOffset[v0Id].z) * 1089) + ((data.y + idOffset[v0Id].y) * 33) + (data.x + idOffset[v0Id].x);
-            v1FlatArrayId = ((data.z + idOffset[v1Id].z) * 1089) + ((data.y + idOffset[v1Id].y) * 33) + (data.x + idOffset[v1Id].x);
-            v2FlatArrayId = ((data.z + idOffset[v2Id].z) * 1089) + ((data.y + idOffset[v2Id].y) * 33) + (data.x + idOffset[v2Id].x);
+            v0FlatArrayId = ((data.z + idOffset[v0Id].z) * gridSliceSize) + ((data.y + idOffset[v0Id].y) * gridDimensionSize) + (data.x + idOffset[v0Id].x);
+            v1FlatArrayId = ((data.z + idOffset[v1Id].z) * gridSliceSize) + ((data.y + idOffset[v1Id].y) * gridDimensionSize) + (data.x + idOffset[v1Id].x);
+            v2FlatArrayId = ((data.z + idOffset[v2Id].z) * gridSliceSize) + ((data.y + idOffset[v2Id].y) * gridDimensionSize) + (data.x + idOffset[v2Id].x);
 
             v0 = unpackVoxel(voxelGrid_11[v0FlatArrayId]);
             v1 = unpackVoxel(voxelGrid_11[v1FlatArrayId]);
@@ -154,9 +161,9 @@ void main()
         case 6:
             data = unpackData(packedData_12[currentInstance]);
             
-            v0FlatArrayId = ((data.z + idOffset[v0Id].z) * 1089) + ((data.y + idOffset[v0Id].y) * 33) + (data.x + idOffset[v0Id].x);
-            v1FlatArrayId = ((data.z + idOffset[v1Id].z) * 1089) + ((data.y + idOffset[v1Id].y) * 33) + (data.x + idOffset[v1Id].x);
-            v2FlatArrayId = ((data.z + idOffset[v2Id].z) * 1089) + ((data.y + idOffset[v2Id].y) * 33) + (data.x + idOffset[v2Id].x);
+            v0FlatArrayId = ((data.z + idOffset[v0Id].z) * gridSliceSize) + ((data.y + idOffset[v0Id].y) * gridDimensionSize) + (data.x + idOffset[v0Id].x);
+            v1FlatArrayId = ((data.z + idOffset[v1Id].z) * gridSliceSize) + ((data.y + idOffset[v1Id].y) * gridDimensionSize) + (data.x + idOffset[v1Id].x);
+            v2FlatArrayId = ((data.z + idOffset[v2Id].z) * gridSliceSize) + ((data.y + idOffset[v2Id].y) * gridDimensionSize) + (data.x + idOffset[v2Id].x);
 
             v0 = unpackVoxel(voxelGrid_13[v0FlatArrayId]);
             v1 = unpackVoxel(voxelGrid_13[v1FlatArrayId]);
@@ -168,8 +175,7 @@ void main()
     uint vertexOffsetY = v1.size;
     uint vertexOffsetZ = v2.size;
 
-    // 8 * 8 = 64
-    uint variantId = vertexOffsetZ * 64 + vertexOffsetY * 8 + vertexOffsetX;
+    uint variantId = (vertexOffsetZ * twoOffsetCombinations) + (vertexOffsetY * maxOffset) + vertexOffsetX;
     vec3 chunkPosition = chunkPositions[chunkBatchId].xyz;
 
     vec4 localPosition = vec4(
