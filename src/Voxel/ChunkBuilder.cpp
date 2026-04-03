@@ -95,13 +95,13 @@ void engine::ChunkBuilder::regenerateChunk(
 }
 
 void engine::ChunkBuilder::accumulateCases(MarchingCubes &marchingCubes, ChunkGrid &grid, VoxelChunk &chunk) {
-    constexpr int MARCHING_CUBES_COUNT = 32;
+    constexpr int MARCHING_CUBES_PER_AXIS = VoxelChunkBase::MARCHING_CUBES_PER_AXIS;
 
     // Определение количества отрисовок для каждой из фигур марширующих кубов и
     // упаковка данных фигур для последующей загрузки в буфер SSBO
-    for (int z = 0; z < MARCHING_CUBES_COUNT; z++) {
-        for (int y = 0; y < MARCHING_CUBES_COUNT; y++) {
-            for (int x = 0; x < MARCHING_CUBES_COUNT; x++) {
+    for (int z = 0; z < MARCHING_CUBES_PER_AXIS; z++) {
+        for (int y = 0; y < MARCHING_CUBES_PER_AXIS; y++) {
+            for (int x = 0; x < MARCHING_CUBES_PER_AXIS; x++) {
                 std::array<Voxel, 8> voxels {
                     chunk.getVoxel(x, y + 1, z + 1), // topFrontLeft
                     chunk.getVoxel(x + 1, y + 1, z + 1), // topFrontRight

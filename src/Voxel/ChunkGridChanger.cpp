@@ -125,6 +125,8 @@ void engine::ChunkGridChanger::syncChunkBorders(ChunkGridBounds& gridBounds, glm
     for (int y = 0; y < ChunkGridBounds::CHUNK_MAX_Y_SIZE; y++) {
         chunks[y] = &m_grid.getChunk(localPos.x, y, localPos.y);
     }
+
+    constexpr int AXIS_RIGHT_BORDER = VoxelChunkBase::VOXELS_PER_AXIS - 1;
     
     glm::ivec2 current = glm::ivec2(localPos.x + 1, localPos.y); // X+
     if (gridBounds.isChunkXZInbounds(current.x, current.y) && m_grid.isHaveChunk(current.x, 0, current.y)) {
@@ -135,7 +137,7 @@ void engine::ChunkGridChanger::syncChunkBorders(ChunkGridBounds& gridBounds, glm
             for (int vy = 0; vy < VoxelChunk::CHUNK_VOXELS_PER_AXIS; vy++) {
                 for (int vz = 0; vz < VoxelChunk::CHUNK_VOXELS_PER_AXIS; vz++) {
                     Voxel voxel = heighbour.getVoxel(0, vy, vz);
-                    chunks[y]->setVoxel(32, vy, vz, voxel);
+                    chunks[y]->setVoxel(AXIS_RIGHT_BORDER, vy, vz, voxel);
                 }
             }
         }
@@ -150,7 +152,7 @@ void engine::ChunkGridChanger::syncChunkBorders(ChunkGridBounds& gridBounds, glm
             for (int vy = 0; vy < VoxelChunk::CHUNK_VOXELS_PER_AXIS; vy++) {
                 for (int vx = 0; vx < VoxelChunk::CHUNK_VOXELS_PER_AXIS; vx++) {
                     Voxel voxel = heighbour.getVoxel(vx, vy, 0);
-                    chunks[y]->setVoxel(vx, vy, 32, voxel);
+                    chunks[y]->setVoxel(vx, vy, AXIS_RIGHT_BORDER, voxel);
                 }
             }
         }
@@ -164,7 +166,7 @@ void engine::ChunkGridChanger::syncChunkBorders(ChunkGridBounds& gridBounds, glm
             VoxelChunk& heighbour = m_grid.getChunk(chunkId);
             for (int vy = 0; vy < VoxelChunk::CHUNK_VOXELS_PER_AXIS; vy++) {
                 Voxel voxel = heighbour.getVoxel(0, vy, 0);
-                chunks[y]->setVoxel(32, vy, 32, voxel);
+                chunks[y]->setVoxel(AXIS_RIGHT_BORDER, vy, AXIS_RIGHT_BORDER, voxel);
             }
         }
     }
@@ -173,7 +175,7 @@ void engine::ChunkGridChanger::syncChunkBorders(ChunkGridBounds& gridBounds, glm
         for (int x = 0; x < VoxelChunk::VOXELS_PER_AXIS; x++) {
             for (int z = 0; z < VoxelChunk::VOXELS_PER_AXIS; z++) {
                 Voxel voxel = chunks[y + 1]->getVoxel(x, 0, z);
-                chunks[y]->setVoxel(x, 32, z, voxel);
+                chunks[y]->setVoxel(x, AXIS_RIGHT_BORDER, z, voxel);
             }
         }
     }
@@ -193,7 +195,7 @@ void engine::ChunkGridChanger::syncChunkBorders(ChunkGridBounds& gridBounds, glm
             for (int vy = 0; vy < VoxelChunk::VOXELS_PER_AXIS; vy++) {
                 for (int vz = 0; vz < VoxelChunk::VOXELS_PER_AXIS; vz++) {
                     Voxel voxel = chunks[y]->getVoxel(0, vy, vz);
-                    heighbour.setVoxel(32, vy, vz, voxel);
+                    heighbour.setVoxel(AXIS_RIGHT_BORDER, vy, vz, voxel);
                 }
             }
         }
@@ -209,7 +211,7 @@ void engine::ChunkGridChanger::syncChunkBorders(ChunkGridBounds& gridBounds, glm
             for (int vy = 0; vy < VoxelChunk::VOXELS_PER_AXIS; vy++) {
                 for (int vx = 0; vx < VoxelChunk::VOXELS_PER_AXIS; vx++) {
                     Voxel voxel = chunks[y]->getVoxel(vx, vy, 0);
-                    heighbour.setVoxel(vx, vy, 32, voxel);
+                    heighbour.setVoxel(vx, vy, AXIS_RIGHT_BORDER, voxel);
                 }
             }
         }
@@ -224,7 +226,7 @@ void engine::ChunkGridChanger::syncChunkBorders(ChunkGridBounds& gridBounds, glm
             VoxelChunk& heighbour = m_grid.getChunk(chunkId);
             for (int vy = 0; vy < VoxelChunk::VOXELS_PER_AXIS; vy++) {
                 Voxel voxel = chunks[y]->getVoxel(0, vy, 0);
-                heighbour.setVoxel(32, vy, 32, voxel);
+                heighbour.setVoxel(AXIS_RIGHT_BORDER, vy, AXIS_RIGHT_BORDER, voxel);
             }
         }
     }

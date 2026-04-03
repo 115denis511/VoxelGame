@@ -13,17 +13,19 @@ public:
     }
 
     void makePerlinNoiseTerrain(const glm::ivec2& worldChunkPosition, std::array<engine::VoxelChunkBase*, 8>& chunkSlice) {
-        for (int x = 0; x < engine::VoxelChunkBase::CHUNK_VOXELS_PER_AXIS; x++) {
-            for (int y = 0; y < engine::VoxelChunkBase::CHUNK_VOXELS_PER_AXIS; y++) {
-                for (int z = 0; z < engine::VoxelChunkBase::CHUNK_VOXELS_PER_AXIS; z++) {
+        constexpr int VOXELS_PER_AXIS = engine::VoxelChunkBase::CHUNK_VOXELS_PER_AXIS;
+
+        for (int x = 0; x < VOXELS_PER_AXIS; x++) {
+            for (int y = 0; y < VOXELS_PER_AXIS; y++) {
+                for (int z = 0; z < VOXELS_PER_AXIS; z++) {
                     chunkSlice[0]->setSolidVoxel(x ,y, z, 3, 7);    
                 }
             }
         }
 
-        for (int x = 0; x < engine::VoxelChunkBase::CHUNK_VOXELS_PER_AXIS; x++) {
-            for (int z = 0; z < engine::VoxelChunkBase::CHUNK_VOXELS_PER_AXIS; z++) {
-                float h = m_perlin.noise((float)x / 32 + worldChunkPosition.x, (float)z / 32 + worldChunkPosition.y, 1, 0.7f);
+        for (int x = 0; x < VOXELS_PER_AXIS; x++) {
+            for (int z = 0; z < VOXELS_PER_AXIS; z++) {
+                float h = m_perlin.noise((float)x / VOXELS_PER_AXIS + worldChunkPosition.x, (float)z / VOXELS_PER_AXIS + worldChunkPosition.y, 1, 0.7f);
                 int ih = (h + 1) * 16 * 8;
                 int y = (ih / 8);
                 int t = ih & 0b111;
@@ -40,24 +42,26 @@ public:
     }
 
     void makeTestTerrain(const glm::ivec2& worldChunkPosition, std::array<engine::VoxelChunkBase*, 8>& chunkSlice) {
-        for (size_t x = 0; x < 32; x++) {
-            for (size_t z = 0; z < 32; z++){
+        constexpr size_t VOXELS_PER_AXIS = engine::VoxelChunkBase::CHUNK_VOXELS_PER_AXIS;
+
+        for (size_t x = 0; x < VOXELS_PER_AXIS; x++) {
+            for (size_t z = 0; z < VOXELS_PER_AXIS; z++){
                 chunkSlice[0]->setSolidVoxel(x,1,z, 0);
             }
         }
 
         if (worldChunkPosition.x == 0 && worldChunkPosition.y == 0) {
-            for (size_t y = 0; y < 32; y+=2) {
-                for (size_t z = 0; z < 32; z+=2) {
-                    for (size_t x = 0; x < 32; x+=2) {
+            for (size_t y = 0; y < VOXELS_PER_AXIS; y+=2) {
+                for (size_t z = 0; z < VOXELS_PER_AXIS; z+=2) {
+                    for (size_t x = 0; x < VOXELS_PER_AXIS; x+=2) {
                         chunkSlice[0]->setSolidVoxel(x,y,z, 1);
                     }
                 }
             }
         }
         else if (worldChunkPosition.x == 1 && worldChunkPosition.y == -3) {
-            for (size_t y = 0; y < 32; y++) {
-                for (size_t z = 0; z < 32; z++) {
+            for (size_t y = 0; y < VOXELS_PER_AXIS; y++) {
+                for (size_t z = 0; z < VOXELS_PER_AXIS; z++) {
                     chunkSlice[0]->setSolidVoxel(25,y,z, 1);
                 }
             }
@@ -114,8 +118,8 @@ public:
 
         }
         else if (worldChunkPosition.x == 2 && worldChunkPosition.y == 2) {
-            for (size_t x = 0; x < 32; x++) {
-                for (size_t z = 0; z < 32; z++){
+            for (size_t x = 0; x < VOXELS_PER_AXIS; x++) {
+                for (size_t z = 0; z < VOXELS_PER_AXIS; z++){
                     chunkSlice[0]->deleteSolidVoxel(x,1,z);
                 }
             }
@@ -131,14 +135,15 @@ public:
         }
 
         if (worldChunkPosition.x <= -1) { // && (std::abs(worldChunkPosition.x) + std::abs(worldChunkPosition.y) + y) % 2 != 0
-            for (size_t y = 0; y < 32; y++) {
-                for (size_t z = 0; z < 32; z++){
+            for (size_t y = 0; y < VOXELS_PER_AXIS; y++) {
+                for (size_t z = 0; z < VOXELS_PER_AXIS; z++){
+                    constexpr int CHUNK_BORDER = VOXELS_PER_AXIS - 1;
                     chunkSlice[0]->setSolidVoxel(0,y,z, 1);
-                    chunkSlice[0]->setSolidVoxel(31,y,z, 1);
+                    chunkSlice[0]->setSolidVoxel(CHUNK_BORDER,y,z, 1);
                     chunkSlice[0]->setSolidVoxel(z,y,0, 1);
-                    chunkSlice[0]->setSolidVoxel(z,y,31, 1);
+                    chunkSlice[0]->setSolidVoxel(z,y,CHUNK_BORDER, 1);
                     chunkSlice[0]->setSolidVoxel(z,0,y, 1);
-                    chunkSlice[0]->setSolidVoxel(z,31,y, 1);
+                    chunkSlice[0]->setSolidVoxel(z,CHUNK_BORDER,y, 1);
                 }
             }
         }

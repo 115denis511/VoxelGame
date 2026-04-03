@@ -3,6 +3,7 @@
 
 #include "../stdafx.h"
 #include "../Utilites/MultidimensionalArrays.h"
+#include "ChunkGridBounds.h"
 #include "Voxel.h"
 
 namespace engine {
@@ -11,7 +12,7 @@ namespace engine {
         VoxelChunkBase();
         virtual ~VoxelChunkBase();
 
-        static constexpr int CHUNK_VOXELS_PER_AXIS = 32;
+        static constexpr int CHUNK_VOXELS_PER_AXIS = ChunkGridBounds::CHUNCK_DIMENSION_SIZE;
         static constexpr int MARCHING_CUBE_OVERLAPING_BORDER = 1;
         static constexpr int VOXELS_PER_AXIS = CHUNK_VOXELS_PER_AXIS + MARCHING_CUBE_OVERLAPING_BORDER;
         static constexpr int MARCHING_CUBES_PER_AXIS = VOXELS_PER_AXIS - 1;

@@ -128,8 +128,7 @@ void engine::ChunkGridVoxelEditor::syncChunkBorders(const glm::ivec3 &chunkWorld
     }
 }
 
-void engine::ChunkGridVoxelEditor::syncLeftChunk(const glm::ivec3 &chunkWorldPos, const glm::ivec2 &chunkLocalPos, const Voxel &voxel, int y, int z)
-{
+void engine::ChunkGridVoxelEditor::syncLeftChunk(const glm::ivec3 &chunkWorldPos, const glm::ivec2 &chunkLocalPos, const Voxel &voxel, int y, int z) {
     if (
         m_gridBounds.isWorldChunkInbounds(chunkWorldPos.x - 1, chunkWorldPos.y, chunkWorldPos.z) && 
         m_grid.isHaveChunk(chunkLocalPos.x - 1, chunkWorldPos.y, chunkLocalPos.y)
@@ -138,7 +137,8 @@ void engine::ChunkGridVoxelEditor::syncLeftChunk(const glm::ivec3 &chunkWorldPos
         m_gridChanger.pushToUpdateQueue(chunkId);
 
         VoxelChunk& heighbour = m_grid.getChunk(chunkId);
-        heighbour.setVoxel(32, y, z, voxel);
+        constexpr int AXIS_RIGHT_BORDER = VoxelChunkBase::VOXELS_PER_AXIS - 1;
+        heighbour.setVoxel(AXIS_RIGHT_BORDER, y, z, voxel);
     }
 }
 
@@ -151,7 +151,8 @@ void engine::ChunkGridVoxelEditor::syncBottomChunk(const glm::ivec3 &chunkWorldP
         m_gridChanger.pushToUpdateQueue(chunkId);
 
         VoxelChunk& heighbour = m_grid.getChunk(chunkId);
-        heighbour.setVoxel(x, 32, z, voxel);
+        constexpr int AXIS_RIGHT_BORDER = VoxelChunkBase::VOXELS_PER_AXIS - 1;
+        heighbour.setVoxel(x, AXIS_RIGHT_BORDER, z, voxel);
     }
 }
 
@@ -164,7 +165,8 @@ void engine::ChunkGridVoxelEditor::syncBackChunk(const glm::ivec3 &chunkWorldPos
         m_gridChanger.pushToUpdateQueue(chunkId);
 
         VoxelChunk& heighbour = m_grid.getChunk(chunkId);
-        heighbour.setVoxel(x, y, 32, voxel);
+        constexpr int AXIS_RIGHT_BORDER = VoxelChunkBase::VOXELS_PER_AXIS - 1;
+        heighbour.setVoxel(x, y, AXIS_RIGHT_BORDER, voxel);
     }
 }
 
@@ -177,7 +179,8 @@ void engine::ChunkGridVoxelEditor::syncLeftBottomChunk(const glm::ivec3 &chunkWo
         m_gridChanger.pushToUpdateQueue(chunkId);
 
         VoxelChunk& heighbour = m_grid.getChunk(chunkId);
-        heighbour.setVoxel(32, 32, z, voxel);
+        constexpr int AXIS_RIGHT_BORDER = VoxelChunkBase::VOXELS_PER_AXIS - 1;
+        heighbour.setVoxel(AXIS_RIGHT_BORDER, AXIS_RIGHT_BORDER, z, voxel);
     }
 }
 
@@ -190,7 +193,8 @@ void engine::ChunkGridVoxelEditor::syncLeftBackChunk(const glm::ivec3 &chunkWorl
         m_gridChanger.pushToUpdateQueue(chunkId);
 
         VoxelChunk& heighbour = m_grid.getChunk(chunkId);
-        heighbour.setVoxel(32, y, 32, voxel);
+        constexpr int AXIS_RIGHT_BORDER = VoxelChunkBase::VOXELS_PER_AXIS - 1;
+        heighbour.setVoxel(AXIS_RIGHT_BORDER, y, AXIS_RIGHT_BORDER, voxel);
     }
 }
 
@@ -203,7 +207,8 @@ void engine::ChunkGridVoxelEditor::syncBottomBackChunk(const glm::ivec3 &chunkWo
         m_gridChanger.pushToUpdateQueue(chunkId);
 
         VoxelChunk& heighbour = m_grid.getChunk(chunkId);
-        heighbour.setVoxel(x, 32, 32, voxel);
+        constexpr int AXIS_RIGHT_BORDER = VoxelChunkBase::VOXELS_PER_AXIS - 1;
+        heighbour.setVoxel(x, AXIS_RIGHT_BORDER, AXIS_RIGHT_BORDER, voxel);
     }
 }
 
@@ -216,6 +221,7 @@ void engine::ChunkGridVoxelEditor::syncLeftBottomBackChunk(const glm::ivec3 &chu
         m_gridChanger.pushToUpdateQueue(chunkId);
 
         VoxelChunk& heighbour = m_grid.getChunk(chunkId);
-        heighbour.setVoxel(32, 32, 32, voxel);
+        constexpr int AXIS_RIGHT_BORDER = VoxelChunkBase::VOXELS_PER_AXIS - 1;
+        heighbour.setVoxel(AXIS_RIGHT_BORDER, AXIS_RIGHT_BORDER, AXIS_RIGHT_BORDER, voxel);
     }
 }
