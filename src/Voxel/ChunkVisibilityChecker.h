@@ -16,7 +16,7 @@ namespace engine {
     private:
         enum class VisibilityCheckState : uint8_t { NOT_CHECKED = 0, CHECKED };
 
-        static constexpr int STATE_GRID_SIZE = VoxelChunk::GRID_SIZE;
+        static constexpr int STATE_GRID_SIZE = VoxelChunk::VOXELS_PER_AXIS;
 
         VisibilityCheckState m_state [STATE_GRID_SIZE][STATE_GRID_SIZE][STATE_GRID_SIZE];
         std::stack<glm::ivec3> m_stack;

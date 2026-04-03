@@ -33,9 +33,9 @@ bool engine::VoxelChunkBase::isVoxelSolid(short x, short y, short z) {
 }
 
 void engine::VoxelChunkBase::clear() {
-    for (size_t x = 0; x < GRID_SIZE; x++) {
-        for (size_t y = 0; y < GRID_SIZE; y++) {
-            for (size_t z = 0; z < GRID_SIZE; z++) {
+    for (size_t x = 0; x < VOXELS_PER_AXIS; x++) {
+        for (size_t y = 0; y < VOXELS_PER_AXIS; y++) {
+            for (size_t z = 0; z < VOXELS_PER_AXIS; z++) {
                 m_voxels(x, y, z) = Voxel();
             }
         }

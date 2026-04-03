@@ -11,11 +11,12 @@ namespace engine {
         VoxelChunkBase();
         virtual ~VoxelChunkBase();
 
-        static constexpr int VOXEL_CHUNK_SIZE = 32;
+        static constexpr int CHUNK_VOXELS_PER_AXIS = 32;
         static constexpr int MARCHING_CUBE_OVERLAPING_BORDER = 1;
-        static constexpr int GRID_SIZE = VOXEL_CHUNK_SIZE + MARCHING_CUBE_OVERLAPING_BORDER;
-        static constexpr int MARCHING_CUBES_COUNT = VOXEL_CHUNK_SIZE * VOXEL_CHUNK_SIZE * VOXEL_CHUNK_SIZE;
-        static constexpr int GRID_VOXEL_COUNT = GRID_SIZE * GRID_SIZE * GRID_SIZE;
+        static constexpr int VOXELS_PER_AXIS = CHUNK_VOXELS_PER_AXIS + MARCHING_CUBE_OVERLAPING_BORDER;
+        static constexpr int MARCHING_CUBES_PER_AXIS = VOXELS_PER_AXIS - 1;
+        static constexpr int MARCHING_CUBES_COUNT = CHUNK_VOXELS_PER_AXIS * CHUNK_VOXELS_PER_AXIS * CHUNK_VOXELS_PER_AXIS;
+        static constexpr int GRID_VOXEL_COUNT = VOXELS_PER_AXIS * VOXELS_PER_AXIS * VOXELS_PER_AXIS;
         static constexpr GLsizeiptr MARCHING_CUBES_BYTE_SIZE = MARCHING_CUBES_COUNT * sizeof(GLuint);
         static constexpr GLsizeiptr GRID_BYTE_SIZE = GRID_VOXEL_COUNT * sizeof(Voxel);
 
@@ -27,11 +28,11 @@ namespace engine {
         Voxel getVoxel(short x, short y, short z);
         bool isVoxelSolid(short x, short y, short z);
         void clear();
-        utilites::Array3D<Voxel, GRID_SIZE, GRID_SIZE, GRID_SIZE>& getVoxelArray() { return m_voxels; }
+        utilites::Array3D<Voxel, VOXELS_PER_AXIS, VOXELS_PER_AXIS, VOXELS_PER_AXIS>& getVoxelArray() { return m_voxels; }
 
 
     protected:
-        utilites::Array3D<Voxel, GRID_SIZE, GRID_SIZE, GRID_SIZE> m_voxels;
+        utilites::Array3D<Voxel, VOXELS_PER_AXIS, VOXELS_PER_AXIS, VOXELS_PER_AXIS> m_voxels;
     };
 }
 

@@ -13,16 +13,16 @@ public:
     }
 
     void makePerlinNoiseTerrain(const glm::ivec2& worldChunkPosition, std::array<engine::VoxelChunkBase*, 8>& chunkSlice) {
-        for (int x = 0; x < engine::VoxelChunkBase::VOXEL_CHUNK_SIZE; x++) {
-            for (int y = 0; y < engine::VoxelChunkBase::VOXEL_CHUNK_SIZE; y++) {
-                for (int z = 0; z < engine::VoxelChunkBase::VOXEL_CHUNK_SIZE; z++) {
+        for (int x = 0; x < engine::VoxelChunkBase::CHUNK_VOXELS_PER_AXIS; x++) {
+            for (int y = 0; y < engine::VoxelChunkBase::CHUNK_VOXELS_PER_AXIS; y++) {
+                for (int z = 0; z < engine::VoxelChunkBase::CHUNK_VOXELS_PER_AXIS; z++) {
                     chunkSlice[0]->setSolidVoxel(x ,y, z, 3, 7);    
                 }
             }
         }
 
-        for (int x = 0; x < engine::VoxelChunkBase::VOXEL_CHUNK_SIZE; x++) {
-            for (int z = 0; z < engine::VoxelChunkBase::VOXEL_CHUNK_SIZE; z++) {
+        for (int x = 0; x < engine::VoxelChunkBase::CHUNK_VOXELS_PER_AXIS; x++) {
+            for (int z = 0; z < engine::VoxelChunkBase::CHUNK_VOXELS_PER_AXIS; z++) {
                 float h = m_perlin.noise((float)x / 32 + worldChunkPosition.x, (float)z / 32 + worldChunkPosition.y, 1, 0.7f);
                 int ih = (h + 1) * 16 * 8;
                 int y = (ih / 8);

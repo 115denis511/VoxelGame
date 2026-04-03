@@ -61,9 +61,9 @@ namespace engine {
         void freeSSBO();
         void setIdInSSBO(GLuint start) { m_idInSSBO = start; }
         bool isPositionInsideChunk(short x, short y, short z) { 
-            return x >= 0 && x < (short)VOXEL_CHUNK_SIZE && 
-                   y >= 0 && y < (short)VOXEL_CHUNK_SIZE && 
-                   z >= 0 && z < (short)VOXEL_CHUNK_SIZE; 
+            return x >= 0 && x < (short)CHUNK_VOXELS_PER_AXIS && 
+                   y >= 0 && y < (short)CHUNK_VOXELS_PER_AXIS && 
+                   z >= 0 && z < (short)CHUNK_VOXELS_PER_AXIS; 
         };
     };
 }
