@@ -41,7 +41,7 @@ void main()
         tex0.x * weights.x + tex1.x * weights.y + tex2.x * weights.z,
         tex0.y * weights.x + tex1.y * weights.y + tex2.y * weights.z,
         tex0.z * weights.x + tex1.z * weights.y + tex2.z * weights.z,
-        1.0
+        0.7
     );
 
     // TBN test

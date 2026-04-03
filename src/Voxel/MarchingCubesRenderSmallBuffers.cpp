@@ -149,8 +149,15 @@ void engine::MarchingCubesRenderSmallBuffers::drawLiquidsAccumulatedBatches(Marc
     glEnable(GL_POLYGON_OFFSET_FILL);
     glPolygonOffset(1.0f, 1.0f);
 
+    // TODO: Прозрачные меши должны рисоваться в специальный Weighted Blended буффер прозрачности
+    // https://learnopengl.com/Guest-Articles/2020/OIT/Weighted-Blended
+    // Так же для жидкостного (прозрачного) слоя нужен отдельный текстурный массив с поддержкой альфа канала.
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
+
     m_shaderLiquids->use();
     marchingCubes.draw(liquidsDrawCount);
 
     glDisable(GL_POLYGON_OFFSET_FILL);
+    glDisable(GL_BLEND);
 };
