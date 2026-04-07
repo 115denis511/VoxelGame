@@ -5,7 +5,9 @@
 
 namespace engine {
     struct ChunkGridBounds {
-        static constexpr int CHUNCK_DIMENSION_SIZE = 32;
+        // ВАЖНО! При изменении данной константы нужно также изменить значения gridDimensionSize и dataDimensionSize в
+        // шейдерах mc_solid_bigBuffer.vert, mc_liquid_bigBuffer.vert, mc_solid_smallBuffers.vert, mc_liquid_smallBuffers.vert!
+        static constexpr int CHUNCK_DIMENSION_SIZE = 31;
         static constexpr int VOXEL_SIZE = 1;
         static constexpr int CHUNK_MAX_X_Z_SIZE = 24;
         static constexpr int CHUNK_MAX_Y_SIZE = 8;

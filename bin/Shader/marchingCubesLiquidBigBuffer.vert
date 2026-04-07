@@ -46,11 +46,11 @@ const uvec3 idOffset[8] = {
     uvec3(0, 0, 1), uvec3(1, 0, 1), uvec3(1, 0, 0), uvec3(0, 0, 0)
 };
 // Voxel grid sizes
-const uint gridDimensionSize = 33;
+const uint gridDimensionSize = 32;
 const uint gridSliceSize = gridDimensionSize * gridDimensionSize;
 const uint gridChunkSize = gridDimensionSize * gridDimensionSize * gridDimensionSize;
 // Packed data sizes
-const uint dataDimensionSize = 32;
+const uint dataDimensionSize = 31;
 const uint dataSliceSize = dataDimensionSize * dataDimensionSize;
 const uint dataChunkSize = dataDimensionSize * dataDimensionSize * dataDimensionSize;
 // Vertex position offsets count
