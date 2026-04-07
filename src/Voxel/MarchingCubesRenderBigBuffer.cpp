@@ -8,10 +8,10 @@ engine::MarchingCubesRenderBigBuffer::MarchingCubesRenderBigBuffer(
 ) :
     MarchingCubesRenderBase(
         ChunkGridBounds::CHUNK_COUNT,
-        "Shader/marchingCubesAllInOne.vert",
-        "Shader/marchingCubes.frag",
-        "Shader/marchingCubesLiquidBigBuffer.vert",
-        "Shader/marchingCubesLiquid.frag"
+        "Shader/mc_solid_bigBuffer.vert",
+        "Shader/mc_solid.frag",
+        "Shader/mc_liquid_bigBuffer.vert",
+        "Shader/mc_liquid.frag"
     ), 
     m_grid(grid), 
     m_gridBounds(gridBounds), 
