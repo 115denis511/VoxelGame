@@ -13,7 +13,7 @@ void engine::UniformManager::setTexturePack(uniform_structs::TexturePack &vars) 
 }
 
 void engine::UniformManager::setChunkPositions(const std::vector<glm::vec4>& positions) {
-    glNamedBufferSubData(g_chunkPositions->getUBO(), 0, sizeof(glm::vec4) * 14, &positions[0]);
+    glNamedBufferSubData(g_chunkPositions->getUBO(), 0, sizeof(glm::vec4) * 7, &positions[0]);
 }
 
 bool engine::UniformManager::init() {

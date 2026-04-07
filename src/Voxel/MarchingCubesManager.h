@@ -73,7 +73,9 @@ namespace engine {
 
         static bool init();
         static void freeResources();
-        void draw(const CameraVars& cameraVars, Frustum frustum);
+        void prepareToDraw(const CameraVars& cameraVars, Frustum frustum);
+        void drawSolids();
+        void drawLiquids();
         void updateChunks(size_t maxCount = 8);
         bool setVoxelTexture(int layer, unsigned char *rawImage, int width, int height, int nrComponents);
         bool setVoxelTexture(int layer, std::string path);

@@ -16,7 +16,9 @@ namespace engine {
         virtual ~MarchingCubesRenderBase();
 
         virtual void initSSBOs(MarchingCubesSSBOs& ssbos) = 0;
-        virtual void drawSolid(const CameraVars &cameraVars, Frustum frustum, MarchingCubes& marchingCubes) = 0;
+        virtual void prepareToDraw(const CameraVars &cameraVars, Frustum frustum) = 0;
+        virtual void drawSolid(MarchingCubes& marchingCubes) = 0;
+        virtual void drawLiquid(MarchingCubes& marchingCubes) = 0;
 
         bool setVoxelTexture(int layer, unsigned char *rawImage, int width, int height, int nrComponents);
         bool setVoxelTexture(int layer, std::string path);

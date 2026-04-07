@@ -80,8 +80,16 @@ engine::MarchingCubesManager::MarchingCubesManager() {
     }
 }
 
-void engine::MarchingCubesManager::draw(const CameraVars &cameraVars, Frustum frustum) {
-    m_render->drawSolid(cameraVars, frustum, m_marchingCubes);
+void engine::MarchingCubesManager::prepareToDraw(const CameraVars& cameraVars, Frustum frustum) {
+    m_render->prepareToDraw(cameraVars, frustum);
+}
+
+void engine::MarchingCubesManager::drawSolids() {
+    m_render->drawSolid(m_marchingCubes);
+}
+
+void engine::MarchingCubesManager::drawLiquids() {
+    m_render->drawLiquid(m_marchingCubes);
 }
 
 bool engine::MarchingCubesManager::raycastVoxel(const glm::vec3& position, const glm::vec3& direction, float maxDistance, glm::ivec3& hitPosition, glm::ivec3& hitFace) {

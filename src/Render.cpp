@@ -118,10 +118,14 @@ void engine::Render::draw(CameraVars cameraVars, SceneResources& sceneResources,
 
     Frustum frustum(cameraVars, m_projectionPerspective);
     
-    m_marchingCubesManager->draw(cameraVars, frustum);
+    m_marchingCubesManager->prepareToDraw(cameraVars, frustum);
     accamulateInstancingBuffers(sceneResources, worldBVH, frustum);
+
+    m_marchingCubesManager->drawSolids();
     ShaderStorageManager::resetBindings();
     drawInstanced();
+
+    m_marchingCubesManager->drawLiquids();
      
 
     int errors = 0;

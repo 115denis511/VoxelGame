@@ -21,7 +21,9 @@ namespace engine {
         );
 
         virtual void initSSBOs(MarchingCubesSSBOs& ssbos) override;
-        virtual void drawSolid(const CameraVars &cameraVars, Frustum frustum, MarchingCubes& marchingCubes) override;
+        virtual void prepareToDraw(const CameraVars &cameraVars, Frustum frustum) override;
+        virtual void drawSolid(MarchingCubes& marchingCubes) override;
+        virtual void drawLiquid(MarchingCubes& marchingCubes) override;
 
     private:
         static constexpr GLuint SSBO_BLOCK__GLOBAL_CHUNK_GRIDS_STORAGE = 11;
@@ -34,6 +36,8 @@ namespace engine {
         ChunkGridBounds& m_gridBounds;
         ChunkGridVisibility& m_gridVisibility;
         MarchingCubesSSBOs& m_ssbos;
+        GLsizei m_solidsDrawCount{ 0 };
+        GLsizei m_liquidsDrawCount{ 0 };
 
     };
 }

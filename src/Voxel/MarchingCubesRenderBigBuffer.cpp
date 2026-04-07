@@ -26,23 +26,15 @@ void engine::MarchingCubesRenderBigBuffer::initSSBOs(MarchingCubesSSBOs &ssbos) 
     ssbos.drawIdToDataSSBO.init(254 * ChunkGridBounds::CHUNK_COUNT, BufferUsage::DYNAMIC_DRAW);
 }
 
-void engine::MarchingCubesRenderBigBuffer::drawSolid(const CameraVars &cameraVars, Frustum frustum, MarchingCubes& marchingCubes) {
-    m_textures.use();
-    
-    m_ssbos.globalChunkGridsSSBO.bind(SSBO_BLOCK__GLOBAL_CHUNK_GRIDS_STORAGE);
-    m_ssbos.globalChunkSSBO.bind(SSBO_BLOCK__GLOBAL_CHUNK_STORAGE);
-    m_ssbos.chunkPositionsSSBO.bind(SSBO_BLOCK__CHUNK_POSITIONS);
-    marchingCubes.bindSSBO(SSBO_BLOCK__VOXEL_VERTECES_DATA_IDS);
-    m_ssbos.drawIdToDataSSBO.bind(SSBO_BLOCK__DRAW_ID_TO_CHUNK);
-    
+void engine::MarchingCubesRenderBigBuffer::prepareToDraw(const CameraVars& cameraVars, Frustum frustum) {
     m_gridVisibility.clearResults();
     m_gridVisibility.checkVisibility(
         cameraVars.cameraPosition, cameraVars.cameraTarget, frustum, ChunkGridVisibility::VisabilityType::CAMERA, m_grid
     );
-    
-    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_commandBuffer);
-    GLsizei solidsDrawCount = 0;
-    GLsizei liquidsDrawCount = 0;
+
+    m_solidsDrawCount = 0;
+    m_liquidsDrawCount = 0;
+
     unsigned int gridWidth = m_gridBounds.usedChunkGridWidth;
     for (size_t z = 0; z < gridWidth; z++){
         for (size_t x = 0; x < gridWidth; x++){
@@ -56,32 +48,53 @@ void engine::MarchingCubesRenderBigBuffer::drawSolid(const CameraVars &cameraVar
                     auto& chunkDrawCommands = chunk.getSolidsDrawCommands();
                     GLsizei chunkSolidsDrawCount = chunk.getSolidsDrawCommandsCount();
                     for (int i = 0; i < chunkSolidsDrawCount; i++) {
-                        m_solidsDrawCommands[solidsDrawCount + i] = chunkDrawCommands[i];
+                        m_solidsDrawCommands[m_solidsDrawCount + i] = chunkDrawCommands[i];
                         GLuint chunkId = chunk.getIdInSSBO();
-                        m_solidsDrawBufferRefs[solidsDrawCount + i] = chunkId;
+                        m_solidsDrawBufferRefs[m_solidsDrawCount + i] = chunkId;
                     }
-                    solidsDrawCount += chunkSolidsDrawCount;
+                    m_solidsDrawCount += chunkSolidsDrawCount;
                 }
                 
                 if (chunk.getLiquidsDrawCommandsCount() != 0) {
                     auto& chunkLiquidDrawCommands = chunk.getLiquidsDrawCommands();
                     GLsizei chunkLiquidsDrawCount = chunk.getLiquidsDrawCommandsCount();
                     for (int i = 0; i < chunkLiquidsDrawCount; i++) {
-                        m_liquidsDrawCommands[liquidsDrawCount + i] = chunkLiquidDrawCommands[i];
+                        m_liquidsDrawCommands[m_liquidsDrawCount + i] = chunkLiquidDrawCommands[i];
                         GLuint chunkId = chunk.getIdInSSBO();
-                        m_liquidsDrawBufferRefs[liquidsDrawCount + i] = chunkId;
+                        m_liquidsDrawBufferRefs[m_liquidsDrawCount + i] = chunkId;
                     }
-                    liquidsDrawCount += chunkLiquidsDrawCount;
+                    m_liquidsDrawCount += chunkLiquidsDrawCount;
                 }
             }
         }
     }
+}
 
+void engine::MarchingCubesRenderBigBuffer::drawSolid(MarchingCubes& marchingCubes) {
+    m_textures.use();
+    
+    m_ssbos.globalChunkGridsSSBO.bind(SSBO_BLOCK__GLOBAL_CHUNK_GRIDS_STORAGE);
+    m_ssbos.globalChunkSSBO.bind(SSBO_BLOCK__GLOBAL_CHUNK_STORAGE);
+    m_ssbos.chunkPositionsSSBO.bind(SSBO_BLOCK__CHUNK_POSITIONS);
+    marchingCubes.bindSSBO(SSBO_BLOCK__VOXEL_VERTECES_DATA_IDS);
+    m_ssbos.drawIdToDataSSBO.bind(SSBO_BLOCK__DRAW_ID_TO_CHUNK);
+    
     m_shaderSolids->use();
-    int commandBufferSize = solidsDrawCount * sizeof(DrawArraysIndirectCommand);
+    int commandBufferSize = m_solidsDrawCount * sizeof(DrawArraysIndirectCommand);
+    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_commandBuffer);
     glNamedBufferSubData(m_commandBuffer, 0, commandBufferSize, &m_solidsDrawCommands[0]);
-    m_ssbos.drawIdToDataSSBO.pushData(&m_solidsDrawBufferRefs[0], solidsDrawCount);
-    marchingCubes.draw(solidsDrawCount);
+    m_ssbos.drawIdToDataSSBO.pushData(&m_solidsDrawBufferRefs[0], m_solidsDrawCount);
+    marchingCubes.draw(m_solidsDrawCount);
+}
+
+void engine::MarchingCubesRenderBigBuffer::drawLiquid(MarchingCubes &marchingCubes) {
+    m_textures.use();
+    
+    m_ssbos.globalChunkGridsSSBO.bind(SSBO_BLOCK__GLOBAL_CHUNK_GRIDS_STORAGE);
+    m_ssbos.globalChunkSSBO.bind(SSBO_BLOCK__GLOBAL_CHUNK_STORAGE);
+    m_ssbos.chunkPositionsSSBO.bind(SSBO_BLOCK__CHUNK_POSITIONS);
+    marchingCubes.bindSSBO(SSBO_BLOCK__VOXEL_VERTECES_DATA_IDS);
+    m_ssbos.drawIdToDataSSBO.bind(SSBO_BLOCK__DRAW_ID_TO_CHUNK);
     
     glEnable(GL_POLYGON_OFFSET_FILL);
     glPolygonOffset(1.0f, 1.0f);
@@ -93,10 +106,11 @@ void engine::MarchingCubesRenderBigBuffer::drawSolid(const CameraVars &cameraVar
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
 
     m_shaderLiquids->use();
-    commandBufferSize = liquidsDrawCount * sizeof(DrawArraysIndirectCommand);
+    int commandBufferSize = m_liquidsDrawCount * sizeof(DrawArraysIndirectCommand);
+    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_commandBuffer);
     glNamedBufferSubData(m_commandBuffer, 0, commandBufferSize, &m_liquidsDrawCommands[0]);
-    m_ssbos.drawIdToDataSSBO.pushData(&m_liquidsDrawBufferRefs[0], liquidsDrawCount);
-    marchingCubes.draw(liquidsDrawCount);
+    m_ssbos.drawIdToDataSSBO.pushData(&m_liquidsDrawBufferRefs[0], m_liquidsDrawCount);
+    marchingCubes.draw(m_liquidsDrawCount);
     
     glDisable(GL_POLYGON_OFFSET_FILL);
     glDisable(GL_BLEND);

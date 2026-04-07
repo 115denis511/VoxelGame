@@ -21,27 +21,39 @@ namespace engine {
         );
 
         virtual void initSSBOs(MarchingCubesSSBOs& ssbos) override;
-        virtual void drawSolid(const CameraVars &cameraVars, Frustum frustum, MarchingCubes& marchingCubes) override;
+        virtual void prepareToDraw(const CameraVars &cameraVars, Frustum frustum) override;
+        virtual void drawSolid(MarchingCubes& marchingCubes) override;
+        virtual void drawLiquid(MarchingCubes& marchingCubes) override;
 
     private:
         static constexpr GLuint SSBO_BLOCK__VOXEL_VERTECES_DATA_IDS = 14;
         static constexpr GLuint SSBO_BLOCK__DRAW_ID_TO_CHUNK = 15;
         static constexpr GLuint CHUNK_BATCH_MAX_SIZE = 7;
+        static constexpr GLuint BATCHES_COUNT = ChunkGridBounds::CHUNK_COUNT / CHUNK_BATCH_MAX_SIZE + 1;
+
+        struct DrawBatch {
+            VoxelChunk* chunksToDraw[CHUNK_BATCH_MAX_SIZE] = { nullptr };
+            std::vector<GLuint> bufferRefs{ std::vector<GLuint>(CHUNK_BATCH_MAX_SIZE * 254) };
+            std::vector<glm::vec4> chunkPositions{ std::vector<glm::vec4>(CHUNK_BATCH_MAX_SIZE) };
+            std::vector<DrawArraysIndirectCommand> drawCommands{ std::vector<DrawArraysIndirectCommand>(CHUNK_BATCH_MAX_SIZE * 254) };
+            GLuint drawCommandsCount{ 0 };
+            GLuint chunkCount{ 0 };
+
+            void clear() {
+                drawCommandsCount = 0;
+                chunkCount = 0;
+            }
+        };
 
         ChunkGrid& m_grid;
         ChunkGridBounds& m_gridBounds;
         ChunkGridVisibility& m_gridVisibility;
         MarchingCubesSSBOs& m_ssbos;
         
-        std::vector<glm::vec4> m_solidsDrawChunkPositions;
-        std::vector<glm::vec4> m_liquidsDrawChunkPositions;
-        std::vector<VoxelChunk*> m_solidsChunksToDraw;
-        std::vector<VoxelChunk*> m_liquidsChunksToDraw;
-        GLuint m_solidsBufferIndex{ 0 };
-        GLuint m_liquidsBufferIndex{ 0 };
-
-        void drawSolidsAccumulatedBatches(MarchingCubes &marchingCubes, GLsizei solidsDrawCount);
-        void drawLiquidsAccumulatedBatches(MarchingCubes &marchingCubes, GLsizei liquidsDrawCount);
+        GLuint m_solidBatchesCount{ 0 };
+        GLuint m_liquidBatchesCount{ 0 };
+        std::vector<DrawBatch> m_solidBatches;
+        std::vector<DrawBatch> m_liquidBatches;
     };
 }
 
