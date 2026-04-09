@@ -29,11 +29,10 @@ namespace engine {
         Voxel getVoxel(short x, short y, short z);
         bool isVoxelSolid(short x, short y, short z);
         void clear();
-        utilites::Array3D<Voxel, VOXELS_PER_AXIS, VOXELS_PER_AXIS, VOXELS_PER_AXIS>& getVoxelArray() { return m_voxels; }
-
+        utilites::Array3D<Voxel, VOXELS_PER_AXIS, VOXELS_PER_AXIS, VOXELS_PER_AXIS, 1, 32>& getVoxelArray() { return m_voxels; }
 
     protected:
-        utilites::Array3D<Voxel, VOXELS_PER_AXIS, VOXELS_PER_AXIS, VOXELS_PER_AXIS> m_voxels;
+        utilites::Array3D<Voxel, VOXELS_PER_AXIS, VOXELS_PER_AXIS, VOXELS_PER_AXIS, 1, 32> m_voxels;
     };
 }
 

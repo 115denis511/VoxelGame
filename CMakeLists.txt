@@ -18,6 +18,7 @@ find_package(OpenGL REQUIRED)
 file(GLOB_RECURSE SRC_FiILES "src/*.h" "src/*.cpp")
 
 set(EXE_NAME "game")
+add_definitions(-DENGINE_USE_AVX2)
 
 add_executable(${EXE_NAME} ${SRC_FiILES})
 if(${CMAKE_GENERATOR} STREQUAL "MinGW Makefiles")

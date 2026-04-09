@@ -59,7 +59,29 @@ namespace engine {
         uint8_t getId(Type field) { return m_fieldsArray[static_cast<int>(field)]; }
         uint8_t getSize(Type field) { return m_fieldsArray[static_cast<int>(field) + 1] & SIZE_MASK; }
 
-        uint32_t dbg_getRaw() { return m_raw; }
+        uint32_t& getRaw() { return m_raw; }
+
+    #ifdef ENGINE_USE_AVX2
+        static inline void getRowIds(Voxel& voxelInArray, __m256i& outSolidIds, __m256i& outLiquidIds) {
+            __m256i rawRow = _mm256_loadu_si256((__m256i*)&voxelInArray.getRaw());
+
+            __m256i mask = _mm256_set1_epi32(0b11111111);
+
+            outSolidIds = _mm256_and_si256(rawRow, mask);
+            rawRow = _mm256_srli_epi32(rawRow, 16);
+            outLiquidIds = _mm256_and_si256(rawRow, mask);
+        }
+        static inline void getRowIdsFromAligned(Voxel& voxelInArray, __m256i& outSolidIds, __m256i& outLiquidIds) {
+            __m256i rawRow = _mm256_load_si256((__m256i*)&voxelInArray.getRaw());
+
+            __m256i mask = _mm256_set1_epi32(0b11111111);
+
+            outSolidIds = _mm256_and_si256(rawRow, mask);
+            rawRow = _mm256_srli_epi32(rawRow, 16);
+            outLiquidIds = _mm256_and_si256(rawRow, mask);
+        }
+    #endif
+
         uint8_t dbg_getSolidIdFromRaw() { return m_raw & 0xFF; }
         uint8_t dbg_getSolidSizeFromRaw() { return (m_raw >> 8) & 0b111; }
         uint8_t dbg_getLiquidIdFromRaw() { return (m_raw >> 16) & 0xFF; }

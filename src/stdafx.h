@@ -1,6 +1,9 @@
 #ifndef __STDAFX_H__
 #define __STDAFX_H__
 
+#ifdef ENGINE_USE_AVX2
+#include <immintrin.h>
+#endif
 
 #include <iostream>
 #include <fstream>

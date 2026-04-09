@@ -38,6 +38,16 @@ namespace engine {
         uint8_t getSolidCaseIndex(std::array<Voxel, 8>& voxels);
         uint8_t getLiquidCaseIndex(std::array<Voxel, 8>& voxels);
         GLuint packData(int x, int y, int z);
+
+    #ifdef ENGINE_USE_AVX2
+        void simd_packRow(
+            utilites::Array3D<Voxel, VoxelChunk::VOXELS_PER_AXIS, VoxelChunk::VOXELS_PER_AXIS, VoxelChunk::VOXELS_PER_AXIS, 1, 32>& voxels, 
+            int x, int y, int z, int bitPos, __m256i& solidIds, __m256i& liquidIds
+        );
+        void simd_addRow(int y, int z, __m256i* solid, __m256i* liquid);
+        void simd_moveUp(__m256i* solid, __m256i* liquid);
+        __m256i simd_packData_epi16(int x, int y, int z);
+    #endif
         
     };
 }

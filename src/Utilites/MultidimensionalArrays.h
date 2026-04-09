@@ -27,14 +27,17 @@ namespace utilites {
         T* m_data;
     };
 
-    template<typename T, size_t sizeX, size_t sizeY, size_t sizeZ>
+    template<typename T, size_t sizeX, size_t sizeY, size_t sizeZ, size_t additional = 0, size_t align = 0>
     class Array3D {
     public:
-        Array3D() 
-        :   m_data(new T[sizeX * sizeY * sizeZ]) {}
+        Array3D() {
+            if (align == 0) m_data = new T[sizeX * sizeY * sizeZ + additional];
+            else m_data = new (std::align_val_t(align)) T[sizeX * sizeY * sizeZ + additional];
+        }
 
         ~Array3D() {
-            delete[] m_data;
+            if (align == 0) delete[] m_data;
+            else ::operator delete[](m_data, std::align_val_t(align));
         }
 
         T& operator () (size_t x, size_t y, size_t z) {
