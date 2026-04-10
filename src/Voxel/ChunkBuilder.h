@@ -28,6 +28,7 @@ namespace engine {
 
         std::vector<GLuint> m_solidCaseData[CASE_COUNT];
         std::vector<GLuint> m_liquidCaseData[CASE_COUNT];
+        std::vector<GLuint> m_dataBuffer{ std::vector<GLuint>(VoxelChunkBase::MARCHING_CUBES_COUNT) };
         int m_solidCubesCount{ 0 };
         int m_liquidCubesCount{ 0 };
         ChunkVisibilityChecker m_checker;

@@ -23,7 +23,7 @@ namespace engine {
         void bindCubesToDrawSSBO(GLuint blockId) { m_ssbo.cubesToDraw.bind(blockId); }
         void bindVoxelGridSSBO(GLuint blockId) { m_ssbo.voxelGrid.bind(blockId); }
         const GLuint getIdInSSBO() { return m_idInSSBO; };
-        void pushDataInSSBO(std::vector<GLuint>& casesData);
+        void pushDataInSSBO(std::vector<GLuint>& casesData, GLsizei count);
         void addSolidsDrawCommand(const DrawArraysIndirectCommand& command);
         void addLiquidsDrawCommand(const DrawArraysIndirectCommand& command);
         const std::array<DrawArraysIndirectCommand, 254>& getSolidsDrawCommands() { return m_solidsDrawCommands; }

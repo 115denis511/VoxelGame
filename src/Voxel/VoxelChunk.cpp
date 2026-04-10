@@ -4,8 +4,8 @@ engine::VoxelChunk::VoxelChunk() {}
 
 engine::VoxelChunk::~VoxelChunk() {}
 
-void engine::VoxelChunk::pushDataInSSBO(std::vector<GLuint> &casesData) {
-    m_ssbo.cubesToDraw.pushData(&casesData[0], casesData.size());
+void engine::VoxelChunk::pushDataInSSBO(std::vector<GLuint> &casesData, GLsizei count) {
+    m_ssbo.cubesToDraw.pushData(&casesData[0], count);
     m_ssbo.voxelGrid.pushData(m_voxels.getDataPtr(), m_voxels.getSize());
 }
 

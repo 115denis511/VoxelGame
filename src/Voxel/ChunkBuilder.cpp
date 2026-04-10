@@ -11,11 +11,10 @@ void engine::ChunkBuilder::regenerateChunk(
     ShaderStorageBuffer<GLuint>& globalChunkSSBO,
     ShaderStorageBuffer<Voxel>& globalChunkGridsSSBO
 ) {
-    accumulateCases(marchingCubes, grid, chunk);
-
-    // Сборка коммандного буфера
+    clear();
     chunk.clearDrawCommands();
-    std::vector<GLuint> dataBuffer(std::max(m_solidCubesCount, m_liquidCubesCount)); // TODO: Данный буфер не должен пересоздаваться каждый вызов методв
+
+    accumulateCases(marchingCubes, grid, chunk);
 
     // Твёрдые воксели
     int baseIndex = 0;
@@ -24,7 +23,7 @@ void engine::ChunkBuilder::regenerateChunk(
         if (m_solidCaseData[i].size() == 0) continue;
 
         for (GLuint caseData : m_solidCaseData[i]) {
-            dataBuffer[dataIndex] = caseData;
+            m_dataBuffer[dataIndex] = caseData;
             dataIndex++;
         }
 
@@ -42,7 +41,7 @@ void engine::ChunkBuilder::regenerateChunk(
         if (m_liquidCaseData[i].size() == 0) continue;
 
         for (GLuint caseData : m_liquidCaseData[i]) {
-            dataBuffer[dataIndex] |= (caseData << 15);
+            m_dataBuffer[dataIndex] |= (caseData << 15);
             dataIndex++;
         }
 
@@ -63,7 +62,8 @@ void engine::ChunkBuilder::regenerateChunk(
     if (globalChunkSSBO.isInited()) {
         constexpr GLsizei dataPerChunk = VoxelChunk::MARCHING_CUBES_BYTE_SIZE;
         GLsizei dataOffset = dataPerChunk * chunk.getIdInSSBO();
-        globalChunkSSBO.pushData(&dataBuffer[0], dataBuffer.size(), dataOffset);
+        int dataCount = std::max(m_solidCubesCount, m_liquidCubesCount);
+        globalChunkSSBO.pushData(&m_dataBuffer[0], dataCount, dataOffset);
 
         constexpr GLsizei gridSizePerChunk = VoxelChunk::GRID_BYTE_SIZE;
         GLsizei gridOffset = gridSizePerChunk * chunk.getIdInSSBO();
@@ -71,7 +71,8 @@ void engine::ChunkBuilder::regenerateChunk(
         globalChunkGridsSSBO.pushData(storage.getDataPtr(), storage.getSize(), gridOffset);
     }
     else {
-        chunk.pushDataInSSBO(dataBuffer);
+        int dataCount = std::max(m_solidCubesCount, m_liquidCubesCount);
+        chunk.pushDataInSSBO(m_dataBuffer, dataCount);
     }
 
     int errors = 0;
@@ -90,8 +91,6 @@ void engine::ChunkBuilder::regenerateChunk(
         }
         std::cout << "ChunkBuilder: " << error << std::endl;
     }
-
-    clear();
 }
 
 void engine::ChunkBuilder::accumulateCases(MarchingCubes &marchingCubes, ChunkGrid &grid, VoxelChunk &chunk) {
