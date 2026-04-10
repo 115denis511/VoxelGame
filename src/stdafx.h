@@ -30,6 +30,7 @@
 #include <condition_variable>
 #include <chrono>
 #include <random>
+#include <concepts>
 
 #define GLEW_STATIC
 #include <gl/glew.h>

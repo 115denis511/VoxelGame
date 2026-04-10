@@ -3,6 +3,7 @@
 
 #include "../stdafx.h"
 #include "../Utilites/MultidimensionalArrays.h"
+#include "BinaryGrid.h"
 #include "ChunkGridBounds.h"
 #include "Voxel.h"
 
@@ -33,6 +34,7 @@ namespace engine {
 
     protected:
         utilites::Array3D<Voxel, VOXELS_PER_AXIS, VOXELS_PER_AXIS, VOXELS_PER_AXIS, 1, 32> m_voxels;
+        BinaryGrid<uint32_t> m_emptyVoxelsGrid;
     };
 }
 

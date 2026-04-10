@@ -21,9 +21,9 @@ namespace engine {
             setSolidId(id);
             setSolidSize(size);
         }
-        bool isHaveSolid() { return m_solidId != NO_VOXEL; };
-        uint8_t getSolidId() { return m_solidId; }
-        uint8_t getSolidSize() { return m_solidSize & SIZE_MASK; }
+        bool isHaveSolid() const { return m_solidId != NO_VOXEL; };
+        uint8_t getSolidId() const { return m_solidId; }
+        uint8_t getSolidSize() const { return m_solidSize & SIZE_MASK; }
         void deleteSolid() { 
             m_solidId = NO_VOXEL; 
             m_solidSize = 0;
@@ -35,9 +35,9 @@ namespace engine {
             setLiquidId(id);
             setLiquidSize(size);
         }
-        bool isHaveLiquid() { return m_liquidId != NO_VOXEL; };
-        uint8_t getLiquidId() { return m_liquidId; }
-        uint8_t getLiquidSize() { return m_liquidSize & SIZE_MASK; }
+        bool isHaveLiquid() const { return m_liquidId != NO_VOXEL; };
+        uint8_t getLiquidId() const { return m_liquidId; }
+        uint8_t getLiquidSize() const { return m_liquidSize & SIZE_MASK; }
         void deleteLiquid() { 
             m_liquidId = NO_VOXEL; 
             m_liquidSize = 0;
@@ -56,8 +56,8 @@ namespace engine {
             setId(type, id);
             setSize(type, size);
         }
-        uint8_t getId(Type field) { return m_fieldsArray[static_cast<int>(field)]; }
-        uint8_t getSize(Type field) { return m_fieldsArray[static_cast<int>(field) + 1] & SIZE_MASK; }
+        uint8_t getId(Type field) const { return m_fieldsArray[static_cast<int>(field)]; }
+        uint8_t getSize(Type field) const { return m_fieldsArray[static_cast<int>(field) + 1] & SIZE_MASK; }
 
         uint32_t& getRaw() { return m_raw; }
 
@@ -82,10 +82,10 @@ namespace engine {
         }
     #endif
 
-        uint8_t dbg_getSolidIdFromRaw() { return m_raw & 0xFF; }
-        uint8_t dbg_getSolidSizeFromRaw() { return (m_raw >> 8) & 0b111; }
-        uint8_t dbg_getLiquidIdFromRaw() { return (m_raw >> 16) & 0xFF; }
-        uint8_t dbg_getLiquidSizeFromRaw() { return (m_raw >> 24) & 0b111; }
+        uint8_t dbg_getSolidIdFromRaw() const { return m_raw & 0xFF; }
+        uint8_t dbg_getSolidSizeFromRaw() const { return (m_raw >> 8) & 0b111; }
+        uint8_t dbg_getLiquidIdFromRaw() const { return (m_raw >> 16) & 0xFF; }
+        uint8_t dbg_getLiquidSizeFromRaw() const { return (m_raw >> 24) & 0b111; }
 
     private:
         static constexpr uint8_t SIZE_MASK = 0b111;

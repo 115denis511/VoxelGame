@@ -6,18 +6,23 @@ engine::VoxelChunkBase::~VoxelChunkBase() {}
 
 void engine::VoxelChunkBase::setVoxel(short x, short y, short z, const Voxel& voxel) {
     m_voxels(x, y, z) = voxel;
+    m_emptyVoxelsGrid.set(x, y, z, !voxel.isHaveSolid());
 }
 
 void engine::VoxelChunkBase::setSolidVoxel(short x, short y, short z, uint8_t id, uint8_t size) {
+    assert(id < Voxel::NO_VOXEL);
     m_voxels(x, y, z).setSolidVoxel(id, size);
+    m_emptyVoxelsGrid.unset(x, y, z);
 }
 
 void engine::VoxelChunkBase::setLiquidVoxel(short x, short y, short z, uint8_t id, uint8_t size) {
+    assert(id < Voxel::NO_VOXEL);
     m_voxels(x, y, z).setLiquidVoxel(id, size);
 }
 
 void engine::VoxelChunkBase::deleteSolidVoxel(short x, short y, short z) {
     m_voxels(x, y, z).deleteSolid();
+    m_emptyVoxelsGrid.set(x, y, z);
 }
 
 void engine::VoxelChunkBase::deleteLiquidVoxel(short x, short y, short z) {
@@ -40,4 +45,6 @@ void engine::VoxelChunkBase::clear() {
             }
         }
     }
+
+    m_emptyVoxelsGrid.fillAllRows(~0);
 }
