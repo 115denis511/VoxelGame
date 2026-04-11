@@ -134,16 +134,20 @@ public:
             }
         }
 
-        if (worldChunkPosition.x <= -1) { // && (std::abs(worldChunkPosition.x) + std::abs(worldChunkPosition.y) + y) % 2 != 0
-            for (size_t y = 0; y < VOXELS_PER_AXIS; y++) {
-                for (size_t z = 0; z < VOXELS_PER_AXIS; z++){
-                    constexpr int CHUNK_BORDER = VOXELS_PER_AXIS - 1;
-                    chunkSlice[0]->setSolidVoxel(0,y,z, 1);
-                    chunkSlice[0]->setSolidVoxel(CHUNK_BORDER,y,z, 1);
-                    chunkSlice[0]->setSolidVoxel(z,y,0, 1);
-                    chunkSlice[0]->setSolidVoxel(z,y,CHUNK_BORDER, 1);
-                    chunkSlice[0]->setSolidVoxel(z,0,y, 1);
-                    chunkSlice[0]->setSolidVoxel(z,CHUNK_BORDER,y, 1);
+        if (worldChunkPosition.x <= -1) {
+            for (int cy = 0; cy < engine::ChunkGridBounds::CHUNK_MAX_Y_SIZE; cy++) {
+                //if ((std::abs(worldChunkPosition.x) + std::abs(worldChunkPosition.y) + cy) % 2 != 0) continue;
+
+                for (size_t y = 0; y < VOXELS_PER_AXIS; y++) {
+                    for (size_t z = 0; z < VOXELS_PER_AXIS; z++){
+                        constexpr int CHUNK_BORDER = VOXELS_PER_AXIS - 1;
+                        chunkSlice[cy]->setSolidVoxel(0,y,z, 1);
+                        chunkSlice[cy]->setSolidVoxel(CHUNK_BORDER,y,z, 1);
+                        chunkSlice[cy]->setSolidVoxel(z,y,0, 1);
+                        chunkSlice[cy]->setSolidVoxel(z,y,CHUNK_BORDER, 1);
+                        chunkSlice[cy]->setSolidVoxel(z,0,y, 1);
+                        chunkSlice[cy]->setSolidVoxel(z,CHUNK_BORDER,y, 1);
+                    }
                 }
             }
         }

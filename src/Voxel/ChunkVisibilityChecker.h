@@ -2,6 +2,7 @@
 #define __VOXEL__CHUNK_VISIBILITY_CHECKER_H__
 
 #include "../stdafx.h"
+#include "BinaryGrid.h"
 #include "ChunkGrid.h"
 #include "ChunkVisibilityState.h"
 #include "VoxelChunk.h"
@@ -14,18 +15,18 @@ namespace engine {
         void updateVisibilityStates(ChunkGrid& grid, VoxelChunk& chunk);
 
     private:
-        enum class VisibilityCheckState : uint8_t { NOT_CHECKED = 0, CHECKED };
-
         static constexpr int STATE_GRID_SIZE = VoxelChunk::VOXELS_PER_AXIS;
 
-        VisibilityCheckState m_state [STATE_GRID_SIZE][STATE_GRID_SIZE][STATE_GRID_SIZE];
-        std::stack<glm::ivec3> m_stack;
+        BinaryGrid<uint32_t> m_state;
+        std::stack<glm::ivec2> m_stack;
 
         void clearStates();
         int floodFill(int x, int y, int z, VoxelChunk& chunk, ChunkVisibilityState& visabilityState);
-        void floodFillScanNext(int lx, int rx, int y, int z, VoxelChunk& chunk);
+        uint32_t expandRow(uint32_t orig, uint32_t empty);
+        int checkNeighbourRow(int y, int z, uint32_t expand, const BinaryGrid<uint32_t>& grid, ChunkVisibilityState& visabilityState);
+        int checkIsOnBorder(uint32_t row, glm::ivec2 pos, ChunkVisibilityState& visabilityState);
         bool isVoxelEmptyAndNotChecked(int x, int y, int z, VoxelChunk& chunk) {
-            return !chunk.isVoxelSolid(x, y, z) && m_state[x][y][z] == VisibilityCheckState::NOT_CHECKED;
+            return !chunk.isVoxelSolid(x, y, z) && !m_state.get(x, y, z);
         };
         
     };

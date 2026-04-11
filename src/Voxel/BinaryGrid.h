@@ -34,7 +34,7 @@ namespace engine {
             m_grid[y][z] &= val;
         }
 
-        bool get(int x, int y, int z) {
+        bool get(int x, int y, int z) const {
             return (bool)(m_grid[y][z] & (LEFT_BIT >> x));
         }
 
@@ -42,7 +42,7 @@ namespace engine {
             m_grid[y][z] = row;
         }
 
-        T& getRow(int y, int z) {
+        T getRow(int y, int z) const {
             return m_grid[y][z];
         }
 
