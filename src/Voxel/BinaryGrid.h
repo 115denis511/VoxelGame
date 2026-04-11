@@ -16,23 +16,26 @@ namespace engine {
     class BinaryGrid {
     public:
         static constexpr int SIZE = sizeof(T) * 8;
+        static constexpr T LEFT_BIT = 1u << (SIZE - 1);
+        static constexpr T RIGHT_BIT = 1u;
 
         void set(int x, int y, int z, bool val) {
-            m_grid[y][z] = (m_grid[y][z] & ~(1u << x)) | (val << x);
+            T mask = val << (SIZE - 1);
+            m_grid[y][z] = (m_grid[y][z] & ~(LEFT_BIT >> x)) | (mask >> x);
         }
 
         void set(int x, int y, int z) {
-            T val = 1 << x;
+            T val = LEFT_BIT >> x;
             m_grid[y][z] |= val;
         }
 
         void unset(int x, int y, int z) {
-            T val = ~(1u << x);
+            T val = ~(LEFT_BIT >> x);
             m_grid[y][z] &= val;
         }
 
         bool get(int x, int y, int z) {
-            return (bool)(m_grid[y][z] >> x);
+            return (bool)(m_grid[y][z] & (LEFT_BIT >> x));
         }
 
         void setRow(int y, int z, T row) {

@@ -56,7 +56,7 @@ void engine::ChunkBuilder::regenerateChunk(
         m_checker.updateVisibilityStates(grid, chunk);
     }
     else {
-        chunk.clearVisibilityStatesForEmptyChunk();
+        chunk.clearVisibilityStatesForEmptyChunk(); // Возможная причина проблем видимости из заполненого чанка
     }
 
     if (globalChunkSSBO.isInited()) {
